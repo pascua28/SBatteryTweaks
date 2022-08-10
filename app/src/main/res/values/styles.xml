@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BatteryViewDisplay">
+        <item name="android:textSize">25sp</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+</resources>
