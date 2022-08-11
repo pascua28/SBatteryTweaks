@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,10 +22,11 @@ public class BatteryReceiver extends BroadcastReceiver {
     public TextView battTemp;
     public TextView fastChargeStatus;
     private static double temperature;
+    private static boolean serviceEnabled;
     public static boolean isCharging;
     private static String statusText;
     private static boolean fastChargeEnabled;
-    private static double thresholdTemp = 36.5;
+    private static double thresholdTemp;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -36,6 +40,11 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         fastChargeEnabled = Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging").equals("1") ? true : false;
 
+        SharedPreferences sharedPref =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        serviceEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SERVICE, true);
+        thresholdTemp = sharedPref.getInt(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36);
+
         if (fastChargeEnabled) {
             fastChargeStatus.setText("Enabled");
         } else {
@@ -44,10 +53,10 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         if (isCharging) {
             chargingState.setText("Charging");
-            if ((temperature > thresholdTemp) && (fastChargeEnabled)) {
+            if ((temperature > thresholdTemp) && (fastChargeEnabled) && serviceEnabled) {
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                 Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
-            } else if ((temperature < thresholdTemp) && (!fastChargeEnabled)) {
+            } else if ((temperature < thresholdTemp) && (!fastChargeEnabled) && serviceEnabled) {
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
                 Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }

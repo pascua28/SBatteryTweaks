@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.IBinder;
 
 public class BatteryService extends Service {
-    BatteryReceiver battInfo = new BatteryReceiver();
     Handler mHandler = new Handler();
 
     @Override

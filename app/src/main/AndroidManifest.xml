@@ -17,6 +17,15 @@
         android:theme="@style/Theme.ChargeRateAutomator"
         tools:targetApi="31">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity"/>/>
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -28,16 +37,17 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".BatteryReceiver"
+        <receiver
+            android:name=".BatteryReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
                 <action android:name="com.sammy.chargerateautomator.notifier" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".BatteryService"></service>
+        <service android:name=".BatteryService" />
     </application>
 
 </manifest>

@@ -5,19 +5,28 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 public class MainActivity extends AppCompatActivity {
 
     BatteryReceiver battInfo = new BatteryReceiver();
     public static boolean isRunning;
+    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        settingsButton = findViewById(R.id.settingsBtn);
 
         isRunning = true;
 
@@ -34,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
         battInfo.chargingState = findViewById(R.id.chargingText);
         battInfo.battTemp = findViewById(R.id.tempText);
         battInfo.fastChargeStatus = findViewById(R.id.fastCharge);
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
+            }
+        });
 
         if (permGranted < 0) {
             AlertDialog.Builder builder
@@ -69,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
         isRunning = true;
         registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
+        if (!foregroundServiceRunning()) {
+            Intent serviceIntent = new Intent(this,
+                    BatteryService.class);
+            startForegroundService(serviceIntent);
+        }
     }
 
     @Override
@@ -77,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
         isRunning = true;
         registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
+        if (!foregroundServiceRunning()) {
+            Intent serviceIntent = new Intent(this,
+                    BatteryService.class);
+            startForegroundService(serviceIntent);
+        }
     }
 
     @Override
@@ -93,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         isRunning = false;
     }
 
-    public boolean foregroundServiceRunning(){
+    private boolean foregroundServiceRunning(){
         ActivityManager activityManager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
         boolean b = activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
         return b;

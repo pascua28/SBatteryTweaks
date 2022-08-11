@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="Battery Monitor Service">
+
+        <SwitchPreferenceCompat
+            app:key="enableservice"
+            app:title="Enable Fast Charge Switcher"
+            app:summary="If enabled the app will automatically switch fast charging mode based on threshold temperatures"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Battery Temperature Thresholds">
+
+        <SeekBarPreference
+            app:dependency="enableservice"
+            app:key="thresholdUp"
+            app:title="Temperature up threshold"
+            app:defaultValue="36"
+            app:min="30"
+            android:max="40"
+            app:showSeekBarValue="true"
+            app:summary="If battery temperature reaches above this threshold, fastcharging will be disabled"
+             />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
