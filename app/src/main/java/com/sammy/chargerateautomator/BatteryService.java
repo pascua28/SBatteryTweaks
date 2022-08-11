@@ -5,10 +5,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 
 public class BatteryService extends Service {
     BattInfo battInfo = new BattInfo();
+    Handler mHandler = new Handler();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -24,14 +26,8 @@ public class BatteryService extends Service {
                 new Runnable() {
                     @Override
                     public void run() {
-                        while (true) {
-                            sendBroadcast(battIntent);
-                            try {
-                                Thread.sleep(1500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        mHandler.postDelayed(this, 1500);
+                        sendBroadcast(battIntent);
                     }
                 }
         ).start();
