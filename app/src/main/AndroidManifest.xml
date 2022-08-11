@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".BattInfo"
+        <receiver android:name=".BatteryReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>

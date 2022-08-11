@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class BattInfo extends BroadcastReceiver {
+public class BatteryReceiver extends BroadcastReceiver {
     private ContentResolver contentResolver;
     public TextView chargingState;
     public TextView battTemp;

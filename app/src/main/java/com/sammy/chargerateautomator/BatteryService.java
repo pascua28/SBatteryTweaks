@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 
 public class BatteryService extends Service {
-    BattInfo battInfo = new BattInfo();
+    BatteryReceiver battInfo = new BatteryReceiver();
     Handler mHandler = new Handler();
 
     @Override
@@ -26,7 +26,7 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                if (MainActivity.isRunning || BattInfo.isCharging) {
+                if (MainActivity.isRunning || BatteryReceiver.isCharging) {
                     sendBroadcast(battIntent);
                 }
             }

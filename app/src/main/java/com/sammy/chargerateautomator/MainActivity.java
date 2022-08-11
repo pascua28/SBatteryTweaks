@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    BattInfo battInfo = new BattInfo();
+    BatteryReceiver battInfo = new BatteryReceiver();
     public static boolean isRunning;
     static boolean needBattServiceRestart;
 
