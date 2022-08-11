@@ -18,11 +18,11 @@ public class BatteryReceiver extends BroadcastReceiver {
     public TextView chargingState;
     public TextView battTemp;
     public TextView fastChargeStatus;
-    static double temperature;
+    private static double temperature;
     public static boolean isCharging;
-    static String statusText;
-    static boolean fastChargeEnabled;
-    static double thresholdTemp = 36.5;
+    private static String statusText;
+    private static boolean fastChargeEnabled;
+    private static double thresholdTemp = 36.5;
 
     @Override
     public void onReceive(Context context, Intent intent) {
