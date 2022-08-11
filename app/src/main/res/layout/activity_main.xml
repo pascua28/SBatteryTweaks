@@ -11,11 +11,19 @@
     android:paddingBottom="10dp"
     tools:context=".MainActivity">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="110dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="20dp" />
+
     <TextView
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="120dp"
         android:text="Battery status:"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
@@ -25,16 +33,24 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="256dp"
+        android:layout_marginTop="160dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="210dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="20dp" />
 
     <TextView
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="220dp"
         android:text="Battery Temperature:"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
@@ -44,16 +60,24 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="340dp"
+        android:layout_marginTop="260dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="310dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="20dp" />
 
     <TextView
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="385dp"
+        android:layout_marginTop="320dp"
         android:text="Fast charging mode:"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
@@ -63,9 +87,17 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="422dp"
+        android:layout_marginTop="360dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="410dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
