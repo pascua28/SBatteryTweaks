@@ -12,11 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     BattInfo battInfo = new BattInfo();
+    public static boolean isRunning;
+    static boolean needBattServiceRestart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        isRunning = true;
 
         String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
 
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog,
                                                     int which)
                                 {
+                                    isRunning = false;
                                     finish();
                                 }
                             });
@@ -62,24 +67,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        isRunning = true;
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+        isRunning = true;
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        isRunning = false;
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        isRunning = false;
     }
 
     public boolean foregroundServiceRunning(){

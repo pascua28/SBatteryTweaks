@@ -19,7 +19,7 @@ public class BattInfo extends BroadcastReceiver {
     public TextView battTemp;
     public TextView fastChargeStatus;
     static double temperature;
-    static boolean isCharging;
+    public static boolean isCharging;
     static String statusText;
     static boolean fastChargeEnabled;
     static double thresholdTemp = 36.5;

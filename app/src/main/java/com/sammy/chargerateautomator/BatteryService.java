@@ -22,15 +22,16 @@ public class BatteryService extends Service {
         Intent battIntent = new Intent();
         battIntent.setAction("com.sammy.chargerateautomator.notifier");
 
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mHandler.postDelayed(this, 1500);
-                        sendBroadcast(battIntent);
-                    }
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mHandler.postDelayed(this, 2000);
+                if (MainActivity.isRunning || BattInfo.isCharging) {
+                    sendBroadcast(battIntent);
                 }
-        ).start();
+            }
+        };
+        mHandler.post(runnable);
 
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(
