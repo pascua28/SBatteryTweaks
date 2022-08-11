@@ -13,7 +13,6 @@ public class MainActivity extends AppCompatActivity {
 
     BatteryReceiver battInfo = new BatteryReceiver();
     public static boolean isRunning;
-    static boolean needBattServiceRestart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         isRunning = true;
+        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         isRunning = true;
+        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         isRunning = false;
+        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
