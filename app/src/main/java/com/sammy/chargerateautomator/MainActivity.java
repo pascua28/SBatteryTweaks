@@ -1,11 +1,11 @@
 package com.sammy.chargerateautomator;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.provider.Settings;
-
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,17 +18,45 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!foregroundServiceRunning()) {
+        String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
+
+        int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
+
+        if (!foregroundServiceRunning() && permGranted == 0) {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
             startForegroundService(serviceIntent);
         }
 
-        boolean writePerm = Settings.System.canWrite(this);
-
         battInfo.chargingState = findViewById(R.id.chargingText);
         battInfo.battTemp = findViewById(R.id.tempText);
         battInfo.fastChargeStatus = findViewById(R.id.fastCharge);
+
+        if (permGranted < 0) {
+            AlertDialog.Builder builder
+                    = new AlertDialog
+                    .Builder(MainActivity.this);
+            builder.setMessage("WRITE_SECURE_SETTINGS not granted!\n\nTo grant access, run\n" +
+                    "'adb shell pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS'\n" +
+                    "on your computer");
+            builder.setCancelable(false);
+
+            builder
+                    .setPositiveButton(
+                            "Exit",
+                            new DialogInterface
+                                    .OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which)
+                                {
+                                    finish();
+                                }
+                            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
 
     @Override
