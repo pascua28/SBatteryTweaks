@@ -25,7 +25,7 @@ public class BatteryReceiver extends BroadcastReceiver {
     private static String statusText;
     private static float temperature;
     private static float thresholdTemp;
-    private static float thresholdDown;
+    private static float tempDelta;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -43,9 +43,7 @@ public class BatteryReceiver extends BroadcastReceiver {
                 PreferenceManager.getDefaultSharedPreferences(context);
         serviceEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SERVICE, true);
         thresholdTemp = sharedPref.getFloat(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36.5F);
-
-        //Give it time to cool down
-        thresholdDown = thresholdTemp - 0.4F;
+        tempDelta = sharedPref.getFloat(SettingsActivity.KEY_PREF_TEMP_DELTA, 0.5F);
 
         if (fastChargeEnabled) {
             fastChargeStatus.setText("Enabled");
@@ -55,10 +53,10 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         if (isCharging) {
             chargingState.setText("Charging");
-            if ((temperature > thresholdTemp) && (fastChargeEnabled) && serviceEnabled) {
+            if ((temperature >= thresholdTemp) && (fastChargeEnabled) && serviceEnabled) {
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                 Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
-            } else if ((temperature < thresholdDown) && (!fastChargeEnabled) && serviceEnabled) {
+            } else if ((temperature <= (thresholdTemp - tempDelta)) && (!fastChargeEnabled) && serviceEnabled) {
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
                 Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }

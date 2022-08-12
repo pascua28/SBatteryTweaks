@@ -14,6 +14,8 @@ public class SettingsActivity extends AppCompatActivity {
             KEY_PREF_SERVICE = "enableservice";
     public static final String
             KEY_PREF_THRESHOLD_UP = "thresholdUp";
+    public static final String
+            KEY_PREF_TEMP_DELTA = "tempDelta";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

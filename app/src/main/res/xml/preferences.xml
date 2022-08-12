@@ -6,7 +6,7 @@
         <SwitchPreferenceCompat
             app:key="enableservice"
             app:title="Enable Fast Charge Switcher"
-            app:summary="If enabled the app will automatically switch fast charging mode based on threshold temperatures"
+            app:summary="If enabled, the app will automatically switch fast charging mode based on threshold temperatures"
             app:defaultValue="true" />
 
     </PreferenceCategory>
@@ -16,13 +16,25 @@
         <tk.zwander.seekbarpreference.SeekBarPreferenceNew
             android:dependency="enableservice"
             android:key="thresholdUp"
-            android:summary="If battery temperature reaches above this threshold, fastcharging will be disabled"
-            android:title="Temperature up threshold"
+            android:summary="If battery temperature reaches this threshold, fastcharging will be disabled"
+            android:title="Threshold temperature"
             app:minValueFloat="30.0"
             app:maxValueFloat="40.0"
             app:units="°C"
             app:stepSize="0.1"
             android:defaultValue="36.5"
+            />
+
+        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:dependency="enableservice"
+            android:key="tempDelta"
+            android:summary="The amount of temperature needed to go down before re-enabling fastcharge"
+            android:title="Cooldown temperature"
+            app:minValueFloat="0.1"
+            app:maxValueFloat="5.0"
+            app:units="°C"
+            app:stepSize="0.1"
+            android:defaultValue="0.5"
             />
 
     </PreferenceCategory>
