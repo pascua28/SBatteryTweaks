@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
 
+        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
+
         if (!foregroundServiceRunning() && permGranted == 0) {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
@@ -84,34 +87,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         isRunning = true;
-        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
-        if (!foregroundServiceRunning()) {
-            Intent serviceIntent = new Intent(this,
-                    BatteryService.class);
-            startForegroundService(serviceIntent);
-        }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         isRunning = true;
-        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
-        if (!foregroundServiceRunning()) {
-            Intent serviceIntent = new Intent(this,
-                    BatteryService.class);
-            startForegroundService(serviceIntent);
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         isRunning = false;
-        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
     }
 
     @Override
