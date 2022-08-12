@@ -22,20 +22,23 @@ public class BatteryReceiver extends BroadcastReceiver {
     private static boolean serviceEnabled;
     public static boolean isCharging;
     private static boolean fastChargeEnabled;
-    private static String statusText;
     private static float temperature;
     private static float thresholdTemp;
     private static float tempDelta;
 
+    private static StringBuilder stringBuilder = new StringBuilder();
+    private static BufferedReader buf = null;
+
+    static File statusFile = new File("/sys/class/power_supply/battery/status");
+    static File tempFile = new File("/sys/class/power_supply/battery/batt_temp");
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        temperature = Float.parseFloat(getBatteryProps("/sys/class/power_supply/battery/batt_temp")) / 10F;
+        temperature = Float.parseFloat(getBatteryProps(tempFile)) / 10F;
 
         battTemp.setText(String.valueOf(temperature) + " C");
 
-        isCharging = getBatteryProps("/sys/class/power_supply/battery/status").equals("Charging") ? true : false;
-
-        statusText = getBatteryProps("/sys/class/power_supply/battery/status");
+        isCharging = getBatteryProps(statusFile).equals("Charging") ? true : false;
 
         fastChargeEnabled = Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging").equals("1") ? true : false;
 
@@ -65,19 +68,18 @@ public class BatteryReceiver extends BroadcastReceiver {
         }
     }
 
-    public static String getBatteryProps(String filePath) {
-        File file = new File(filePath);
-        BufferedReader buf = null;
+    public static String getBatteryProps(File file) {
+        buf = null;
         try {
             buf = new BufferedReader(new FileReader(file));
+            stringBuilder.setLength(0);
 
-            StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = buf.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
+                stringBuilder.append(line);
             }
 
-            return stringBuilder.toString().trim();
+            return stringBuilder.toString();
         } catch (IOException ignored) {
         } finally {
             try {
