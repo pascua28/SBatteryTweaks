@@ -1,7 +1,6 @@
 package com.sammy.chargerateautomator;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,17 +19,17 @@ public class BatteryReceiver extends BroadcastReceiver {
     public TextView chargingState;
     public TextView battTemp;
     public TextView fastChargeStatus;
-    private static double temperature;
     private static boolean serviceEnabled;
     public static boolean isCharging;
-    private static String statusText;
     private static boolean fastChargeEnabled;
-    private static double thresholdTemp;
-    private static double thresholdDown;
+    private static String statusText;
+    private static float temperature;
+    private static float thresholdTemp;
+    private static float thresholdDown;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        temperature = Double.parseDouble(getBatteryProps("/sys/class/power_supply/battery/batt_temp")) / 10;
+        temperature = Float.parseFloat(getBatteryProps("/sys/class/power_supply/battery/batt_temp")) / 10F;
 
         battTemp.setText(String.valueOf(temperature) + " C");
 
@@ -43,10 +42,10 @@ public class BatteryReceiver extends BroadcastReceiver {
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
         serviceEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SERVICE, true);
-        thresholdTemp = (double)sharedPref.getFloat(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36.5F);
+        thresholdTemp = sharedPref.getFloat(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36.5F);
 
         //Give it time to cool down
-        thresholdDown = thresholdTemp - 0.4;
+        thresholdDown = thresholdTemp - 0.4F;
 
         if (fastChargeEnabled) {
             fastChargeStatus.setText("Enabled");
