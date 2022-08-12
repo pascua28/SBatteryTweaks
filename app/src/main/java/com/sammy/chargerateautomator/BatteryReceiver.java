@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class BatteryReceiver extends BroadcastReceiver {
-    private ContentResolver contentResolver;
     public TextView chargingState;
     public TextView battTemp;
     public TextView fastChargeStatus;
@@ -44,7 +43,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
         serviceEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SERVICE, true);
-        thresholdTemp = sharedPref.getInt(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36);
+        thresholdTemp = (double)sharedPref.getFloat(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36.5F);
 
         //Give it time to cool down
         thresholdDown = thresholdTemp - 0.4;

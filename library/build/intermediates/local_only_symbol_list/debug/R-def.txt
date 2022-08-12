@@ -1,0 +1,131 @@
+R_DEF: Internal format may change without notice
+local
+attr isPreference
+attr maxValue
+attr maxValueFloat
+attr minValue
+attr minValueFloat
+attr? rd_backgroundAnimDuration
+attr? rd_backgroundColor
+attr? rd_bottomLeftCornerRadius
+attr? rd_bottomPadding
+attr? rd_bottomRightCornerRadius
+attr? rd_cornerRadius
+attr? rd_delayClick
+attr? rd_delayRipple
+attr rd_enable
+attr? rd_inInterpolator
+attr? rd_leftPadding
+attr? rd_maskType
+attr? rd_maxRippleRadius
+attr? rd_outInterpolator
+attr? rd_padding
+attr? rd_rightPadding
+attr? rd_rippleAnimDuration
+attr? rd_rippleColor
+attr? rd_rippleType
+attr rd_style
+attr? rd_topLeftCornerRadius
+attr? rd_topPadding
+attr? rd_topRightCornerRadius
+attr scale
+attr? sl_alwaysFillThumb
+attr? sl_baselineOffset
+attr? sl_discreteMode
+attr? sl_fontFamily
+attr? sl_interpolator
+attr? sl_maxValue
+attr? sl_minValue
+attr? sl_primaryColor
+attr? sl_secondaryColor
+attr? sl_stepValue
+attr? sl_textColor
+attr? sl_textSize
+attr? sl_textStyle
+attr? sl_thumbBorderSize
+attr? sl_thumbFocusRadius
+attr? sl_thumbRadius
+attr? sl_thumbTouchRadius
+attr? sl_trackCap
+attr? sl_trackSize
+attr? sl_transformAnimDuration
+attr? sl_travelAnimDuration
+attr? sl_value
+attr stepSize
+attr tv_fontFamily
+attr units
+attr? v_styleId
+attr? view_defaultValue
+attr? view_defaultValueFloat
+color color_bottom_line_disabled
+color color_bottom_line_enabled
+color color_dialog
+color white
+dimen seekbar_max_bottom_sheet_width
+drawable ic_keyboard_arrow_down_black_24dp
+drawable ic_keyboard_arrow_up_black_24dp
+drawable ic_undo_black_24dp
+drawable msbp_bottom_line
+drawable msbp_bottom_line_disabled
+drawable msbp_bottom_line_enabled
+drawable msbp_math_compass
+drawable rounded_color_background
+id afterRelease
+id bold
+id bold_italic
+id bottom_line
+id btn_apply
+id btn_cancel
+id butt
+id button_holder
+id customValue
+id dialog_color_area
+id dialog_icon
+id dialog_title
+id down
+id italic
+id match_view
+id maxValue
+id measurement_unit
+id minValue
+id none
+id normal
+id oval
+id rectangle
+id reset
+id round
+id seekbar
+id seekbar_root
+id seekbar_value
+id square
+id touch
+id untilRelease
+id up
+id value_holder
+id wave
+layout seekbar
+layout seekbar_guts
+layout seekbar_guts_new
+layout seekbar_new
+layout seekbar_preference_layout
+layout seekbar_preference_layout_new
+layout value_selector_dialog
+string and
+string app_name
+string apply
+string bad_input
+string enter_custom_value
+string must_be_between
+styleable AutoCompleteTextView android:completionHint android:completionThreshold android:dropDownAnchor android:dropDownHeight android:dropDownHorizontalOffset android:dropDownVerticalOffset android:dropDownWidth android:popupBackground
+styleable RippleDrawable rd_backgroundColor rd_backgroundAnimDuration rd_maxRippleRadius rd_rippleColor rd_rippleAnimDuration rd_inInterpolator rd_outInterpolator rd_maskType rd_rippleType rd_cornerRadius rd_topLeftCornerRadius rd_topRightCornerRadius rd_bottomLeftCornerRadius rd_bottomRightCornerRadius rd_padding rd_leftPadding rd_topPadding rd_rightPadding rd_bottomPadding rd_delayClick rd_delayRipple
+styleable RippleView rd_style rd_enable
+styleable SeekBarPreference minValue maxValue units scale
+styleable SeekBarPreferenceNew minValueFloat maxValueFloat units stepSize
+styleable SeekBarView minValue maxValue units scale isPreference view_defaultValue
+styleable SeekBarViewNew minValueFloat maxValueFloat units isPreference stepSize view_defaultValueFloat
+styleable Slider sl_trackSize sl_primaryColor sl_secondaryColor sl_trackCap sl_thumbBorderSize sl_thumbRadius sl_thumbFocusRadius sl_thumbTouchRadius sl_travelAnimDuration sl_transformAnimDuration sl_interpolator sl_minValue sl_maxValue sl_stepValue sl_value sl_discreteMode sl_fontFamily sl_textStyle sl_textSize sl_textColor sl_alwaysFillThumb sl_baselineOffset android:gravity android:enabled
+styleable TextAppearance android:textColorHighlight android:textColor android:textColorHint android:textColorLink android:textSize android:textStyle android:typeface android:fontFamily tv_fontFamily android:textAllCaps android:shadowColor android:shadowDx android:shadowDy android:shadowRadius android:elegantTextHeight android:fontFeatureSettings android:letterSpacing
+styleable TextView android:drawableBottom android:drawableEnd android:drawableLeft android:drawablePadding android:drawableRight android:drawableStart android:drawableTop android:fontFamily tv_fontFamily android:elegantTextHeight android:fontFeatureSettings android:gravity android:lines android:letterSpacing android:lineSpacingExtra android:lineSpacingMultiplier android:height android:ems android:width android:includeFontPadding android:cursorVisible android:maxEms android:maxHeight android:maxLength android:maxLines android:maxWidth android:minEms android:minHeight android:minLines android:minWidth android:scrollHorizontally android:shadowColor android:shadowDx android:shadowDy android:shadowRadius android:singleLine android:textAllCaps android:textColor android:textColorHighlight android:textColorHint android:textColorLink android:textScaleX android:textSize android:textStyle android:typeface
+styleable TextViewAppearance android:textAppearance
+styleable ThemableView v_styleId
+styleable View android:background android:backgroundTint android:backgroundTintMode android:elevation android:fadeScrollbars android:fadingEdgeLength android:minHeight android:minWidth android:padding android:paddingBottom android:paddingEnd android:paddingLeft android:paddingRight android:paddingStart android:paddingTop android:requiresFadingEdge android:scrollbarDefaultDelayBeforeFade android:scrollbarFadeDuration android:scrollbarSize android:scrollbarStyle android:soundEffectsEnabled android:textAlignment android:textDirection android:visibility android:layoutDirection android:src

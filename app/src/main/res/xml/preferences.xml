@@ -13,16 +13,17 @@
 
     <PreferenceCategory app:title="Battery Temperature Thresholds">
 
-        <SeekBarPreference
-            app:dependency="enableservice"
-            app:key="thresholdUp"
-            app:title="Temperature up threshold"
-            app:defaultValue="36"
-            app:min="30"
-            android:max="40"
-            app:showSeekBarValue="true"
-            app:summary="If battery temperature reaches above this threshold, fastcharging will be disabled"
-             />
+        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:dependency="enableservice"
+            android:key="thresholdUp"
+            android:summary="If battery temperature reaches above this threshold, fastcharging will be disabled"
+            android:title="Temperature up threshold"
+            app:minValueFloat="30.0"
+            app:maxValueFloat="40.0"
+            app:units="°C"
+            app:stepSize="0.1"
+            android:defaultValue="36.5"
+            />
 
     </PreferenceCategory>
 
