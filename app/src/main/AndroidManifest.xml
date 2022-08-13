@@ -41,7 +41,7 @@
 
 
         <receiver
-            android:name=".BatteryReceiver"
+            android:name=".BatteryWorker"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />

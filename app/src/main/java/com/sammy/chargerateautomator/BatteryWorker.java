@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class BatteryReceiver extends BroadcastReceiver {
+public class BatteryWorker extends BroadcastReceiver {
     public TextView chargingState;
     public TextView battTemp;
     public TextView fastChargeStatus;

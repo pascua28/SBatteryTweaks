@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,7 +14,7 @@ import androidx.preference.PreferenceManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    BatteryReceiver battInfo = new BatteryReceiver();
+    BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isRunning;
     private Button settingsButton;
 
@@ -34,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
 
-        registerReceiver(battInfo,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(battInfo,new IntentFilter("com.sammy.chargerateautomator.notifier"));
+        registerReceiver(batteryWorker,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        registerReceiver(batteryWorker,new IntentFilter("com.sammy.chargerateautomator.notifier"));
 
         if (!foregroundServiceRunning() && permGranted == 0) {
             Intent serviceIntent = new Intent(this,
@@ -43,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
             startForegroundService(serviceIntent);
         }
 
-        battInfo.chargingState = findViewById(R.id.chargingText);
-        battInfo.battTemp = findViewById(R.id.tempText);
-        battInfo.fastChargeStatus = findViewById(R.id.fastCharge);
+        batteryWorker.chargingState = findViewById(R.id.chargingText);
+        batteryWorker.battTemp = findViewById(R.id.tempText);
+        batteryWorker.fastChargeStatus = findViewById(R.id.fastCharge);
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
