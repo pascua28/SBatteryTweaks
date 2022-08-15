@@ -6,8 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -16,7 +20,11 @@ public class MainActivity extends AppCompatActivity {
 
     BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isRunning;
+    public static boolean isRootAvailable;
     private Button settingsButton;
+    private TextView bypassText;
+
+    public static ToggleButton bypassToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.settingsBtn);
 
         isRunning = true;
+        isRootAvailable = Utils.isRooted();
 
         String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
 
@@ -42,9 +51,37 @@ public class MainActivity extends AppCompatActivity {
             startForegroundService(serviceIntent);
         }
 
+        bypassText = findViewById(R.id.bypassText);
         batteryWorker.chargingState = findViewById(R.id.chargingText);
         batteryWorker.battTemp = findViewById(R.id.tempText);
         batteryWorker.fastChargeStatus = findViewById(R.id.fastCharge);
+
+        bypassToggle = (ToggleButton) findViewById(R.id.bypassToggle);
+        bypassToggle.setTag("BYPASS");
+        if (isRootAvailable) {
+            bypassText.setText("Bypass charging:");
+        } else {
+            bypassToggle.setVisibility(View.GONE);
+        }
+
+        bypassToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (bypassToggle.getTag() != null) {
+                    bypassToggle.setTag(null);
+                    return;
+                }
+                BatteryWorker.setBypass(isChecked);
+            }
+        });
+
+        bypassToggle.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent even) {
+                bypassToggle.setTag(null);
+                return false;
+            }
+        });
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
