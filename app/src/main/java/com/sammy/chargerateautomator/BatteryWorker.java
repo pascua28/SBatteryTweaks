@@ -29,9 +29,6 @@ public class BatteryWorker extends BroadcastReceiver {
     private static float tempDelta;
     private static int percentage;
 
-    private static StringBuilder stringBuilder = new StringBuilder();
-    private static BufferedReader buf = null;
-
     static File statusFile = new File("/sys/class/power_supply/battery/status");
     static File chargeNowFile = new File("/sys/class/power_supply/battery/charge_now");
     static File tempFile = new File("/sys/class/power_supply/battery/batt_temp");
@@ -39,18 +36,12 @@ public class BatteryWorker extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        temperature = Float.parseFloat(getBatteryProps(tempFile)) / 10F;
-
-        percentage = Integer.parseInt(getBatteryProps(percentageFile));
-
+        temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
+        percentage = Integer.parseInt(Utils.readFile(percentageFile));
         battTemp.setText(String.valueOf(temperature) + " C");
-
-        isCharging = getBatteryProps(statusFile).equals("Charging") ? true : false;
-
-        chargeNow = getBatteryProps(chargeNowFile).equals("1") ? true : false;
-
+        isCharging = Utils.readFile(statusFile).equals("Charging") ? true : false;
+        chargeNow = Utils.readFile(chargeNowFile).equals("1") ? true : false;
         fastChargeEnabled = Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging").equals("1") ? true : false;
-
         protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1") ? true : false;
 
         SharedPreferences sharedPref =
@@ -79,28 +70,5 @@ public class BatteryWorker extends BroadcastReceiver {
             chargingState.setText("Idle");
         } else
             chargingState.setText("Discharging: " + percentage + "%");
-    }
-
-    public static String getBatteryProps(File file) {
-        buf = null;
-        try {
-            buf = new BufferedReader(new FileReader(file));
-            stringBuilder.setLength(0);
-
-            String line;
-            while ((line = buf.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-
-            return stringBuilder.toString();
-        } catch (IOException ignored) {
-        } finally {
-            try {
-                if (buf != null) buf.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 }

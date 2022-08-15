@@ -53,33 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(settingsIntent);
             }
         });
-
-        if (permGranted < 0) {
-            AlertDialog.Builder builder
-                    = new AlertDialog
-                    .Builder(MainActivity.this);
-            builder.setMessage("WRITE_SECURE_SETTINGS not granted!\n\nTo grant access, run\n" +
-                    "'adb shell pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS'\n" +
-                    "on your computer");
-            builder.setCancelable(false);
-
-            builder
-                    .setPositiveButton(
-                            "Exit",
-                            new DialogInterface
-                                    .OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which)
-                                {
-                                    isRunning = false;
-                                    finish();
-                                }
-                            });
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-        }
+        permissionDialog(permGranted);
     }
 
     @Override
@@ -110,5 +84,34 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager activityManager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
         boolean b = activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
         return b;
+    }
+
+    private void permissionDialog(int ret) {
+        if (ret < 0) {
+            AlertDialog.Builder builder
+                    = new AlertDialog
+                    .Builder(MainActivity.this);
+            builder.setMessage("WRITE_SECURE_SETTINGS not granted!\n\nTo grant access, run\n" +
+                    "'adb shell pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS'\n" +
+                    "on your computer");
+            builder.setCancelable(false);
+
+            builder
+                    .setPositiveButton(
+                            "Exit",
+                            new DialogInterface
+                                    .OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which)
+                                {
+                                    isRunning = false;
+                                    finish();
+                                }
+                            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
 }
