@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -23,8 +24,12 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isRootAvailable;
     private Button settingsButton;
     private TextView bypassText;
+    private TextView chargingStatus;
+    private TextView battTemperature;
+    private TextView fastChgStatus;
 
     public static ToggleButton bypassToggle;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         settingsButton = findViewById(R.id.settingsBtn);
+
+        mHandler = new Handler();
+        mHandler.post(statusUpdate);
 
         isRunning = true;
         isRootAvailable = Utils.isRooted();
@@ -56,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         bypassText = findViewById(R.id.bypassText);
-        batteryWorker.chargingState = findViewById(R.id.chargingText);
-        batteryWorker.battTemp = findViewById(R.id.tempText);
-        batteryWorker.fastChargeStatus = findViewById(R.id.fastCharge);
+        chargingStatus = findViewById(R.id.chargingText);
+        battTemperature = findViewById(R.id.tempText);
+        fastChgStatus = findViewById(R.id.fastCharge);
 
         bypassToggle = (ToggleButton) findViewById(R.id.bypassToggle);
         bypassToggle.setTag("BYPASS");
@@ -120,6 +128,16 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         isRunning = false;
     }
+
+    private Runnable statusUpdate = new Runnable() {
+        @Override
+        public void run() {
+            chargingStatus.setText(batteryWorker.chargingState);
+            battTemperature.setText(batteryWorker.battTemp);
+            fastChgStatus.setText(batteryWorker.fastChargeStatus);
+            mHandler.postDelayed(this, 100);
+        }
+    };
 
     private boolean foregroundServiceRunning(){
         ActivityManager activityManager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);

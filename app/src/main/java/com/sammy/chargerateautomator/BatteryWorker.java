@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.provider.Settings;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -15,9 +14,9 @@ import com.topjohnwu.superuser.Shell;
 import java.io.File;
 
 public class BatteryWorker extends BroadcastReceiver {
-    public TextView chargingState;
-    public TextView battTemp;
-    public TextView fastChargeStatus;
+    public static String chargingState;
+    public static String battTemp;
+    public static String fastChargeStatus;
     private static boolean serviceEnabled;
     public static boolean isCharging;
     private static boolean fastChargeEnabled;
@@ -40,7 +39,7 @@ public class BatteryWorker extends BroadcastReceiver {
         temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
 
-        battTemp.setText(String.valueOf(temperature) + " C");
+        battTemp = String.valueOf(temperature) + " C";
         isCharging = Utils.readFile(statusFile).equals("Charging") ? true : false;
         chargeNow = Utils.readFile(chargeNowFile).equals("1") ? true : false;
         fastChargeEnabled = Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging").equals("1") ? true : false;
@@ -63,12 +62,12 @@ public class BatteryWorker extends BroadcastReceiver {
         tempDelta = sharedPref.getFloat(SettingsActivity.KEY_PREF_TEMP_DELTA, 0.5F);
 
         if (fastChargeEnabled)
-            fastChargeStatus.setText("Enabled");
+            fastChargeStatus = "Enabled";
         else
-            fastChargeStatus.setText("Disabled");
+            fastChargeStatus = "Disabled";
 
         if (isCharging) {
-            chargingState.setText("Charging: " + percentage + "%");
+            chargingState = "Charging: " + percentage + "%";
             if ((temperature >= thresholdTemp) && (fastChargeEnabled) && serviceEnabled) {
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                 Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
@@ -79,9 +78,9 @@ public class BatteryWorker extends BroadcastReceiver {
         } else if (chargeNow &&  percentage >= battFullCap && (protectEnabled || MainActivity.isRootAvailable)) {
             if (!fastChargeEnabled)
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
-            chargingState.setText("Idle");
+            chargingState = "Idle";
         } else
-            chargingState.setText("Discharging: " + percentage + "%");
+            chargingState = "Discharging: " + percentage + "%";
 
         if (MainActivity.isRootAvailable) {
             if (percentage >= battFullCap) {
