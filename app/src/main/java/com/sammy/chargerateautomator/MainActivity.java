@@ -42,8 +42,12 @@ public class MainActivity extends AppCompatActivity {
 
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
 
-        registerReceiver(batteryWorker,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(batteryWorker,new IntentFilter("com.sammy.chargerateautomator.notifier"));
+        try {
+            this.registerReceiver(batteryWorker, new IntentFilter(Intent.ACTION_POWER_CONNECTED));
+            this.registerReceiver(batteryWorker, new IntentFilter("com.sammy.chargerateautomator.notifier"));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
         if (!foregroundServiceRunning() && permGranted == 0) {
             Intent serviceIntent = new Intent(this,
