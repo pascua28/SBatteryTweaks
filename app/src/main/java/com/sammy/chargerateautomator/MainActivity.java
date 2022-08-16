@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        if (!foregroundServiceRunning() && permGranted == 0) {
+        if (!foregroundServiceRunning()) {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
             startForegroundService(serviceIntent);
@@ -166,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog,
                                                     int which)
                                 {
-                                    isRunning = false;
                                     Toast.makeText(getApplicationContext(), "App may not function correctly", Toast.LENGTH_LONG).show();
                                 }
                             });
