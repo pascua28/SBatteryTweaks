@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
             builder
                     .setPositiveButton(
-                            "Exit",
+                            "Okay",
                             new DialogInterface
                                     .OnClickListener() {
 
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                                                     int which)
                                 {
                                     isRunning = false;
-                                    finish();
+                                    Toast.makeText(getApplicationContext(), "App may not function correctly", Toast.LENGTH_LONG).show();
                                 }
                             });
             AlertDialog alertDialog = builder.create();
