@@ -18,6 +18,11 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.topjohnwu.superuser.Shell;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity {
 
     BatteryWorker batteryWorker = new BatteryWorker();
@@ -37,13 +42,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-
-        settingsButton = findViewById(R.id.settingsBtn);
-
-        mHandler = new Handler();
-        mHandler.post(statusUpdate);
-
         isRunning = true;
         isRootAvailable = Utils.isRooted();
 
@@ -57,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        settingsButton = findViewById(R.id.settingsBtn);
 
         if (!foregroundServiceRunning()) {
             Intent serviceIntent = new Intent(this,
@@ -103,7 +105,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(settingsIntent);
             }
         });
+
+        if (isRootAvailable && permGranted < 0) {
+            Shell.cmd("pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS").exec();
+            Toast.makeText(this, "Permission granted! Restarting....", Toast.LENGTH_SHORT).show();
+            new Timer().schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            finish();
+                            startActivity(getIntent());
+                        }
+                    }, 500);
+        }
         permissionDialog(permGranted);
+
+        mHandler = new Handler();
+        mHandler.post(statusUpdate);
     }
 
     @Override
