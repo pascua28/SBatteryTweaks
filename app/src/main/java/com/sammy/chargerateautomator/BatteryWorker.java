@@ -23,15 +23,13 @@ public class BatteryWorker extends BroadcastReceiver {
     private static boolean fastChargeEnabled;
     private static boolean protectEnabled;
     private static boolean pauseMode;
-    private static boolean chargeNow;
     private static float temperature;
     private static float thresholdTemp;
     private static float tempDelta;
     private static int percentage;
     private static int battFullCap = 0;
 
-    static File statusFile = new File("/sys/class/power_supply/battery/status");
-    static File chargeNowFile = new File("/sys/class/power_supply/battery/charge_now");
+    static File chargingFile = new File("/sys/class/power_supply/battery/charge_now");
     static File tempFile = new File("/sys/class/power_supply/battery/batt_temp");
     static File percentageFile = new File("/sys/class/power_supply/battery/capacity");
 
@@ -42,8 +40,7 @@ public class BatteryWorker extends BroadcastReceiver {
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
 
         battTemp = String.valueOf(temperature) + " C";
-        isCharging = Objects.equals(Utils.readFile(statusFile), "Charging");
-        chargeNow = Objects.equals(Utils.readFile(chargeNowFile), "1");
+        isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
 
@@ -71,7 +68,12 @@ public class BatteryWorker extends BroadcastReceiver {
 
         if (isCharging) {
             chargingState = "Charging: " + percentage + "%";
-            if ((temperature >= thresholdTemp) && serviceEnabled) {
+
+            if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
+                if (!fastChargeEnabled)
+                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
+                chargingState = "Idle";
+            } else if ((temperature >= thresholdTemp) && serviceEnabled) {
                 if (pauseMode && !isBypassed()) {
                     setBypass(true);
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
@@ -88,10 +90,6 @@ public class BatteryWorker extends BroadcastReceiver {
                     Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
-            if (!fastChargeEnabled)
-                Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
-            chargingState = "Idle";
         } else chargingState = "Discharging: " + percentage + "%";
 
         if (MainActivity.isRunning)
@@ -99,7 +97,7 @@ public class BatteryWorker extends BroadcastReceiver {
     }
 
     public static boolean isBypassed() {
-        if (chargeNow && percentage >= battFullCap) {
+        if (percentage >= battFullCap) {
             return true;
         } else {
             return false;
