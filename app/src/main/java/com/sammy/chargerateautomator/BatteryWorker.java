@@ -21,6 +21,7 @@ public class BatteryWorker extends BroadcastReceiver {
     public static boolean isCharging;
     private static boolean fastChargeEnabled;
     private static boolean protectEnabled;
+    private static boolean pauseMode;
     private static boolean chargeNow;
     private static float temperature;
     private static float thresholdTemp;
@@ -60,6 +61,7 @@ public class BatteryWorker extends BroadcastReceiver {
         serviceEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_SERVICE, true);
         thresholdTemp = sharedPref.getFloat(SettingsActivity.KEY_PREF_THRESHOLD_UP, 36.5F);
         tempDelta = sharedPref.getFloat(SettingsActivity.KEY_PREF_TEMP_DELTA, 0.5F);
+        pauseMode = sharedPref.getBoolean(SettingsActivity.KEY_PREF_BYPASS_MODE, false);
 
         if (fastChargeEnabled)
             fastChargeStatus = "Enabled";
@@ -68,28 +70,36 @@ public class BatteryWorker extends BroadcastReceiver {
 
         if (isCharging) {
             chargingState = "Charging: " + percentage + "%";
-            if ((temperature >= thresholdTemp) && (fastChargeEnabled) && serviceEnabled) {
-                Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
-                Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
-            } else if ((temperature <= (thresholdTemp - tempDelta)) && (!fastChargeEnabled) && serviceEnabled) {
-                Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
-                Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
+            if ((temperature >= thresholdTemp) && serviceEnabled) {
+                if (pauseMode && !isBypassed()) {
+                    setBypass(true);
+                    Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
+                } else if (fastChargeEnabled) {
+                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
+                    Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
+                }
+            } else if ((temperature <= (thresholdTemp - tempDelta)) && serviceEnabled) {
+                if (pauseMode && isBypassed()) {
+                    setBypass(false);
+                    Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
+                } else if (!fastChargeEnabled) {
+                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
+                    Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
+                }
             }
-        } else if (chargeNow &&  percentage >= battFullCap && (protectEnabled || MainActivity.isRootAvailable)) {
+        } else if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
             if (!fastChargeEnabled)
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
             chargingState = "Idle";
         } else
             chargingState = "Discharging: " + percentage + "%";
+    }
 
-        if (MainActivity.isRootAvailable) {
-            if (percentage >= battFullCap) {
-                MainActivity.bypassToggle.setTag("BYPASS");
-                MainActivity.bypassToggle.setChecked(true);
-            } else {
-                MainActivity.bypassToggle.setTag("BYPASS");
-                MainActivity.bypassToggle.setChecked(false);
-            }
+    public static boolean isBypassed() {
+        if (chargeNow && percentage >= battFullCap) {
+            return true;
+        } else {
+            return false;
         }
     }
 

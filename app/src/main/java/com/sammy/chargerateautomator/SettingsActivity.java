@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -16,6 +17,8 @@ public class SettingsActivity extends AppCompatActivity {
             KEY_PREF_THRESHOLD_UP = "thresholdUp";
     public static final String
             KEY_PREF_TEMP_DELTA = "tempDelta";
+    public static final String
+            KEY_PREF_BYPASS_MODE = "pauseMode";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,10 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
+            SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
+
+            if (!Utils.isRooted())
+                pauseModeSwitch.setEnabled(false);
         }
     }
 }

@@ -5,9 +5,16 @@
 
         <SwitchPreferenceCompat
             app:key="enableservice"
-            app:title="Enable Fast Charge Switcher"
-            app:summary="If enabled, the app will automatically switch fast charging mode based on threshold temperatures"
+            app:title="Enable Service"
+            app:summary="If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures"
             app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            android:dependency="enableservice"
+            app:key="pauseMode"
+            app:title="Bypass charging mode"
+            app:summary="Automatically pause charging to cool down battery instead of disabling fast charging"
+            app:defaultValue="false" />
 
     </PreferenceCategory>
 
