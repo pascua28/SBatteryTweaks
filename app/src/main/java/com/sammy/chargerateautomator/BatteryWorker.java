@@ -12,6 +12,7 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 
 import java.io.File;
+import java.util.Objects;
 
 public class BatteryWorker extends BroadcastReceiver {
     public static String chargingState;
@@ -41,10 +42,10 @@ public class BatteryWorker extends BroadcastReceiver {
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
 
         battTemp = String.valueOf(temperature) + " C";
-        isCharging = Utils.readFile(statusFile).equals("Charging") ? true : false;
-        chargeNow = Utils.readFile(chargeNowFile).equals("1") ? true : false;
-        fastChargeEnabled = Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging").equals("1") ? true : false;
-        protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1") ? true : false;
+        isCharging = Objects.equals(Utils.readFile(statusFile), "Charging");
+        chargeNow = Objects.equals(Utils.readFile(chargeNowFile), "1");
+        fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
+        protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
 
         if (MainActivity.isRootAvailable) {
             battFullCap = Integer.parseInt(Utils.runAndGetOutput("cat /sys/class/power_supply/battery/batt_full_capacity"));
