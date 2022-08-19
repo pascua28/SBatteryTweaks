@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -27,12 +26,11 @@ public class MainActivity extends AppCompatActivity {
     BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isRunning;
     public static boolean isRootAvailable;
-    private TextView chargingStatus;
-    private TextView battTemperature;
-    private TextView fastChgStatus;
+    private static TextView chargingStatus;
+    private static TextView battTemperature;
+    private static TextView fastChgStatus;
 
-    private ToggleButton bypassToggle;
-    private Handler mHandler;
+    private static ToggleButton bypassToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +102,6 @@ public class MainActivity extends AppCompatActivity {
                     }, 500);
         }
         permissionDialog(permGranted);
-
-        mHandler = new Handler();
-        mHandler.post(statusUpdate);
     }
 
     @Override
@@ -133,16 +128,12 @@ public class MainActivity extends AppCompatActivity {
         isRunning = false;
     }
 
-    private final Runnable statusUpdate = new Runnable() {
-        @Override
-        public void run() {
+    public static void updateStatus() {
             chargingStatus.setText(BatteryWorker.chargingState);
             battTemperature.setText(BatteryWorker.battTemp);
             fastChgStatus.setText(BatteryWorker.fastChargeStatus);
             bypassToggle.setChecked(BatteryWorker.isBypassed());
-            mHandler.postDelayed(this, 100);
-        }
-    };
+    }
 
     private boolean foregroundServiceRunning(){
         ActivityManager activityManager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);

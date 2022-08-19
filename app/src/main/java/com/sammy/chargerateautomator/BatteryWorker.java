@@ -91,8 +91,10 @@ public class BatteryWorker extends BroadcastReceiver {
             if (!fastChargeEnabled)
                 Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
             chargingState = "Idle";
-        } else
-            chargingState = "Discharging: " + percentage + "%";
+        } else chargingState = "Discharging: " + percentage + "%";
+
+        if (MainActivity.isRunning)
+            MainActivity.updateStatus();
     }
 
     public static boolean isBypassed() {
