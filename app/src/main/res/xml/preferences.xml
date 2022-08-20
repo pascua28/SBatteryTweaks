@@ -46,4 +46,23 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Timer-based temperature cooldown" >
+        <SwitchPreferenceCompat
+            app:key="timerSwitch"
+            app:title="Enable timer-based temperature cooldown"
+            app:defaultValue="false" />
+
+        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:dependency="timerSwitch"
+            android:key="cdSeconds"
+            android:summary="Turn off fastcharging or pause charging for this amount of time"
+            android:title="Cooldown time"
+            app:minValue="30"
+            app:maxValue="600"
+            app:defaultValue="30"
+            app:stepSize="10"
+            app:units="s"
+            />
+
+    </PreferenceCategory>
 </PreferenceScreen>
