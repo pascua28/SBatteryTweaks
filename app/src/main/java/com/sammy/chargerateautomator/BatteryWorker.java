@@ -53,7 +53,7 @@ public class BatteryWorker extends BroadcastReceiver {
         else fastChargeStatus = "Disabled";
 
         if (MainActivity.isRootAvailable) {
-            battFullCap = Integer.parseInt(Utils.runAndGetOutput("cat /sys/class/power_supply/battery/batt_full_capacity"));
+            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
         } else {
             if (protectEnabled) {
                 battFullCap = 85;
