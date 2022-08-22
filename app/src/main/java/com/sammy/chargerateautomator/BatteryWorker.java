@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
-import java.io.File;
 import java.util.Objects;
 
 public class BatteryWorker extends BroadcastReceiver {
@@ -36,16 +35,16 @@ public class BatteryWorker extends BroadcastReceiver {
     private float cdSeconds;
     private long cooldown;
 
-    private static String chargingFile = "/sys/class/power_supply/battery/charge_now";
-    private static String tempFile = "/sys/class/power_supply/battery/batt_temp";
-    private static String percentageFile = "/sys/class/power_supply/battery/capacity";
+    private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
+    private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
+    private final String percentageFile = "/sys/class/power_supply/battery/capacity";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
 
-        battTemp = String.valueOf(temperature) + " C";
+        battTemp = temperature + " C";
         isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
@@ -78,8 +77,7 @@ public class BatteryWorker extends BroadcastReceiver {
     }
 
     public static boolean isBypassed() {
-        if (percentage >= battFullCap) return true;
-        else return false;
+        return percentage >= battFullCap;
     }
 
     public static void setBypass(Boolean state) {
@@ -100,10 +98,7 @@ public class BatteryWorker extends BroadcastReceiver {
                 public void onTick(long millisUntilFinished) {
                     isOngoing = true;
 
-                    if (millisUntilFinished > (cooldown / 2))
-                        shouldCoolDown = true;
-                    else
-                        shouldCoolDown = false;
+                    shouldCoolDown = millisUntilFinished > (cooldown / 2);
                 }
 
                 public void onFinish () {

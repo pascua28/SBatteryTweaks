@@ -2,7 +2,6 @@ package com.sammy.chargerateautomator;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -75,19 +74,11 @@ public class MainActivity extends AppCompatActivity {
             bypassToggle.setEnabled(false);
         }
 
-        bypassToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                BatteryWorker.setBypass(isChecked);
-            }
-        });
+        bypassToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> BatteryWorker.setBypass(isChecked));
 
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(settingsIntent);
-            }
+        settingsButton.setOnClickListener(v -> {
+            Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settingsIntent);
         });
 
         if (isRootAvailable && permGranted < 0) {
@@ -139,8 +130,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private boolean foregroundServiceRunning(){
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        boolean b = activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
-        return b;
+        return activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
     }
 
     private void permissionDialog(int ret) {
@@ -156,16 +146,7 @@ public class MainActivity extends AppCompatActivity {
             builder
                     .setPositiveButton(
                             "Okay",
-                            new DialogInterface
-                                    .OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which)
-                                {
-                                    Toast.makeText(getApplicationContext(), "App may not function correctly", Toast.LENGTH_LONG).show();
-                                }
-                            });
+                            (dialog, which) -> Toast.makeText(getApplicationContext(), "App may not function correctly", Toast.LENGTH_LONG).show());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         }
