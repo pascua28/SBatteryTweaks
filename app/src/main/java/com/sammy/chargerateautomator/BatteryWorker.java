@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
+import com.topjohnwu.superuser.ShellUtils;
 
 import java.io.File;
 import java.util.Objects;
@@ -35,13 +36,12 @@ public class BatteryWorker extends BroadcastReceiver {
     private float cdSeconds;
     private long cooldown;
 
-    static File chargingFile = new File("/sys/class/power_supply/battery/charge_now");
-    static File tempFile = new File("/sys/class/power_supply/battery/batt_temp");
-    static File percentageFile = new File("/sys/class/power_supply/battery/capacity");
+    private static String chargingFile = "/sys/class/power_supply/battery/charge_now";
+    private static String tempFile = "/sys/class/power_supply/battery/batt_temp";
+    private static String percentageFile = "/sys/class/power_supply/battery/capacity";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
 
