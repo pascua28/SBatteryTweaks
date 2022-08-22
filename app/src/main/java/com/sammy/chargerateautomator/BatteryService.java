@@ -25,9 +25,7 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                if (MainActivity.isRunning || BatteryWorker.isCharging) {
-                    sendBroadcast(battIntent);
-                }
+                if (MainActivity.isRunning || BatteryWorker.isCharging) sendBroadcast(battIntent);
             }
         };
         mHandler.post(runnable);
