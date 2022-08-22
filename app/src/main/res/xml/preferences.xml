@@ -57,11 +57,11 @@
             android:key="cdSeconds"
             android:summary="Turn off fastcharging or pause charging for this amount of time"
             android:title="Cooldown time"
-            app:minValue="30"
-            app:maxValue="600"
-            app:defaultValue="30"
+            app:minValueFloat="30"
+            app:maxValueFloat="600"
             app:stepSize="10"
             app:units="s"
+            android:defaultValue="30"
             />
 
     </PreferenceCategory>
