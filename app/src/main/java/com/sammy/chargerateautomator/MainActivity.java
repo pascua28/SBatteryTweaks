@@ -2,6 +2,7 @@ package com.sammy.chargerateautomator;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -135,8 +136,9 @@ public class MainActivity extends AppCompatActivity {
             bypassToggle.setChecked(BatteryWorker.isBypassed());
     }
 
+    @SuppressWarnings("deprecation")
     private boolean foregroundServiceRunning(){
-        ActivityManager activityManager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         boolean b = activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
         return b;
     }

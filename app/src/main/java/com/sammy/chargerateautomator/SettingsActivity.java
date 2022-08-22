@@ -57,8 +57,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
 
             listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
