@@ -48,6 +48,7 @@
 
     <PreferenceCategory app:title="Timer-based temperature cooldown" >
         <SwitchPreferenceCompat
+            android:dependency="enableservice"
             app:key="timerSwitch"
             app:title="Enable timer-based temperature cooldown"
             app:defaultValue="false" />
