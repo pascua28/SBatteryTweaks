@@ -19,6 +19,7 @@ public class BatteryWorker extends BroadcastReceiver {
     public static String chargingState;
     public static String battTemp;
     public static String fastChargeStatus;
+    private String currentNow;
     private static boolean serviceEnabled;
     public static boolean isCharging;
     public static boolean isOngoing;
@@ -38,13 +39,16 @@ public class BatteryWorker extends BroadcastReceiver {
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
     private final String percentageFile = "/sys/class/power_supply/battery/capacity";
+    private final String currentFile = "/sys/class/power_supply/battery/current_now";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
         percentage = Integer.parseInt(Utils.readFile(percentageFile));
+        currentNow = Utils.readFile(currentFile) + " mA";
 
         battTemp = temperature + " C";
+
         isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
@@ -109,7 +113,7 @@ public class BatteryWorker extends BroadcastReceiver {
 
     private void battWorker(Context context) {
         if (isCharging) {
-            chargingState = "Charging: " + percentage + "%";
+            chargingState = "Charging: " + currentNow;
 
             if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
                 if (!fastChargeEnabled)
@@ -135,6 +139,6 @@ public class BatteryWorker extends BroadcastReceiver {
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else chargingState = "Discharging: " + percentage + "%";
+        } else chargingState = "Discharging: " + currentNow;
     }
 }
