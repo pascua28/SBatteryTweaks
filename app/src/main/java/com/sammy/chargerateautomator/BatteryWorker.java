@@ -46,7 +46,7 @@ public class BatteryWorker extends BroadcastReceiver {
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
     private final String percentageFile = "/sys/class/power_supply/battery/capacity";
-    private final String currentFile = "/sys/class/power_supply/battery/current_now";
+    private final String currentFile = "/sys/class/power_supply/battery/current_avg";
 
     private boolean isSchedEnabled;
     private boolean schedIdleEnabled;
