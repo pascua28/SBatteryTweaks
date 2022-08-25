@@ -2,14 +2,11 @@ package com.sammy.chargerateautomator;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -27,6 +24,12 @@ public class SettingsActivity extends AppCompatActivity {
             KEY_PREF_TIMER_SWITCH = "timerSwitch";
     public static final String
             KEY_PREF_CD_SECONDS = "cdSeconds";
+    public static final String
+            PREF_SCHED_ENABLED = "schedSwitch";
+    public static final String
+            PREF_SCHED_IDLE = "schedIdle";
+    public static final String
+            PREF_SCHED_IDLE_LEVEL = "schedIdleLevel";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +54,22 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
+            SwitchPreferenceCompat schedIdle = findPreference(PREF_SCHED_IDLE);
 
-            if (!Utils.isRooted())
+            if (!Utils.isRooted()) {
                 pauseModeSwitch.setEnabled(false);
+                schedIdle.setEnabled(false);
+            }
+
+            Preference timePreference = findPreference("timePickerBtn");
+            timePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference p) {
+                    TimePicker picker = new TimePicker(getActivity());
+                    picker.show();
+                    return true;
+                }
+            });
         }
 
         @Override

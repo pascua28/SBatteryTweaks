@@ -13,6 +13,11 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 public class BatteryWorker extends BroadcastReceiver {
@@ -36,10 +41,25 @@ public class BatteryWorker extends BroadcastReceiver {
     private float cdSeconds;
     private long cooldown;
 
+    private int startHour, startMinute;
+
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
     private final String percentageFile = "/sys/class/power_supply/battery/capacity";
     private final String currentFile = "/sys/class/power_supply/battery/current_now";
+
+    private boolean isSchedEnabled;
+    private boolean schedIdleEnabled;
+    private int schedIdleLevel;
+    private String start_time;
+    LocalDate currDate;
+    SimpleDateFormat sdf;
+    Date currTime, start;
+
+    private long currentTimeMillis;
+    private long startMillis;
+    private long endMillis;
+    private int duration;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -73,6 +93,15 @@ public class BatteryWorker extends BroadcastReceiver {
         pauseMode = sharedPref.getBoolean(SettingsActivity.KEY_PREF_BYPASS_MODE, false);
         timerEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_TIMER_SWITCH, false);
         cdSeconds = sharedPref.getFloat(SettingsActivity.KEY_PREF_CD_SECONDS, 30F);
+        isSchedEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_ENABLED, false);
+        schedIdleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_IDLE, false);
+        schedIdleLevel = sharedPref.getInt(SettingsActivity.PREF_SCHED_IDLE_LEVEL, 85);
+
+        SharedPreferences timePref = context.getSharedPreferences("timePref", Context.MODE_PRIVATE);
+        startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
+        startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
+        duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
+
 
         battWorker(context);
 
@@ -96,6 +125,27 @@ public class BatteryWorker extends BroadcastReceiver {
         }
     }
 
+    private boolean isLazyTime() {
+        start_time = String.format(LocalDate.now().toString() + "-%02d:%02d", startHour, startMinute);
+        currDate = LocalDate.now();
+        sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm");
+        currTime = Calendar.getInstance().getTime();
+        start = currTime;
+
+        try {
+            start = sdf.parse(start_time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        currentTimeMillis = currTime.getTime();
+        startMillis = start.getTime();
+        endMillis = startMillis + (duration * 60 * 1000);
+
+        if ((currentTimeMillis > startMillis) && (currentTimeMillis < endMillis)) return true;
+        else return false;
+    }
+
     private void startTimer() {
         cooldown = (long) cdSeconds * 1000 * 2;
         new CountDownTimer(cooldown, 1000) {
@@ -115,7 +165,13 @@ public class BatteryWorker extends BroadcastReceiver {
         if (isCharging) {
             chargingState = "Charging: " + currentNow;
 
-            if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
+            if (isSchedEnabled && isLazyTime()) {
+                if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && MainActivity.isRootAvailable) {
+                    setBypass(true);
+                } else if (fastChargeEnabled) {
+                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
+                }
+            } else if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
                 if (!fastChargeEnabled)
                     Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
                 chargingState = "Idle";

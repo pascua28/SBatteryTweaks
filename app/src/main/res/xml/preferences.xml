@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings">
 
     <PreferenceCategory app:title="Battery Monitor Service">
 
@@ -64,6 +65,33 @@
             app:units="s"
             android:defaultValue="30"
             />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="Scheduled charge control" >
+        <SwitchPreferenceCompat
+            android:dependency="enableservice"
+            app:key="schedSwitch"
+            app:title="Scheduled charge control"
+            app:defaultValue="false" />
+
+        <Preference
+            android:dependency="schedSwitch"
+            android:key="timePickerBtn"
+            android:title="Time Picker" />
+
+        <SwitchPreferenceCompat
+            android:dependency="schedSwitch"
+            android:key="schedIdle"
+            android:title="Bypass charging mode"
+            android:summary="Pause charging at a certain level in a given time"
+            app:defaultValue="false" />
+
+        <SeekBarPreference
+            android:dependency="schedIdle"
+            android:key="schedIdleLevel"
+            app:maxValue="95"
+            app:minValue="30"
+            android:defaultValue="85"
+            app:showSeekBarValue="true" />
 
     </PreferenceCategory>
 </PreferenceScreen>

@@ -3,13 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/drawable/blank.xml" value="0.1175" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/layout/activity_main.xml" value="0.176" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/layout/content_main.xml" value="0.22826086956521738" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/layout/fragment_second.xml" value="0.10989583333333333" />
+        <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/layout/fragment_time_picker.xml" value="0.2" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/layout/settings_activity.xml" value="0.12" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/menu/menu_main.xml" value="0.10989583333333333" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/xml/preferences.xml" value="0.4" />
         <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/xml/root_preferences.xml" value="0.4" />
+        <entry key="..\:/Apps/ChargeRateAutomator/app/src/main/res/xml/time_preferences.xml" value="0.12654980761008977" />
       </map>
     </option>
   </component>
