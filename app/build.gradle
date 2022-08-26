@@ -7,8 +7,8 @@ android {
 
     defaultConfig {
         applicationId "com.sammy.chargerateautomator"
-        minSdk 29
-        targetSdk 32
+        minSdk 28
+        targetSdk 29
         versionCode 1
         versionName "1.0"
 
@@ -31,8 +31,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     buildFeatures {
         viewBinding true
@@ -43,6 +43,7 @@ android {
             version '3.18.1'
         }
     }
+    ndkVersion '25.1.8937393'
 }
 
 dependencies {
