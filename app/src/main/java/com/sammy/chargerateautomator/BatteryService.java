@@ -39,7 +39,7 @@ public class BatteryService extends Service {
 
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
         Notification.Builder notification = new Notification.Builder(this, CHANNELID)
-                .setSmallIcon(R.drawable.ic_launcher_background);
+                .setSmallIcon(R.drawable.notification_icon);
 
         startForeground(1001, notification.build());
         return super.onStartCommand(intent, flags, startId);
