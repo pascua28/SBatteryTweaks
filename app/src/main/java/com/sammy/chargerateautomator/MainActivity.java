@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float)fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth !=0)
-                headerText.setText("Battery status (" + String.format("%.2f", battHealth) + "% health)");
+                headerText.setText("Battery status (Health: " + String.format("%.2f", battHealth) + "%)");
             else headerText.setText("Battery status:");
         } else {
             headerText.setText("Battery status:");
