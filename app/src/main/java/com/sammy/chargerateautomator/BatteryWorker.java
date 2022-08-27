@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -47,6 +48,7 @@ public class BatteryWorker extends BroadcastReceiver {
     private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
     private final String percentageFile = "/sys/class/power_supply/battery/capacity";
     private final String currentFile = "/sys/class/power_supply/battery/current_avg";
+    private final File testFile = new File ("/sys/class/power_supply/battery/charge_now");
 
     private boolean isSchedEnabled;
     private boolean schedIdleEnabled;
@@ -63,13 +65,20 @@ public class BatteryWorker extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        temperature = Float.parseFloat(Utils.readFile(tempFile)) / 10F;
-        percentage = Integer.parseInt(Utils.readFile(percentageFile));
-        currentNow = Utils.readFile(currentFile) + " mA";
+        if (testFile.canRead()) {
+            temperature = Float.parseFloat(Utils.readFile(tempFile));
+            percentage = Integer.parseInt(Utils.readFile(percentageFile));
+            currentNow = Utils.readFile(currentFile) + " mA";
+            isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
+        } else {
+            temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
+            percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
+            currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
+            isCharging = ShellUtils.fastCmd("cat " + chargingFile) == "1";
+        }
 
+        temperature = temperature / 10F;
         battTemp = temperature + " C";
-
-        isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
