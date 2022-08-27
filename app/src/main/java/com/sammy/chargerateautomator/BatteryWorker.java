@@ -78,7 +78,7 @@ public class BatteryWorker extends BroadcastReceiver {
         }
 
         temperature = temperature / 10F;
-        battTemp = temperature + " C";
+        battTemp = temperature + "° C";
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
@@ -172,7 +172,7 @@ public class BatteryWorker extends BroadcastReceiver {
 
     private void battWorker(Context context) {
         if (isCharging) {
-            chargingState = "Charging: " + currentNow;
+            chargingState = "Charging (" + currentNow + ")";
 
             if (isSchedEnabled && isLazyTime()) {
                 if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && MainActivity.isRootAvailable) {

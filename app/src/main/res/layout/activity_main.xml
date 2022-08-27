@@ -31,20 +31,12 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="110dp"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="20dp" />
-
     <TextView
         android:id="@+id/batteryHeader"
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="70dp"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
 
@@ -53,7 +45,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="100dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
@@ -61,7 +53,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginTop="210dp"
+        android:layout_marginTop="150dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="20dp" />
@@ -70,7 +62,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="160dp"
         android:text="Battery Temperature:"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
@@ -80,7 +72,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="260dp"
+        android:layout_marginTop="190dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
@@ -88,7 +80,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginTop="310dp"
+        android:layout_marginTop="240dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="20dp" />
@@ -97,7 +89,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="320dp"
+        android:layout_marginTop="250dp"
         android:text="Fast charging mode:"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
@@ -107,7 +99,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="360dp"
+        android:layout_marginTop="280dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
@@ -115,7 +107,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginTop="410dp"
+        android:layout_marginTop="330dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="20dp" />
@@ -125,7 +117,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="420dp"
+        android:layout_marginTop="340dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
@@ -133,7 +125,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginTop="470dp"
+        android:layout_marginTop="390dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="20dp" />
@@ -143,7 +135,7 @@
         style="@style/BatteryViewDisplay"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="480dp"
+        android:layout_marginTop="400dp"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="17dp" />
 
@@ -153,7 +145,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="540dp"
+        android:layout_marginTop="450dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp" />
