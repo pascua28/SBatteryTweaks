@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
+import com.topjohnwu.superuser.ShellUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private static TextView chargingStatus;
     private static TextView battTemperature;
     private static TextView fastChgStatus;
+    private TextView headerText;
+    private TextView ratedCapacity;
+
 
     private static ToggleButton bypassToggle;
 
@@ -33,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        int actualCapacity = Utils.getActualCapacity(this);
+        int fullcapnom;
+        float battHealth;
 
         isRunning = true;
         isRootAvailable = Utils.isRooted();
@@ -62,6 +69,21 @@ public class MainActivity extends AppCompatActivity {
         chargingStatus = findViewById(R.id.chargingText);
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);
+        headerText = findViewById(R.id.batteryHeader);
+        ratedCapacity = findViewById(R.id.capacityText);
+
+        if (Utils.isRooted()) {
+            fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
+            battHealth = ((float)fullcapnom / actualCapacity) * 100;
+            if (fullcapnom != 0 && battHealth !=0)
+                headerText.setText("Battery status (" + String.format("%.2f", battHealth) + "% health)");
+            else headerText.setText("Battery status:");
+        } else {
+            headerText.setText("Battery status:");
+        }
+
+        if (actualCapacity != 0)
+            ratedCapacity.setText("Rated capacity: " + Utils.getActualCapacity(this) + "mAh");
 
         bypassToggle = (ToggleButton) findViewById(R.id.bypassToggle);
         bypassText.setText("Bypass charging:");
