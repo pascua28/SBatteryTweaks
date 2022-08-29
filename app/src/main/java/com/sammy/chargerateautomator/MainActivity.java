@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (actualCapacity != 0)
-            ratedCapacity.setText("Rated capacity: " + Utils.getActualCapacity(this) + "mAh");
+            ratedCapacity.setText("Rated capacity: " + actualCapacity + "mAh");
 
         bypassToggle = (ToggleButton) findViewById(R.id.bypassToggle);
         bypassText.setText("Bypass charging:");
