@@ -185,7 +185,7 @@ public class BatteryWorker extends BroadcastReceiver {
                 if (pauseMode && !isBypassed()) {
                     setBypass(true);
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
-                } else if (fastChargeEnabled) {
+                } else if (fastChargeEnabled && !isBypassed()) {
                     Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
