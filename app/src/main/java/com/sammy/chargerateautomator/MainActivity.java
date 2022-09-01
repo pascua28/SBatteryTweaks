@@ -16,6 +16,7 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float)fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth !=0)
-                headerText.setText("Battery status (Health: " + String.format("%.2f", battHealth) + "%)");
+                headerText.setText("Battery status (Health: " + String.format(Locale.ENGLISH, "%.2f", battHealth) + "%)");
             else headerText.setText("Battery status:");
         } else {
             headerText.setText("Battery status:");
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         if (actualCapacity != 0)
             ratedCapacity.setText("Rated capacity: " + actualCapacity + "mAh");
 
-        bypassToggle = (ToggleButton) findViewById(R.id.bypassToggle);
+        bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText("Bypass charging:");
 
         if (!isRootAvailable) {

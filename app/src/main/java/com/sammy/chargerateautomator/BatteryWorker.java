@@ -1,12 +1,12 @@
 package com.sammy.chargerateautomator;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -124,6 +123,7 @@ public class BatteryWorker extends BroadcastReceiver {
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     private boolean isLazyTime() {
         start_time = String.format(LocalDate.now().toString() + "-%02d:%02d", startHour, startMinute);
         currDate = LocalDate.now();
@@ -139,10 +139,9 @@ public class BatteryWorker extends BroadcastReceiver {
 
         currentTimeMillis = currTime.getTime();
         startMillis = start.getTime();
-        endMillis = startMillis + (duration * 60 * 1000);
+        endMillis = startMillis + ((long)duration * 60 * 1000);
 
-        if ((currentTimeMillis > startMillis) && (currentTimeMillis < endMillis)) return true;
-        else return false;
+        return (currentTimeMillis > startMillis) && (currentTimeMillis < endMillis);
     }
 
     private void startTimer() {

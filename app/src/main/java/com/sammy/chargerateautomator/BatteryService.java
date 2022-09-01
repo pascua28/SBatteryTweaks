@@ -37,7 +37,7 @@ public class BatteryService extends Service {
                 if (readMode) {
                     BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
                 } else {
-                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile) == "1";
+                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
                 }
                 if (MainActivity.isRunning || BatteryWorker.isCharging)
                     BatteryWorker.updateStats(readMode);

@@ -57,8 +57,12 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat schedIdle = findPreference(PREF_SCHED_IDLE);
 
             if (!Utils.isRooted()) {
-                pauseModeSwitch.setEnabled(false);
-                schedIdle.setEnabled(false);
+                if (pauseModeSwitch != null) {
+                    pauseModeSwitch.setEnabled(false);
+                }
+                if (schedIdle != null) {
+                    schedIdle.setEnabled(false);
+                }
             }
 
             Preference timePreference = findPreference("timePickerBtn");
@@ -76,12 +80,9 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-            listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                    if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false)) {
-                        BatteryWorker.isOngoing = false;
-                    }
+            listener = (sharedPreferences, key) -> {
+                if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false)) {
+                    BatteryWorker.isOngoing = false;
                 }
             };
         }
