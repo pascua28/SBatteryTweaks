@@ -8,8 +8,16 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.topjohnwu.superuser.ShellUtils;
+
+import java.io.File;
+import java.util.Objects;
+
 public class BatteryService extends Service {
     Handler mHandler = new Handler();
+    private Boolean readMode;
+    private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
+    private final File chargeFile = new File (chargingFile);
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -24,8 +32,16 @@ public class BatteryService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mHandler.postDelayed(this, 2500);
-                if (MainActivity.isRunning || BatteryWorker.isCharging) sendBroadcast(battIntent);
+                mHandler.postDelayed(this, 1800);
+                readMode = chargeFile.canRead();
+                if (readMode) {
+                    BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
+                } else {
+                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile) == "1";
+                }
+                if (MainActivity.isRunning || BatteryWorker.isCharging)
+                    BatteryWorker.updateStats(readMode);
+                    sendBroadcast(battIntent);
             }
         };
         mHandler.post(runnable);

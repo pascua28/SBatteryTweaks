@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -25,7 +26,6 @@ public class BatteryWorker extends BroadcastReceiver {
     public static String chargingState;
     public static String battTemp;
     public static String fastChargeStatus;
-    private String currentNow;
     private static boolean serviceEnabled;
     public static boolean isCharging;
     public static boolean isOngoing;
@@ -44,11 +44,10 @@ public class BatteryWorker extends BroadcastReceiver {
 
     private int startHour, startMinute;
 
-    private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
-    private final String tempFile = "/sys/class/power_supply/battery/batt_temp";
-    private final String percentageFile = "/sys/class/power_supply/battery/capacity";
-    private final String currentFile = "/sys/class/power_supply/battery/current_avg";
-    private final File testFile = new File ("/sys/class/power_supply/battery/charge_now");
+    static String tempFile = "/sys/class/power_supply/battery/batt_temp";
+    static String percentageFile = "/sys/class/power_supply/battery/capacity";
+    static String currentFile = "/sys/class/power_supply/battery/current_avg";
+    static String currentNow;
 
     private boolean isSchedEnabled;
     private boolean schedIdleEnabled;
@@ -65,34 +64,10 @@ public class BatteryWorker extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (testFile.canRead()) {
-            temperature = Float.parseFloat(Utils.readFile(tempFile));
-            percentage = Integer.parseInt(Utils.readFile(percentageFile));
-            currentNow = Utils.readFile(currentFile) + " mA";
-            isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
-        } else {
-            temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
-            percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
-            currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
-            isCharging = ShellUtils.fastCmd("cat " + chargingFile) == "1";
-        }
-
-        temperature = temperature / 10F;
-        battTemp = temperature + "° C";
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
         else fastChargeStatus = "Disabled";
-
-        if (MainActivity.isRootAvailable) {
-            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
-        } else {
-            if (protectEnabled) {
-                battFullCap = 85;
-            } else {
-                battFullCap = 100;
-            }
-        }
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
@@ -111,11 +86,20 @@ public class BatteryWorker extends BroadcastReceiver {
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
-
-        battWorker(context);
+        if (Utils.isRooted()) {
+            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
+        } else {
+            if (protectEnabled) {
+                battFullCap = 85;
+            } else {
+                battFullCap = 100;
+            }
+        }
 
         if (MainActivity.isRunning)
             MainActivity.updateStatus();
+
+        battWorker(context);
     }
 
     public static boolean isBypassed() {
@@ -172,15 +156,15 @@ public class BatteryWorker extends BroadcastReceiver {
 
     private void battWorker(Context context) {
         if (isCharging) {
-            chargingState = "Charging (" + currentNow + ")";
+            chargingState = "Charging: " + currentNow;
 
             if (isSchedEnabled && isLazyTime()) {
-                if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && MainActivity.isRootAvailable) {
+                if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && Utils.isRooted()) {
                     setBypass(true);
                 } else if (fastChargeEnabled) {
                     Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                 }
-            } else if (isBypassed() && (protectEnabled || MainActivity.isRootAvailable)) {
+            } else if (isBypassed() && (protectEnabled || Utils.isRooted())) {
                 if (!fastChargeEnabled)
                     Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
                 chargingState = "Idle";
@@ -206,4 +190,20 @@ public class BatteryWorker extends BroadcastReceiver {
             }
         } else chargingState = "Discharging: " + currentNow;
     }
+
+    public static void updateStats(Boolean readMode) {
+        if (readMode) {
+            temperature = Float.parseFloat(Utils.readFile(tempFile));
+            percentage = Integer.parseInt(Utils.readFile(percentageFile));
+            currentNow = Utils.readFile(currentFile) + " mA";
+        } else {
+            temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
+            percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
+            currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
+        }
+
+        temperature = temperature / 10F;
+        battTemp = temperature + "° C";
+    }
+
 }

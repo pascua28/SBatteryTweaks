@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isRunning;
-    public static boolean isRootAvailable;
+    private boolean isRootAvailable;
     private static TextView chargingStatus;
     private static TextView battTemperature;
     private static TextView fastChgStatus;
@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
 
         try {
-            this.registerReceiver(batteryWorker, new IntentFilter(Intent.ACTION_POWER_CONNECTED));
             this.registerReceiver(batteryWorker, new IntentFilter("com.sammy.chargerateautomator.notifier"));
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
