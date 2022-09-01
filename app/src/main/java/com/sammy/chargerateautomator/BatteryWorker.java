@@ -100,10 +100,16 @@ public class BatteryWorker extends BroadcastReceiver {
             MainActivity.updateStatus();
 
         battWorker(context);
+
+        if (isCharging && isBypassed()) {
+            if (!fastChargeEnabled)
+                Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
+            chargingState = "Idle";
+        }
     }
 
     public static boolean isBypassed() {
-        return percentage >= battFullCap;
+        return percentage >= battFullCap && battFullCap < 100;
     }
 
     public static void setBypass(Boolean state) {
@@ -164,10 +170,6 @@ public class BatteryWorker extends BroadcastReceiver {
                 } else if (fastChargeEnabled) {
                     Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
                 }
-            } else if (isBypassed() && (protectEnabled || Utils.isRooted())) {
-                if (!fastChargeEnabled)
-                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
-                chargingState = "Idle";
             } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
                 if (pauseMode && isBypassed()) {
                     setBypass(false);
