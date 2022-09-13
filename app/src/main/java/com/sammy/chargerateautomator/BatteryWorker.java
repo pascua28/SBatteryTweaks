@@ -100,11 +100,8 @@ public class BatteryWorker extends BroadcastReceiver {
 
         battWorker(context);
 
-        if (isCharging && isBypassed()) {
-            if (!fastChargeEnabled)
-                Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
+        if (isCharging && isBypassed())
             chargingState = "Idle";
-        }
     }
 
     public static boolean isBypassed() {
