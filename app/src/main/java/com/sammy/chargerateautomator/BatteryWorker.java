@@ -31,6 +31,7 @@ public class BatteryWorker extends BroadcastReceiver {
     public static boolean isOngoing;
     private boolean timerEnabled;
     private boolean shouldCoolDown;
+    private static boolean manualBypass = false;
     private static boolean fastChargeEnabled;
     private static boolean protectEnabled;
     private static boolean pauseMode;
@@ -113,8 +114,10 @@ public class BatteryWorker extends BroadcastReceiver {
 
     public static void setBypass(Boolean state) {
         if (state) {
+            manualBypass = true;
             Shell.cmd("echo " + percentage + "> /sys/class/power_supply/battery/batt_full_capacity").exec();
         } else {
+            manualBypass = false;
             if (protectEnabled) {
                 Shell.cmd("echo 85 > /sys/class/power_supply/battery/batt_full_capacity").exec();
             } else {
@@ -160,7 +163,7 @@ public class BatteryWorker extends BroadcastReceiver {
     }
 
     private void battWorker(Context context) {
-        if (isCharging) {
+        if (isCharging && !manualBypass) {
             chargingState = "Charging: " + currentNow;
 
 
