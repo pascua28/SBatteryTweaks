@@ -94,4 +94,14 @@
             app:showSeekBarValue="true" />
 
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="Miscellaneous">
+
+        <SwitchPreferenceCompat
+            android:dependency="enableservice"
+            app:key="disablesync"
+            app:title="Auto disable sync"
+            android:summary="Disable auto sync when not charging to save battery and re-enable it when charging"
+            app:defaultValue="false" />
+    </PreferenceCategory>
 </PreferenceScreen>

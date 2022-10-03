@@ -30,6 +30,8 @@ public class SettingsActivity extends AppCompatActivity {
             PREF_SCHED_IDLE = "schedIdle";
     public static final String
             PREF_SCHED_IDLE_LEVEL = "schedIdleLevel";
+    public static final String
+            PREF_DISABLE_SYNC = "disablesync";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

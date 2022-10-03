@@ -2,6 +2,7 @@ package com.sammy.chargerateautomator;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,6 +51,7 @@ public class BatteryWorker extends BroadcastReceiver {
 
     private boolean isSchedEnabled;
     private boolean schedIdleEnabled;
+    private boolean disableSync;
     private int schedIdleLevel;
     private String start_time;
     LocalDate currDate;
@@ -79,6 +81,7 @@ public class BatteryWorker extends BroadcastReceiver {
         isSchedEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_ENABLED, false);
         schedIdleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_IDLE, false);
         schedIdleLevel = sharedPref.getInt(SettingsActivity.PREF_SCHED_IDLE_LEVEL, 85);
+        disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
 
         SharedPreferences timePref = context.getSharedPreferences("timePref", Context.MODE_PRIVATE);
         startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
@@ -160,6 +163,10 @@ public class BatteryWorker extends BroadcastReceiver {
         if (isCharging) {
             chargingState = "Charging: " + currentNow;
 
+
+            if (disableSync && !ContentResolver.getMasterSyncAutomatically())
+                ContentResolver.setMasterSyncAutomatically(true);
+
             if (isSchedEnabled && isLazyTime()) {
                 if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && Utils.isRooted()) {
                     setBypass(true);
@@ -186,7 +193,11 @@ public class BatteryWorker extends BroadcastReceiver {
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else chargingState = "Discharging: " + currentNow;
+        } else {
+            if (disableSync && ContentResolver.getMasterSyncAutomatically())
+                ContentResolver.setMasterSyncAutomatically(false);
+            chargingState = "Discharging: " + currentNow;
+        }
     }
 
     public static void updateStats(Boolean readMode) {
