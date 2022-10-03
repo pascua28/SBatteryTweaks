@@ -4,19 +4,9 @@ import static java.lang.Boolean.TRUE;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.topjohnwu.superuser.Shell;
-import com.topjohnwu.superuser.ShellUtils;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.List;
 
 public class Utils {
     static {
