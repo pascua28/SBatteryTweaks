@@ -29,23 +29,6 @@ public class BatteryService extends Service {
         Intent battIntent = new Intent();
         battIntent.setAction("com.sammy.chargerateautomator.notifier");
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                mHandler.postDelayed(this, 1800);
-                readMode = chargeFile.canRead();
-                if (readMode) {
-                    BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
-                } else {
-                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
-                }
-                if (MainActivity.isRunning || BatteryWorker.isCharging)
-                    BatteryWorker.updateStats(readMode);
-                    sendBroadcast(battIntent);
-            }
-        };
-        mHandler.post(runnable);
-
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(
                 CHANNELID,
@@ -58,6 +41,24 @@ public class BatteryService extends Service {
                 .setSmallIcon(R.drawable.ic_launcher);
 
         startForeground(1001, notification.build());
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mHandler.postDelayed(this, 1800);
+                readMode = chargeFile.canRead();
+                if (readMode) {
+                    BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
+                } else {
+                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
+                }
+                if (MainActivity.isRunning || BatteryWorker.isCharging)
+                    BatteryWorker.updateStats(readMode);
+                sendBroadcast(battIntent);
+            }
+        };
+        mHandler.post(runnable);
+
         return super.onStartCommand(intent, flags, startId);
     }
 }
