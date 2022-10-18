@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button settingsButton = findViewById(R.id.settingsBtn);
 
+        Button donateButton = findViewById(R.id.supportBtn);
+
         if (!foregroundServiceRunning()) {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
@@ -103,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
+        });
+
+        donateButton.setOnClickListener(v -> {
+            Intent openURL = new Intent(android.content.Intent.ACTION_VIEW);
+            openURL.setData(Uri.parse("https://github.com/pascua28/SupportMe"));
+            startActivity(openURL);
         });
 
         if (isRootAvailable && permGranted < 0) {
