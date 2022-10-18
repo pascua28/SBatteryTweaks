@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
-project("chargerateautomator")
+project("sbatterytweaks")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.

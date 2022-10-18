@@ -1,6 +1,6 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
-import static com.sammy.chargerateautomator.R.id.picker;
+import static com.sammy.sbatterytweaks.R.id.picker;
 
 import android.app.Activity;
 import android.app.Dialog;

@@ -1,4 +1,4 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Intent bootIntent = new Intent(context, BatteryService.class);
 
-            context.getApplicationContext().registerReceiver(batteryWorker, new IntentFilter("com.sammy.chargerateautomator.notifier"));
+            context.getApplicationContext().registerReceiver(batteryWorker, new IntentFilter("com.sammy.sbatterytweaks.notifier"));
             context.startForegroundService(bootIntent);
         }
     }

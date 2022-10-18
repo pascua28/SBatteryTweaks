@@ -1,4 +1,4 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -27,7 +27,7 @@ public class BatteryService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Intent battIntent = new Intent();
-        battIntent.setAction("com.sammy.chargerateautomator.notifier");
+        battIntent.setAction("com.sammy.sbatterytweaks.notifier");
 
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(

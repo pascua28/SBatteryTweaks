@@ -6,7 +6,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.sammy.chargerateautomator"
+        applicationId "com.sammy.sbatterytweaks"
         minSdk 29
         targetSdk 31
         versionCode 1

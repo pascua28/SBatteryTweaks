@@ -11,7 +11,7 @@ using std::ifstream;
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_sammy_chargerateautomator_Utils_readFile(JNIEnv *env, jobject thiz, jstring file_path) {
+Java_com_sammy_sbatterytweaks_Utils_readFile(JNIEnv *env, jobject thiz, jstring file_path) {
     string ret;
     string filePath = (*env).GetStringUTFChars(file_path, JNI_FALSE);
     ifstream file(filePath);

@@ -1,4 +1,4 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
 
         try {
-            this.registerReceiver(batteryWorker, new IntentFilter("com.sammy.chargerateautomator.notifier"));
+            this.registerReceiver(batteryWorker, new IntentFilter("com.sammy.sbatterytweaks.notifier"));
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (isRootAvailable && permGranted < 0) {
-            Shell.cmd("pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS").exec();
+            Shell.cmd("pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS").exec();
             Toast.makeText(this, "Permission granted! Restarting....", Toast.LENGTH_SHORT).show();
             new Timer().schedule(
                     new TimerTask() {
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     = new AlertDialog
                     .Builder(MainActivity.this);
             builder.setMessage("WRITE_SECURE_SETTINGS not granted!\n\nTo grant access, run\n" +
-                    "'adb shell pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS'\n" +
+                    "'adb shell pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS'\n" +
                     "on your computer");
             builder.setCancelable(false);
 

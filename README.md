@@ -6,7 +6,7 @@ A simple app that automatically toggles fast charging mode or suspends charging 
 
 Run:
 
-    adb shell pm grant com.sammy.chargerateautomator android.permission.WRITE_SECURE_SETTINGS
+    adb shell pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS
     
     
 # Did you like my work?

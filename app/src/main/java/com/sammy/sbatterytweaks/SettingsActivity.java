@@ -1,4 +1,4 @@
-package com.sammy.chargerateautomator;
+package com.sammy.sbatterytweaks;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
