@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
-            setTheme(R.style.Theme_ChargeRateAutomator_v31);
+            setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
         else
-            setTheme(R.style.Theme_ChargeRateAutomator);
+            setTheme(R.style.Theme_ChargeRateAutomator_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

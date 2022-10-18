@@ -14,12 +14,8 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.ChargeRateAutomator.NoActionBar">
+    <style name="Theme.ChargeRateAutomator.v31.NoActionBar" parent="Theme.ChargeRateAutomator.v31">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-    <style name="Theme.ChargeRateAutomator.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.ChargeRateAutomator.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
