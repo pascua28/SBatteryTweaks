@@ -7,6 +7,7 @@
         <SwitchPreferenceCompat
             app:key="enableservice"
             app:title="Enable Service"
+            app:singleLineTitle="false"
             app:summary="If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures"
             app:defaultValue="true" />
 
@@ -14,6 +15,7 @@
             android:dependency="enableservice"
             app:key="pauseMode"
             app:title="Bypass charging mode"
+            app:singleLineTitle="false"
             app:summary="Automatically pause charging to cool down battery instead of disabling fast charging"
             app:defaultValue="false" />
 
@@ -26,6 +28,7 @@
             android:key="thresholdUp"
             android:summary="If battery temperature reaches this threshold, fastcharging will be disabled or charging will be suspended"
             android:title="Threshold temperature"
+            android:singleLineTitle="false"
             app:minValueFloat="30.0"
             app:maxValueFloat="45.0"
             app:units="°C"
@@ -38,6 +41,7 @@
             android:key="tempDelta"
             android:summary="The amount of temperature needed to go down before re-enabling fastcharge or resuming charge"
             android:title="Cooldown temperature"
+            android:singleLineTitle="false"
             app:minValueFloat="0.1"
             app:maxValueFloat="5.0"
             app:units="°C"
@@ -52,6 +56,7 @@
             android:dependency="enableservice"
             app:key="timerSwitch"
             app:title="Enable timer-based temperature cooldown"
+            app:singleLineTitle="false"
             app:defaultValue="false" />
 
         <tk.zwander.seekbarpreference.SeekBarPreferenceNew
@@ -59,6 +64,7 @@
             android:key="cdSeconds"
             android:summary="Turn off fastcharging or suspend charging for this amount of time"
             android:title="Cooldown time"
+            android:singleLineTitle="false"
             app:minValueFloat="30"
             app:maxValueFloat="600"
             app:stepSize="10"
@@ -71,17 +77,20 @@
             android:dependency="enableservice"
             app:key="schedSwitch"
             app:title="Scheduled charge control"
+            app:singleLineTitle="false"
             app:defaultValue="false" />
 
         <Preference
             android:dependency="schedSwitch"
             android:key="timePickerBtn"
-            android:title="Time Picker" />
+            android:title="Time Picker"
+            android:singleLineTitle="false" />
 
         <SwitchPreferenceCompat
             android:dependency="schedSwitch"
             android:key="schedIdle"
             android:title="Bypass charging mode"
+            android:singleLineTitle="false"
             android:summary="Suspend charging at a certain level in a given time"
             app:defaultValue="false" />
 
@@ -101,6 +110,7 @@
             android:dependency="enableservice"
             app:key="disablesync"
             app:title="Auto disable sync"
+            app:singleLineTitle="false"
             android:summary="Disable auto sync when not charging to save battery and re-enable it when charging"
             app:defaultValue="false" />
     </PreferenceCategory>

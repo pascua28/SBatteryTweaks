@@ -215,7 +215,7 @@ public class BatteryWorker extends BroadcastReceiver {
         }
 
         temperature = temperature / 10F;
-        battTemp = temperature + "° C";
+        battTemp = temperature + " °C";
     }
 
 }
