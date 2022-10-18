@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (actualCapacity != 0)
-            ratedCapacity.setText("Rated capacity: " + actualCapacity + "mAh");
+            ratedCapacity.setText("Rated capacity: " + actualCapacity + " mAh");
 
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText("Bypass charging:");
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (isRootAvailable && permGranted < 0) {
             Shell.cmd("pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS").exec();
-            Toast.makeText(this, "Permission granted! Restarting....", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Permission granted! Restarting…", Toast.LENGTH_SHORT).show();
             new Timer().schedule(
                     new TimerTask() {
                         @Override
