@@ -10,8 +10,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import com.google.android.material.color.DynamicColors;
-
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String
