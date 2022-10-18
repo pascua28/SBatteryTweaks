@@ -1,13 +1,18 @@
 
-# ChargeRateController
-A simple app that automatically toggles fast charging mode or suspends charging (root only) on Samsung device when battery temperature reaches a certain point (threshold is currently at 36.5 C)
+
+# S Battery Tweaker
+A simple app to prolong battery longevity by limiting charge rate/suspending charge based on temperature.
 
 ## ADB setup (one time setup only; not needed for root users)
-
 Run:
 
     adb shell pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS
-    
+
+# External Libraries:
+
+ - Root utilities - https://github.com/topjohnwu/libsu
+ - Custom seekbar - https://github.com/zacharee/SeekBarPreference, https://github.com/pascua28/SeekBarPreference
+ - Time range picker - https://github.com/Droppers/TimeRangePicker
     
 # Did you like my work?
 ## Any donation is much appreciated!
