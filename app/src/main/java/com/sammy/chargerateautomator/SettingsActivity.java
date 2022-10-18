@@ -10,6 +10,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.google.android.material.color.DynamicColors;
+
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String
@@ -35,6 +37,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            setTheme(R.style.Theme_ChargeRateAutomator_v31);
+        else
+            setTheme(R.style.Theme_ChargeRateAutomator);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
         if (savedInstanceState == null) {

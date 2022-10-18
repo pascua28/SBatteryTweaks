@@ -13,6 +13,7 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.color.DynamicColors;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
@@ -36,8 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            setTheme(R.style.Theme_ChargeRateAutomator_v31);
+        else
+            setTheme(R.style.Theme_ChargeRateAutomator);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         int actualCapacity = Utils.getActualCapacity(this);
         int fullcapnom;
         float battHealth;
