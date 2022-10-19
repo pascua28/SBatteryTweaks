@@ -48,7 +48,7 @@ public class BatteryService extends Service {
             public void run() {
                 mHandler.postDelayed(this, 2000);
                 readMode = chargeFile.canRead();
-                BatteryWorker.bypassSupported = fullCapFIle.canRead();
+                BatteryWorker.bypassSupported = fullCapFIle.exists();
                 if (readMode) {
                     BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
                 } else {
