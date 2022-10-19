@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.util.Objects;
 
 public class BatteryService extends Service {
+    private Context context;
     Handler mHandler = new Handler();
     private Boolean readMode;
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
@@ -27,6 +29,7 @@ public class BatteryService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        context = this;
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(
                 CHANNELID,
@@ -53,7 +56,7 @@ public class BatteryService extends Service {
                 }
                 if (MainActivity.isRunning || BatteryWorker.isCharging)
                     BatteryWorker.updateStats(readMode);
-                BatteryWorker.batteryWorker(getApplicationContext());
+                BatteryWorker.batteryWorker(context);
             }
         };
         mHandler.post(runnable);
