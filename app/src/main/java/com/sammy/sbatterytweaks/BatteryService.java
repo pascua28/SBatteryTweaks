@@ -45,7 +45,7 @@ public class BatteryService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mHandler.postDelayed(this, 1800);
+                mHandler.postDelayed(this, 2000);
                 readMode = chargeFile.canRead();
                 if (readMode) {
                     BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
