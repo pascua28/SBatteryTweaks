@@ -18,6 +18,7 @@ public class BatteryService extends Service {
     private Boolean readMode;
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final File chargeFile = new File (chargingFile);
+    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,6 +45,7 @@ public class BatteryService extends Service {
             public void run() {
                 mHandler.postDelayed(this, 2000);
                 readMode = chargeFile.canRead();
+                BatteryWorker.bypassSupported = fullCapFIle.canRead();
                 if (readMode) {
                     BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
                 } else {

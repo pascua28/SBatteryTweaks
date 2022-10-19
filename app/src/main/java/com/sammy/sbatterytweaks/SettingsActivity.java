@@ -62,7 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
             SwitchPreferenceCompat schedIdle = findPreference(PREF_SCHED_IDLE);
 
-            if (!Utils.isRooted()) {
+            if (!BatteryWorker.bypassSupported) {
                 if (pauseModeSwitch != null) {
                     pauseModeSwitch.setEnabled(false);
                 }

@@ -62,6 +62,8 @@ public class BatteryWorker {
     private static long endMillis;
     private static int duration;
 
+    public static boolean bypassSupported;
+
     public static void batteryWorker(Context context) {
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
@@ -86,7 +88,7 @@ public class BatteryWorker {
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
-        if (Utils.isRooted()) {
+        if (Utils.isRooted() && bypassSupported) {
             battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
         } else {
             if (protectEnabled) {
