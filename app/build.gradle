@@ -12,16 +12,7 @@ android {
         versionCode 1
         versionName '3.0'
 
-        ndk {
-            abiFilters "arm64-v8a"
-        }
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags ''
-            }
-        }
     }
 
     buildTypes {
@@ -37,13 +28,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version '3.18.1'
-        }
-    }
-    ndkVersion '25.1.8937393'
 }
 
 dependencies {
