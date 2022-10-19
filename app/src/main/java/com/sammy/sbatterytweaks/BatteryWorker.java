@@ -1,10 +1,8 @@
 package com.sammy.sbatterytweaks;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.provider.Settings;
@@ -22,15 +20,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-public class BatteryWorker extends BroadcastReceiver {
+public class BatteryWorker {
     public static String chargingState;
     public static String battTemp;
     public static String fastChargeStatus;
     private static boolean serviceEnabled;
     public static boolean isCharging;
     public static boolean isOngoing;
-    private boolean timerEnabled;
-    private boolean shouldCoolDown;
+    private static boolean timerEnabled;
+    private static boolean shouldCoolDown;
     private static boolean manualBypass = false;
     private static boolean fastChargeEnabled;
     private static boolean protectEnabled;
@@ -40,32 +38,31 @@ public class BatteryWorker extends BroadcastReceiver {
     private static float tempDelta;
     private static int percentage;
     private static int battFullCap = 0;
-    private float cdSeconds;
-    private long cooldown;
+    private static float cdSeconds;
+    private static long cooldown;
 
-    private int startHour, startMinute;
+    private static int startHour, startMinute;
 
     static String tempFile = "/sys/class/power_supply/battery/batt_temp";
     static String percentageFile = "/sys/class/power_supply/battery/capacity";
     static String currentFile = "/sys/class/power_supply/battery/current_avg";
     static String currentNow;
 
-    private boolean isSchedEnabled;
-    private boolean schedIdleEnabled;
-    private boolean disableSync;
-    private int schedIdleLevel;
-    private String start_time;
-    LocalDate currDate;
-    SimpleDateFormat sdf;
-    Date currTime, start;
+    private static boolean isSchedEnabled;
+    private static boolean schedIdleEnabled;
+    private static boolean disableSync;
+    private static int schedIdleLevel;
+    private static String start_time;
+    static SimpleDateFormat sdf;
+    static Date currTime;
+    static Date start;
 
-    private long currentTimeMillis;
-    private long startMillis;
-    private long endMillis;
-    private int duration;
+    private static long currentTimeMillis;
+    private static long startMillis;
+    private static long endMillis;
+    private static int duration;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+    public static void batteryWorker(Context context) {
         fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
         protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
@@ -127,9 +124,8 @@ public class BatteryWorker extends BroadcastReceiver {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private boolean isLazyTime() {
+    private static boolean isLazyTime() {
         start_time = String.format(LocalDate.now().toString() + "-%02d:%02d", startHour, startMinute);
-        currDate = LocalDate.now();
         sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm");
         currTime = Calendar.getInstance().getTime();
         start = currTime;
@@ -147,7 +143,7 @@ public class BatteryWorker extends BroadcastReceiver {
         return (currentTimeMillis > startMillis) && (currentTimeMillis < endMillis);
     }
 
-    private void startTimer() {
+    private static void startTimer() {
         cooldown = (long) cdSeconds * 1000 * 2;
         new CountDownTimer(cooldown, 1000) {
                 public void onTick(long millisUntilFinished) {
@@ -162,7 +158,7 @@ public class BatteryWorker extends BroadcastReceiver {
             }.start();
     }
 
-    private void battWorker(Context context) {
+    private static void battWorker(Context context) {
         if (isCharging && !manualBypass) {
             chargingState = "Charging: " + currentNow;
 

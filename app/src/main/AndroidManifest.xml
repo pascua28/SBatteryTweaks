@@ -39,11 +39,6 @@
             />
         </activity>
         
-        <receiver
-            android:name=".BatteryWorker"
-            android:exported="false">
-        </receiver>
-        
         <receiver android:name=".BootReceiver"
             android:exported="false">
             <intent-filter>

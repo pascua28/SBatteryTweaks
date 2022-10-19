@@ -26,9 +26,6 @@ public class BatteryService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent battIntent = new Intent();
-        battIntent.setAction("com.sammy.sbatterytweaks.notifier");
-
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(
                 CHANNELID,
@@ -54,7 +51,7 @@ public class BatteryService extends Service {
                 }
                 if (MainActivity.isRunning || BatteryWorker.isCharging)
                     BatteryWorker.updateStats(readMode);
-                sendBroadcast(battIntent);
+                BatteryWorker.batteryWorker(getApplicationContext());
             }
         };
         mHandler.post(runnable);

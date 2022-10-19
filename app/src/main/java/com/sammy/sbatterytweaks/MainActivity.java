@@ -3,7 +3,6 @@ package com.sammy.sbatterytweaks;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
@@ -23,7 +22,6 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isRunning;
     private boolean isRootAvailable;
     private static TextView chargingStatus;
@@ -54,12 +52,6 @@ public class MainActivity extends AppCompatActivity {
         String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
 
         int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
-
-        try {
-            this.registerReceiver(batteryWorker, new IntentFilter("com.sammy.sbatterytweaks.notifier"));
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
