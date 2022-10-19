@@ -15,8 +15,6 @@ Java_com_sammy_sbatterytweaks_Utils_readFile(JNIEnv *env, jobject thiz, jstring 
     string ret;
     string filePath = (*env).GetStringUTFChars(file_path, JNI_FALSE);
     ifstream file(filePath);
-    if (!file.is_open())
-        return env->NewStringUTF("0");
     file >> ret;
     file.close();
 
