@@ -110,10 +110,6 @@ public class TimePicker extends Dialog implements View.OnClickListener {
 
     }
 
-    private void animate(TimeRangePicker.Thumb thumb, Boolean active) {
-
-    }
-
     private void updateTimes() {
         editor.putInt(PREF_START_HOUR, startHour);
         editor.putInt(PREF_START_MINUTE, startMinute);
