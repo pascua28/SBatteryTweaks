@@ -46,7 +46,7 @@ public class BatteryWorker {
     static String tempFile = "/sys/class/power_supply/battery/batt_temp";
     static String percentageFile = "/sys/class/power_supply/battery/capacity";
     static String currentFile = "/sys/class/power_supply/battery/current_avg";
-    static String currentNow;
+    static String currentNow = "";
 
     private static boolean isSchedEnabled;
     private static boolean schedIdleEnabled;
