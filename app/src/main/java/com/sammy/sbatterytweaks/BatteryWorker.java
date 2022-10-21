@@ -103,12 +103,12 @@ public class BatteryWorker {
 
         battWorker(context);
 
-        if (isCharging && isBypassed())
+        if (isBypassed())
             chargingState = "Idle";
     }
 
     public static boolean isBypassed() {
-        return percentage >= battFullCap && battFullCap < 100;
+        return isCharging && (percentage >= battFullCap && battFullCap < 100);
     }
 
     public static void setBypass(Boolean state) {
