@@ -43,7 +43,7 @@ public class BatteryWorker {
 
     private static int startHour, startMinute;
 
-    static String tempFile = "/sys/class/power_supply/battery/batt_temp";
+    static String tempFile = "/sys/class/power_supply/battery/temp";
     static String percentageFile = "/sys/class/power_supply/battery/capacity";
     static String currentFile = "/sys/class/power_supply/battery/current_avg";
     static String currentNow = "";
