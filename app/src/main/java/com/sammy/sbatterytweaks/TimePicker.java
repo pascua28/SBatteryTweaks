@@ -30,7 +30,6 @@ public class TimePicker extends Dialog implements View.OnClickListener {
             PREF_DURATION = "duration";
 
     public Activity c;
-    public Dialog d;
     public Button saveBtn;
     private int startHour, startMinute, endHour, endMinute, duration;
     private TimeRangePicker timeRangePicker;
@@ -67,15 +66,15 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         timeRangePicker.setStartTime(new TimeRangePicker.Time(startHour, startMinute));
         timeRangePicker.setEndTimeMinutes((endHour * 60) + endMinute);
 
-        start_Time.setText("Start: " + timeRangePicker.getStartTime().toString());
-        end_Time.setText("End: " + timeRangePicker.getEndTime().toString());
+        start_Time.setText(String.format("Start: %s", timeRangePicker.getStartTime()));
+        end_Time.setText(String.format("End: %s", timeRangePicker.getEndTime()));
 
         timeRangePicker.setOnTimeChangeListener(new TimeRangePicker.OnTimeChangeListener() {
             @Override
             public void onStartTimeChange(@NonNull TimeRangePicker.Time time) {
                 startHour = time.getHour();
                 startMinute = time.getMinute();
-                start_Time.setText("Start: " + time.toString());
+                start_Time.setText(String.format("Start: %s", time));
 
             }
 
@@ -83,7 +82,7 @@ public class TimePicker extends Dialog implements View.OnClickListener {
             public void onEndTimeChange(@NonNull TimeRangePicker.Time time) {
                 endHour = time.getHour();
                 endMinute = time.getMinute();
-                end_Time.setText("End: " + time.toString());
+                end_Time.setText(String.format("End: %s", time));
             }
 
             @Override
@@ -95,9 +94,6 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         timeRangePicker.setOnDragChangeListener(new TimeRangePicker.OnDragChangeListener() {
             @Override
             public boolean onDragStart(@NonNull TimeRangePicker.Thumb thumb) {
-                if (thumb != TimeRangePicker.Thumb.BOTH) {
-                    //animate
-                }
                 return true;
             }
 
@@ -121,13 +117,9 @@ public class TimePicker extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.saveBtn:
-                updateTimes();
-                dismiss();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.saveBtn) {
+            updateTimes();
+            dismiss();
         }
         dismiss();
     }

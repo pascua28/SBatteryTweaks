@@ -1,5 +1,7 @@
 package com.sammy.sbatterytweaks;
 
+import static java.lang.String.format;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -76,14 +78,14 @@ public class MainActivity extends AppCompatActivity {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float)fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth !=0)
-                headerText.setText("Battery status (Health: " + String.format(Locale.ENGLISH, "%.2f", battHealth) + "%)");
+                headerText.setText(format("Battery status (Health: %s%%)", format(Locale.ENGLISH, "%.2f", battHealth)));
             else headerText.setText("Battery status:");
         } else {
             headerText.setText("Battery status:");
         }
 
         if (actualCapacity != 0)
-            ratedCapacity.setText("Rated capacity: " + actualCapacity + " mAh");
+            ratedCapacity.setText(String.format("Rated capacity: %d mAh", actualCapacity));
 
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText("Bypass charging:");
