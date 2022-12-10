@@ -52,14 +52,10 @@ public class BatteryWorker {
     private static boolean schedIdleEnabled;
     private static boolean disableSync;
     private static int schedIdleLevel;
-    private static String start_time;
     static SimpleDateFormat sdf;
     static Date currTime;
     static Date start;
 
-    private static long currentTimeMillis;
-    private static long startMillis;
-    private static long endMillis;
     private static int duration;
 
     public static boolean bypassSupported;
@@ -127,7 +123,7 @@ public class BatteryWorker {
 
     @SuppressLint("SimpleDateFormat")
     private static boolean isLazyTime() {
-        start_time = String.format(LocalDate.now().toString() + "-%02d:%02d", startHour, startMinute);
+        String start_time = String.format(LocalDate.now().toString() + "-%02d:%02d", startHour, startMinute);
         sdf = new SimpleDateFormat("yyyy-MM-dd-hh:mm");
         currTime = Calendar.getInstance().getTime();
         start = currTime;
@@ -138,9 +134,9 @@ public class BatteryWorker {
             e.printStackTrace();
         }
 
-        currentTimeMillis = currTime.getTime();
-        startMillis = start.getTime();
-        endMillis = startMillis + ((long)duration * 60 * 1000);
+        long currentTimeMillis = currTime.getTime();
+        long startMillis = start.getTime();
+        long endMillis = startMillis + ((long) duration * 60 * 1000);
 
         return (currentTimeMillis > startMillis) && (currentTimeMillis < endMillis);
     }
