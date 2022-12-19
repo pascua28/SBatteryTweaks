@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
-import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -18,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 public class BatteryWorker {
     public static String chargingState;
@@ -197,16 +195,10 @@ public class BatteryWorker {
         }
     }
 
-    public static void updateStats(Boolean readMode) {
-        if (readMode) {
-            temperature = Float.parseFloat(Utils.readFile(tempFile));
-            percentage = Integer.parseInt(Utils.readFile(percentageFile));
-            currentNow = Utils.readFile(currentFile) + " mA";
-        } else {
-            temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
-            percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
-            currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
-        }
+    public static void updateStats() {
+        temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
+        percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
+        currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
 
         temperature = temperature / 10F;
         battTemp = temperature + " °C";

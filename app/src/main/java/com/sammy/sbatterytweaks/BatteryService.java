@@ -12,12 +12,10 @@ import android.os.IBinder;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.io.File;
-import java.util.Objects;
 
 public class BatteryService extends Service {
     private Context context;
     Handler mHandler = new Handler();
-    private Boolean readMode;
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final File chargeFile = new File (chargingFile);
     private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
@@ -47,15 +45,10 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                readMode = chargeFile.canRead();
                 BatteryWorker.bypassSupported = fullCapFIle.exists();
-                if (readMode) {
-                    BatteryWorker.isCharging = Objects.equals(Utils.readFile(chargingFile), "1");
-                } else {
-                    BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
-                }
+                BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
                 if (MainActivity.isRunning || BatteryWorker.isCharging)
-                    BatteryWorker.updateStats(readMode);
+                    BatteryWorker.updateStats();
                 BatteryWorker.batteryWorker(context);
             }
         };
