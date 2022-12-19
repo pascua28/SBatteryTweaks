@@ -61,8 +61,8 @@ public class BatteryWorker {
     public static boolean bypassSupported;
 
     public static void batteryWorker(Context context) {
-        fastChargeEnabled = Objects.equals(Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging"), "1");
-        protectEnabled = Objects.equals(Settings.Global.getString(context.getContentResolver(), "protect_battery"), "1");
+        fastChargeEnabled = ShellUtils.fastCmd("settings get system adaptive_fast_charging").equals("1");
+        protectEnabled = ShellUtils.fastCmd("settings get system protect_battery").equals("1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
         else fastChargeStatus = "Disabled";
 
@@ -97,7 +97,7 @@ public class BatteryWorker {
         if (MainActivity.isRunning)
             MainActivity.updateStatus();
 
-        battWorker(context);
+        battWorker(context.getApplicationContext());
 
         if (isBypassed())
             chargingState = "Idle";
@@ -168,14 +168,14 @@ public class BatteryWorker {
                 if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && Utils.isRooted()) {
                     setBypass(true);
                 } else if (fastChargeEnabled) {
-                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
+                    ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
                 }
             } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
                 if (pauseMode && isBypassed()) {
                     setBypass(false);
                     Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
                 } else if (!fastChargeEnabled) {
-                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "1");
+                    ShellUtils.fastCmd(" settings put system adaptive_fast_charging 1");
                     Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
                 }
             } else if ((temperature >= thresholdTemp) && serviceEnabled) {
@@ -186,7 +186,7 @@ public class BatteryWorker {
                     setBypass(true);
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
                 } else if (fastChargeEnabled && !isBypassed()) {
-                    Settings.System.putString(context.getContentResolver(), "adaptive_fast_charging", "0");
+                    ShellUtils.fastCmd(" settings put system adaptive_fast_charging 0");
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
             }

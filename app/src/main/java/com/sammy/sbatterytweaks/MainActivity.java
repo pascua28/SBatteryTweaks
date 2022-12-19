@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
 
-        int permGranted = this.checkCallingOrSelfPermission(requiredPermission);
+        int permGranted = getApplicationContext().checkCallingOrSelfPermission(requiredPermission);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
