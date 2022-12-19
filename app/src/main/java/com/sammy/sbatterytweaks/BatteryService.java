@@ -17,8 +17,8 @@ public class BatteryService extends Service {
     private Context context;
     Handler mHandler = new Handler();
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
-    private final File chargeFile = new File (chargingFile);
     private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
+    private boolean isCharging;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -46,10 +46,11 @@ public class BatteryService extends Service {
             public void run() {
                 mHandler.postDelayed(this, 2000);
                 BatteryWorker.bypassSupported = fullCapFIle.exists();
-                BatteryWorker.isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
-                if (MainActivity.isRunning || BatteryWorker.isCharging)
+                isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
+                if (MainActivity.isRunning || isCharging) {
                     BatteryWorker.updateStats();
-                BatteryWorker.batteryWorker(context);
+                    BatteryWorker.batteryWorker(context);
+                }
             }
         };
         mHandler.post(runnable);

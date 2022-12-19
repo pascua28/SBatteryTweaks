@@ -23,7 +23,6 @@ public class BatteryWorker {
     public static String battTemp;
     public static String fastChargeStatus;
     private static boolean serviceEnabled;
-    public static boolean isCharging;
     public static boolean isOngoing;
     private static boolean timerEnabled;
     private static boolean shouldCoolDown;
@@ -102,7 +101,7 @@ public class BatteryWorker {
     }
 
     public static boolean isBypassed() {
-        return isCharging && (percentage >= battFullCap && battFullCap < 100);
+        return (percentage >= battFullCap && battFullCap < 100);
     }
 
     public static void setBypass(Boolean state) {
@@ -155,7 +154,7 @@ public class BatteryWorker {
     }
 
     private static void battWorker(Context context) {
-        if (isCharging && !manualBypass) {
+        if (!manualBypass) {
             chargingState = "Charging: " + currentNow;
 
 
