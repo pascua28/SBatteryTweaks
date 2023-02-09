@@ -28,13 +28,12 @@ public class BatteryWorker {
     private static boolean shouldCoolDown;
     private static boolean manualBypass = false;
     private static boolean fastChargeEnabled;
-    private static boolean protectEnabled;
     private static boolean pauseMode;
     private static float temperature;
     private static float thresholdTemp;
     private static float tempDelta;
     private static int percentage;
-    private static int battFullCap = 0;
+    private static int battTestMode = 0;
     private static float cdSeconds;
     private static long cooldown;
 
@@ -56,10 +55,10 @@ public class BatteryWorker {
     private static int duration;
 
     public static boolean bypassSupported;
+    private static com.topjohnwu.superuser.Shell Shell;
 
     public static void batteryWorker(Context context) {
         fastChargeEnabled = ShellUtils.fastCmd("settings get system adaptive_fast_charging").equals("1");
-        protectEnabled = ShellUtils.fastCmd("settings get system protect_battery").equals("1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
         else fastChargeStatus = "Disabled";
 
@@ -81,15 +80,8 @@ public class BatteryWorker {
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
-        if (Utils.isRooted() && bypassSupported) {
-            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
-        } else {
-            if (protectEnabled) {
-                battFullCap = 85;
-            } else {
-                battFullCap = 100;
-            }
-        }
+        if (Utils.isRooted() && bypassSupported)
+            battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
 
         if (MainActivity.isRunning)
             MainActivity.updateStatus();
@@ -101,20 +93,27 @@ public class BatteryWorker {
     }
 
     public static boolean isBypassed() {
-        return (percentage >= battFullCap && battFullCap < 100);
+        return battTestMode == 1;
     }
 
-    public static void setBypass(Boolean state) {
+    public static void setBypass(Boolean state, Boolean isManual) {
         if (state) {
-            manualBypass = true;
-            Shell.cmd("echo " + percentage + "> /sys/class/power_supply/battery/batt_full_capacity").exec();
+            manualBypass = isManual;
+            Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
         } else {
+            // Allow overriding the toggle when turning it off.
             manualBypass = false;
-            if (protectEnabled) {
-                Shell.cmd("echo 85 > /sys/class/power_supply/battery/batt_full_capacity").exec();
-            } else {
-                Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
+
+            // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
+            Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
+
+            Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
             }
+            Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
         }
     }
 
@@ -162,14 +161,14 @@ public class BatteryWorker {
                 ContentResolver.setMasterSyncAutomatically(true);
 
             if (isSchedEnabled && isLazyTime()) {
-                if (schedIdleEnabled && percentage >= schedIdleLevel && !isBypassed() && Utils.isRooted()) {
-                    setBypass(true);
+                if (schedIdleEnabled && ((percentage >= schedIdleLevel) && !isBypassed() && Utils.isRooted())) {
+                    setBypass(true, false);
                 } else if (fastChargeEnabled) {
                     ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
                 }
             } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
                 if (pauseMode && isBypassed()) {
-                    setBypass(false);
+                    setBypass(false, false);
                     Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
                 } else if (!fastChargeEnabled) {
                     ShellUtils.fastCmd(" settings put system adaptive_fast_charging 1");
@@ -180,7 +179,7 @@ public class BatteryWorker {
                     startTimer();
 
                 if (pauseMode && !isBypassed()) {
-                    setBypass(true);
+                    setBypass(true, false);
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
                 } else if (fastChargeEnabled && !isBypassed()) {
                     ShellUtils.fastCmd(" settings put system adaptive_fast_charging 0");

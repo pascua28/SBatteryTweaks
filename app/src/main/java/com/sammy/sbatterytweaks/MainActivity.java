@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
             bypassToggle.setEnabled(false);
         }
 
-        bypassToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> BatteryWorker.setBypass(isChecked));
+        bypassToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> BatteryWorker.setBypass(isChecked, true));
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);

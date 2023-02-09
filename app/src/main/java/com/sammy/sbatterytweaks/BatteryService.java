@@ -17,7 +17,7 @@ public class BatteryService extends Service {
     private Context context;
     Handler mHandler = new Handler();
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
-    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
+    private final File testmodeFIle = new File("/sys/class/power_supply/battery/test_mode");
     private boolean isCharging;
 
     @Override
@@ -45,7 +45,7 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                BatteryWorker.bypassSupported = fullCapFIle.exists();
+                BatteryWorker.bypassSupported = testmodeFIle.exists();
                 isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
                 if (MainActivity.isRunning || isCharging) {
                     BatteryWorker.updateStats();
