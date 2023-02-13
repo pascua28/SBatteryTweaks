@@ -107,7 +107,13 @@ public class BatteryWorker {
             // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
             Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
 
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
             Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
