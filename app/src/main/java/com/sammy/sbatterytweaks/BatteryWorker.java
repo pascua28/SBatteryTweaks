@@ -32,7 +32,7 @@ public class BatteryWorker {
     private static float thresholdTemp;
     private static float tempDelta;
     private static int percentage;
-    private static int battTestMode = 0;
+    public static int battTestMode = 0;
     private static float cdSeconds;
     private static long cooldown;
 
@@ -93,7 +93,7 @@ public class BatteryWorker {
     }
 
     public static boolean isBypassed() {
-        return battTestMode == 1;
+        return battTestMode == 1 && BatteryService.isCharging;
     }
 
     public static void setBypass(Boolean state, Boolean isManual) {
