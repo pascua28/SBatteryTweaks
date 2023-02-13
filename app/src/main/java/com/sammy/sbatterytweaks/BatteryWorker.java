@@ -97,29 +97,31 @@ public class BatteryWorker {
     }
 
     public static void setBypass(Boolean state, Boolean isManual) {
-        if (state) {
-            manualBypass = isManual;
-            Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
-        } else {
-            // Allow overriding the toggle when turning it off.
-            manualBypass = false;
+        if (BatteryService.isCharging) {
+            if (state) {
+                manualBypass = isManual;
+                Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
+            } else {
+                // Allow overriding the toggle when turning it off.
+                manualBypass = false;
 
-            // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
-            Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
+                // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
+                Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
 
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+                Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+                Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
             }
-            Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            }
-            Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
         }
     }
 
