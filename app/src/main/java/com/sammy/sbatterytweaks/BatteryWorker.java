@@ -25,7 +25,7 @@ public class BatteryWorker {
     public static boolean isOngoing;
     private static boolean timerEnabled;
     private static boolean shouldCoolDown;
-    private static boolean manualBypass = false;
+    public static boolean manualBypass = false;
     private static boolean fastChargeEnabled;
     private static boolean pauseMode;
     private static float temperature;
@@ -44,11 +44,13 @@ public class BatteryWorker {
     static String currentNow = "";
 
     private static boolean isSchedEnabled;
-    private static boolean schedIdleEnabled;
+
+    public static boolean idleEnabled;
     private static boolean disableSync;
-    private static int schedIdleLevel;
+    private static int idleLevel;
     static SimpleDateFormat sdf;
     static Date currTime;
+
     static Date start;
 
     private static int duration;
@@ -70,8 +72,8 @@ public class BatteryWorker {
         timerEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_TIMER_SWITCH, false);
         cdSeconds = sharedPref.getFloat(SettingsActivity.KEY_PREF_CD_SECONDS, 30F);
         isSchedEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_ENABLED, false);
-        schedIdleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_IDLE, false);
-        schedIdleLevel = sharedPref.getInt(SettingsActivity.PREF_SCHED_IDLE_LEVEL, 85);
+        idleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_IDLE_SWITCH, false);
+        idleLevel = sharedPref.getInt(SettingsActivity.PREF_IDLE_LEVEL, 75);
         disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
 
         SharedPreferences timePref = context.getSharedPreferences("timePref", Context.MODE_PRIVATE);
@@ -82,14 +84,14 @@ public class BatteryWorker {
         if (Utils.isRooted() && bypassSupported)
             battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
 
-        if (isBypassed())
-            chargingState = "Idle";
-
         if (MainActivity.isRunning)
             MainActivity.updateStatus();
 
         if (!manualBypass)
             battWorker(context.getApplicationContext(), charging);
+
+        if (isBypassed())
+            chargingState = "Idle";
     }
 
     public static boolean isBypassed() {
@@ -97,11 +99,11 @@ public class BatteryWorker {
     }
 
     public static void setBypass(Boolean state, Boolean isManual) {
+        manualBypass = isManual;
         if (BatteryService.isCharging) {
-            if (state) {
-                manualBypass = isManual;
+            if (state)
                 Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
-            } else {
+            else {
                 // Allow overriding the toggle when turning it off.
                 manualBypass = false;
 
@@ -164,16 +166,14 @@ public class BatteryWorker {
         if (charging) {
             chargingState = "Charging: " + currentNow;
 
-
             if (disableSync && !ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(true);
 
-            if (isSchedEnabled && isLazyTime()) {
-                if (schedIdleEnabled && ((percentage >= schedIdleLevel) && !isBypassed() && Utils.isRooted())) {
-                    setBypass(true, false);
-                } else if (fastChargeEnabled) {
+            if (idleEnabled && (percentage >= idleLevel) && !isBypassed()) {
+                setBypass(true, false);
+            } else if (isSchedEnabled && isLazyTime()) {
+                if (fastChargeEnabled)
                     ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
-                }
             } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
                 if (pauseMode && isBypassed()) {
                     setBypass(false, false);

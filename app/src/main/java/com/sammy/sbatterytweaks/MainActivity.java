@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private static TextView chargingStatus;
     private static TextView battTemperature;
     private static TextView fastChgStatus;
+
+    private static TextView bypassText;
     private TextView headerText;
     private TextView ratedCapacity;
 
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             startForegroundService(serviceIntent);
         }
 
-        TextView bypassText = findViewById(R.id.bypassText);
+        bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);
@@ -88,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             ratedCapacity.setText(String.format("Rated capacity: %d mAh", actualCapacity));
 
         bypassToggle = findViewById(R.id.bypassToggle);
-        bypassText.setText("Bypass charging:");
+        bypassText.setText("Passthrough charging:");
 
         if (!isRootAvailable && !BatteryWorker.bypassSupported) {
             bypassText.setAlpha(0.5f);

@@ -27,9 +27,9 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String
             PREF_SCHED_ENABLED = "schedSwitch";
     public static final String
-            PREF_SCHED_IDLE = "schedIdle";
+            PREF_IDLE_SWITCH = "idleSwitch";
     public static final String
-            PREF_SCHED_IDLE_LEVEL = "schedIdleLevel";
+            PREF_IDLE_LEVEL = "idleLevel";
     public static final String
             PREF_DISABLE_SYNC = "disablesync";
 
@@ -60,14 +60,14 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
-            SwitchPreferenceCompat schedIdle = findPreference(PREF_SCHED_IDLE);
+            SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
 
             if (!Utils.isRooted() && !BatteryWorker.bypassSupported) {
                 if (pauseModeSwitch != null) {
                     pauseModeSwitch.setEnabled(false);
                 }
-                if (schedIdle != null) {
-                    schedIdle.setEnabled(false);
+                if (idleSwitch != null) {
+                    idleSwitch.setEnabled(false);
                 }
             }
 

@@ -85,23 +85,6 @@
             android:key="timePickerBtn"
             android:title="Time Picker"
             android:singleLineTitle="false" />
-
-        <SwitchPreferenceCompat
-            android:dependency="schedSwitch"
-            android:key="schedIdle"
-            android:title="Bypass charging mode"
-            android:singleLineTitle="false"
-            android:summary="Suspend charging at a certain level in a given time"
-            app:defaultValue="false" />
-
-        <SeekBarPreference
-            android:dependency="schedIdle"
-            android:key="schedIdleLevel"
-            app:maxValue="95"
-            app:minValue="30"
-            android:defaultValue="85"
-            app:showSeekBarValue="true" />
-
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Miscellaneous">
@@ -113,5 +96,19 @@
             app:singleLineTitle="false"
             android:summary="Disable auto sync when not charging to save battery and re-enable it when charging"
             app:defaultValue="false" />
+
+        <SwitchPreferenceCompat
+            android:key="idleSwitch"
+            android:title="Configure passthrough charging level"
+            android:singleLineTitle="false"
+            app:defaultValue="false" />
+
+        <SeekBarPreference
+            android:dependency="idleSwitch"
+            android:key="idleLevel"
+            app:maxValue="95"
+            app:minValue="30"
+            android:defaultValue="75"
+            app:showSeekBarValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>
