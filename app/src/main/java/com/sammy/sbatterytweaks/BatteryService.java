@@ -20,6 +20,8 @@ public class BatteryService extends Service {
     private final File testmodeFIle = new File("/sys/class/power_supply/battery/test_mode");
     public static boolean isCharging;
 
+    private static int battTestMode = 0;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -48,6 +50,8 @@ public class BatteryService extends Service {
                 BatteryWorker.bypassSupported = testmodeFIle.exists();
                 isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
                 if (MainActivity.isRunning || isCharging) {
+                    if (BatteryWorker.bypassSupported)
+                        battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat " + testmodeFIle.toString()));
                     BatteryWorker.updateStats();
                     BatteryWorker.batteryWorker(context, isCharging);
                 } else if (!isCharging && BatteryWorker.battTestMode == 1)
@@ -57,5 +61,8 @@ public class BatteryService extends Service {
         mHandler.post(runnable);
 
         return super.onStartCommand(intent, flags, startId);
+    }
+    public static boolean isBypassed() {
+        return battTestMode == 1 && isCharging;
     }
 }

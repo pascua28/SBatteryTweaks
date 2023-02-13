@@ -90,40 +90,33 @@ public class BatteryWorker {
         if (!manualBypass)
             battWorker(context.getApplicationContext(), charging);
 
-        if (isBypassed())
+        if (BatteryService.isBypassed())
             chargingState = "Idle";
     }
-
-    public static boolean isBypassed() {
-        return battTestMode == 1 && BatteryService.isCharging;
-    }
-
     public static void setBypass(Boolean state, Boolean isManual) {
         manualBypass = isManual;
-        if (BatteryService.isCharging) {
-            if (state)
-                Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
-            else {
-                // Allow overriding the toggle when turning it off.
-                manualBypass = false;
+        if (state)
+            Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
+        else {
+            // Allow overriding the toggle when turning it off.
+            manualBypass = false;
 
-                // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
-                Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
+            // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
+            Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
 
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-                Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-                Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
             }
+            Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+            Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
         }
     }
 
@@ -169,13 +162,13 @@ public class BatteryWorker {
             if (disableSync && !ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(true);
 
-            if (idleEnabled && (percentage >= idleLevel) && !isBypassed()) {
+            if (idleEnabled && (percentage >= idleLevel) && !BatteryService.isBypassed()) {
                 setBypass(true, false);
             } else if (isSchedEnabled && isLazyTime()) {
                 if (fastChargeEnabled)
                     ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
             } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
-                if (pauseMode && isBypassed()) {
+                if (pauseMode && BatteryService.isBypassed()) {
                     setBypass(false, false);
                     Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
                 } else if (!fastChargeEnabled) {
@@ -186,10 +179,10 @@ public class BatteryWorker {
                 if (timerEnabled && !isOngoing)
                     startTimer();
 
-                if (pauseMode && !isBypassed()) {
+                if (pauseMode && !BatteryService.isBypassed()) {
                     setBypass(true, false);
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
-                } else if (fastChargeEnabled && !isBypassed()) {
+                } else if (fastChargeEnabled && !BatteryService.isBypassed()) {
                     ShellUtils.fastCmd(" settings put system adaptive_fast_charging 0");
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }

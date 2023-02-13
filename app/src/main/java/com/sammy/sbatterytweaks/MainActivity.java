@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             chargingStatus.setText(BatteryWorker.chargingState);
             battTemperature.setText(BatteryWorker.battTemp);
             fastChgStatus.setText(BatteryWorker.fastChargeStatus);
-            bypassToggle.setChecked(BatteryWorker.isBypassed());
+            bypassToggle.setChecked(BatteryService.isBypassed());
     }
 
     @SuppressWarnings("deprecation")
