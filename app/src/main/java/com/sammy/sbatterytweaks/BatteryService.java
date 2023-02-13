@@ -18,7 +18,7 @@ public class BatteryService extends Service {
     Handler mHandler = new Handler();
     private final String chargingFile = "/sys/class/power_supply/battery/charge_now";
     private final File testmodeFIle = new File("/sys/class/power_supply/battery/test_mode");
-    private boolean isCharging;
+    boolean isCharging;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -49,9 +49,10 @@ public class BatteryService extends Service {
                 isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
                 if (MainActivity.isRunning || isCharging) {
                     BatteryWorker.updateStats();
-                    BatteryWorker.batteryWorker(context);
-                } else if (!isCharging && BatteryWorker.isBypassed())
+                    BatteryWorker.batteryWorker(context, isCharging);
+                } else if (!isCharging && BatteryWorker.isBypassed()) {
                     BatteryWorker.setBypass(false, false);
+                }
             }
         };
         mHandler.post(runnable);

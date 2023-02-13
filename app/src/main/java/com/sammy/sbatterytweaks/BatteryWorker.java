@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.text.ParseException;
@@ -57,7 +56,7 @@ public class BatteryWorker {
     public static boolean bypassSupported;
     private static com.topjohnwu.superuser.Shell Shell;
 
-    public static void batteryWorker(Context context) {
+    public static void batteryWorker(Context context, boolean charging) {
         fastChargeEnabled = ShellUtils.fastCmd("settings get system adaptive_fast_charging").equals("1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
         else fastChargeStatus = "Disabled";
@@ -83,13 +82,14 @@ public class BatteryWorker {
         if (Utils.isRooted() && bypassSupported)
             battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
 
+        if (isBypassed())
+            chargingState = "Idle";
+
         if (MainActivity.isRunning)
             MainActivity.updateStatus();
 
-        battWorker(context.getApplicationContext());
-
-        if (isBypassed())
-            chargingState = "Idle";
+        if (!manualBypass)
+            battWorker(context.getApplicationContext(), charging);
     }
 
     public static boolean isBypassed() {
@@ -158,8 +158,8 @@ public class BatteryWorker {
             }.start();
     }
 
-    private static void battWorker(Context context) {
-        if (!manualBypass) {
+    private static void battWorker(Context context, boolean charging) {
+        if (charging) {
             chargingState = "Charging: " + currentNow;
 
 
