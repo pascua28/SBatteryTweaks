@@ -50,7 +50,8 @@ public class BatteryService extends Service {
                 if (MainActivity.isRunning || isCharging) {
                     BatteryWorker.updateStats();
                     BatteryWorker.batteryWorker(context);
-                }
+                } else if (!isCharging && BatteryWorker.isBypassed())
+                    BatteryWorker.setBypass(false, false);
             }
         };
         mHandler.post(runnable);
