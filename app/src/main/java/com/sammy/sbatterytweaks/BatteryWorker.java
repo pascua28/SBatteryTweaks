@@ -85,7 +85,7 @@ public class BatteryWorker {
             battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
 
         if (MainActivity.isRunning)
-            MainActivity.updateStatus();
+            MainActivity.updateStatus(manualBypass);
 
         if (!manualBypass)
             battWorker(context.getApplicationContext(), charging);

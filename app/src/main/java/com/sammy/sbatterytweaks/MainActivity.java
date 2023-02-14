@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static TextView chargingStatus;
     private static TextView battTemperature;
     private static TextView fastChgStatus;
+    private static TextView bypassText;
     private static ToggleButton bypassToggle;
 
     @Override
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             startForegroundService(serviceIntent);
         }
 
-        TextView bypassText = findViewById(R.id.bypassText);
+        bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);
@@ -89,8 +91,12 @@ public class MainActivity extends AppCompatActivity {
             bypassText.setAlpha(0.5f);
             bypassToggle.setEnabled(false);
         }
-
-        bypassToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> BatteryWorker.setBypass(isChecked, true));
+        bypassToggle.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                BatteryWorker.setBypass(bypassToggle.isChecked(), true);
+            }
+        });
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -142,15 +148,30 @@ public class MainActivity extends AppCompatActivity {
         isRunning = false;
     }
 
-    public static void updateStatus() {
+    public static void updateStatus(boolean manualBypass) {
             chargingStatus.setText(BatteryWorker.chargingState);
             battTemperature.setText(BatteryWorker.battTemp);
             fastChgStatus.setText(BatteryWorker.fastChargeStatus);
             bypassToggle.setChecked(BatteryService.isBypassed());
+            if (bypassToggle.isChecked()) {
+                if (manualBypass) {
+                    bypassText.setText("Passthrough charging (user):");
+                    if (!bypassToggle.isEnabled())
+                        bypassToggle.setEnabled(true);
+                } else {
+                        bypassText.setText("Passthrough charging (auto):");
+                        if (bypassToggle.isEnabled())
+                            bypassToggle.setEnabled(false);
+                    }
+                } else {
+                bypassText.setText("Passthrough charging:");
+                if (!bypassToggle.isEnabled())
+                    bypassToggle.setEnabled(true);
+            }
     }
 
     @SuppressWarnings("deprecation")
-    private boolean foregroundServiceRunning(){
+    private boolean foregroundServiceRunning() {
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         return activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
     }
