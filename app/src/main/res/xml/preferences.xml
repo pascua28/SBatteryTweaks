@@ -78,6 +78,7 @@
             app:key="schedSwitch"
             app:title="Scheduled charge control"
             app:singleLineTitle="false"
+            app:summary="When this is enabled, normal charging rate will always be used during the specified time."
             app:defaultValue="false" />
 
         <Preference
@@ -99,8 +100,9 @@
 
         <SwitchPreferenceCompat
             android:key="idleSwitch"
-            android:title="Configure passthrough charging level"
+            android:title="Configure passthrough level"
             android:singleLineTitle="false"
+            android:summary="Stop charging at this specified level"
             app:defaultValue="false" />
 
         <SeekBarPreference
