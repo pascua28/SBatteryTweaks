@@ -46,7 +46,7 @@ public class BatteryWorker {
     private static boolean isSchedEnabled;
 
     public static boolean idleEnabled;
-    private static boolean disableSync;
+    public static boolean disableSync;
     private static int idleLevel;
     static SimpleDateFormat sdf;
     static Date currTime;
@@ -159,9 +159,6 @@ public class BatteryWorker {
         if (charging) {
             chargingState = "Charging: " + currentNow;
 
-            if (disableSync && !ContentResolver.getMasterSyncAutomatically())
-                ContentResolver.setMasterSyncAutomatically(true);
-
             if (idleEnabled && (percentage >= idleLevel) && !BatteryService.isBypassed()) {
                 setBypass(true, false);
             } else if (isSchedEnabled && isLazyTime()) {
@@ -187,11 +184,8 @@ public class BatteryWorker {
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else {
-            if (disableSync && ContentResolver.getMasterSyncAutomatically())
-                ContentResolver.setMasterSyncAutomatically(false);
+        } else
             chargingState = "Discharging: " + currentNow;
-        }
     }
 
     public static void updateStats() {

@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -49,7 +50,16 @@ public class BatteryService extends Service {
                 mHandler.postDelayed(this, 2000);
                 BatteryWorker.bypassSupported = testmodeFIle.exists();
                 isCharging = ShellUtils.fastCmd("cat " + chargingFile).equals("1");
+
+                if (!isCharging) {
+                    if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
+                        ContentResolver.setMasterSyncAutomatically(false);
+                }
+
                 if (MainActivity.isRunning || isCharging) {
+                    if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
+                        ContentResolver.setMasterSyncAutomatically(true);
+
                     if (BatteryWorker.bypassSupported)
                         battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat " + testmodeFIle.toString()));
                     BatteryWorker.updateStats();
