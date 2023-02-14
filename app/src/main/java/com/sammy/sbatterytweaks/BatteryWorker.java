@@ -31,7 +31,7 @@ public class BatteryWorker {
     private static float temperature;
     private static float thresholdTemp;
     private static float tempDelta;
-    private static int percentage;
+    public static int percentage;
     public static int battTestMode = 0;
     private static float cdSeconds;
     private static long cooldown;

@@ -84,9 +84,11 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             listener = (sharedPreferences, key) -> {
-                if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false)) {
+                if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false))
                     BatteryWorker.isOngoing = false;
-                }
+                else if (key.equals(PREF_IDLE_LEVEL) && BatteryService.isBypassed() &&
+                        (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) > BatteryWorker.percentage))
+                        BatteryWorker.setBypass(false, false);
             };
         }
 
