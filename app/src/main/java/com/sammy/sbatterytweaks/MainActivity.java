@@ -25,16 +25,9 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
-    private boolean isRootAvailable;
     private static TextView chargingStatus;
     private static TextView battTemperature;
     private static TextView fastChgStatus;
-
-    private static TextView bypassText;
-    private TextView headerText;
-    private TextView ratedCapacity;
-
-
     private static ToggleButton bypassToggle;
 
     @Override
@@ -51,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         float battHealth;
 
         isRunning = true;
-        isRootAvailable = Utils.isRooted();
+        boolean isRootAvailable = Utils.isRooted();
 
         String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
 
@@ -69,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
             startForegroundService(serviceIntent);
         }
 
-        bypassText = findViewById(R.id.bypassText);
+        TextView bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);
-        headerText = findViewById(R.id.batteryHeader);
-        ratedCapacity = findViewById(R.id.capacityText);
+        TextView headerText = findViewById(R.id.batteryHeader);
+        TextView ratedCapacity = findViewById(R.id.capacityText);
 
         if (Utils.isRooted()) {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
