@@ -89,6 +89,8 @@ public class SettingsActivity extends AppCompatActivity {
                 else if (key.equals(PREF_IDLE_LEVEL) && BatteryService.isBypassed() &&
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) > BatteryWorker.percentage))
                         BatteryWorker.setBypass(false, false);
+                else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
+                        BatteryWorker.setBypass(false, false);
             };
         }
 
