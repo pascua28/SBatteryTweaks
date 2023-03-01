@@ -1,7 +1,6 @@
 package com.sammy.sbatterytweaks;
 
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;

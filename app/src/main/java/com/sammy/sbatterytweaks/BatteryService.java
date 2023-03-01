@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -50,6 +49,12 @@ public class BatteryService extends Service {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(batteryReceiver, ifilter);
 
+        IntentFilter ACTION_POWER_CONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_CONNECTED");
+        IntentFilter ACTION_POWER_DISCONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_DISCONNECTED");
+
+        registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
+        registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
+
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -57,20 +62,12 @@ public class BatteryService extends Service {
                 BatteryWorker.bypassSupported = testmodeFIle.exists();
                 isCharging = batteryReceiver.isCharging();
 
-                if (!isCharging) {
-                    if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
-                        ContentResolver.setMasterSyncAutomatically(false);
-                }
-
                 if (MainActivity.isRunning) {
                     BatteryManager manager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
                     BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE) + " mA";
                 }
 
                 if (MainActivity.isRunning || isCharging) {
-                    if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
-                        ContentResolver.setMasterSyncAutomatically(true);
-
                     if (BatteryWorker.bypassSupported)
                         battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat " + testmodeFIle.toString()));
 
@@ -80,9 +77,6 @@ public class BatteryService extends Service {
                     BatteryWorker.updateStats(isCharging);
                     BatteryWorker.batteryWorker(context);
                 }
-
-                if (!isCharging && BatteryWorker.battTestMode == 1)
-                    BatteryWorker.setBypass(false, false);
             }
         };
         mHandler.post(runnable);
