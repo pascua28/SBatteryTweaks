@@ -78,7 +78,7 @@ public class BatteryService extends Service {
                     BatteryWorker.temperature = batteryReceiver.getTemp();
 
                     BatteryWorker.updateStats(isCharging);
-                    BatteryWorker.batteryWorker(context, isCharging);
+                    BatteryWorker.batteryWorker(context);
                 }
 
                 if (!isCharging && BatteryWorker.battTestMode == 1)
