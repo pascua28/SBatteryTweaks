@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText("Passthrough charging:");
 
-        if (!isRootAvailable && !BatteryWorker.bypassSupported) {
+        if (!BatteryWorker.bypassSupported) {
             bypassText.setAlpha(0.5f);
             bypassToggle.setEnabled(false);
         }

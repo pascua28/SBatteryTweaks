@@ -59,7 +59,7 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                BatteryWorker.bypassSupported = testmodeFIle.exists();
+                BatteryWorker.bypassSupported = testmodeFIle.exists() && Utils.isRooted();
                 isCharging = batteryReceiver.isCharging();
 
                 if (MainActivity.isRunning) {
