@@ -33,6 +33,9 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String
             PREF_DISABLE_SYNC = "disablesync";
 
+    public static final String
+            PREF_RESET_STATS = "resetstats";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
@@ -61,6 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
             setPreferencesFromResource(R.xml.preferences, rootKey);
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
             SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
+            SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
             if (!Utils.isRooted() && !BatteryWorker.bypassSupported) {
                 if (pauseModeSwitch != null) {
@@ -68,6 +72,10 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 if (idleSwitch != null) {
                     idleSwitch.setEnabled(false);
+                }
+
+                if (resetSwitch != null) {
+                    resetSwitch.setEnabled(false);
                 }
             }
 

@@ -99,6 +99,14 @@
             app:defaultValue="false" />
 
         <SwitchPreferenceCompat
+            android:dependency="enableservice"
+            app:key="resetstats"
+            app:title="Reset battery stats"
+            app:singleLineTitle="false"
+            android:summary="Auto delete batterystats.bin file upon disconnecting from charger"
+            app:defaultValue="false" />
+
+        <SwitchPreferenceCompat
             android:key="idleSwitch"
             android:title="Configure passthrough level"
             android:singleLineTitle="false"

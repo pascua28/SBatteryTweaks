@@ -6,10 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
 
+import com.topjohnwu.superuser.ShellUtils;
+
+import java.io.File;
+
 public class BatteryReceiver extends BroadcastReceiver {
     private int mLevel;
     private float mTemp;
     private int mStatus;
+
+    private final File statsFile = new File("/data/system/batterystats.bin");
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,6 +36,12 @@ public class BatteryReceiver extends BroadcastReceiver {
 
             if (BatteryWorker.battTestMode == 1)
                 BatteryWorker.setBypass(false, false);
+
+            if (BatteryWorker.autoReset) {
+                if (statsFile.exists())
+                    ShellUtils.fastCmd("rm " + statsFile);
+            }
+
         }
     }
 

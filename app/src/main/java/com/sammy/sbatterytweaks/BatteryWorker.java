@@ -44,6 +44,8 @@ public class BatteryWorker {
     public static boolean idleEnabled;
     public static boolean disableSync;
     private static int idleLevel;
+
+    public static boolean autoReset;
     static SimpleDateFormat sdf;
     static Date currTime;
 
@@ -71,6 +73,7 @@ public class BatteryWorker {
         idleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_IDLE_SWITCH, false);
         idleLevel = sharedPref.getInt(SettingsActivity.PREF_IDLE_LEVEL, 75);
         disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
+        autoReset = sharedPref.getBoolean(SettingsActivity.PREF_RESET_STATS, false);
 
         SharedPreferences timePref = context.getSharedPreferences("timePref", Context.MODE_PRIVATE);
         startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
