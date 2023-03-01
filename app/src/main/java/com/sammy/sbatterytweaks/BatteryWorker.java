@@ -28,7 +28,7 @@ public class BatteryWorker {
     public static boolean manualBypass = false;
     private static boolean fastChargeEnabled;
     private static boolean pauseMode;
-    private static float temperature;
+    public static float temperature;
     private static float thresholdTemp;
     private static float tempDelta;
     public static int percentage;
@@ -38,10 +38,7 @@ public class BatteryWorker {
 
     private static int startHour, startMinute;
 
-    static String tempFile = "/sys/class/power_supply/battery/temp";
-    static String percentageFile = "/sys/class/power_supply/battery/capacity";
-    static String currentFile = "/sys/class/power_supply/battery/current_avg";
-    static String currentNow = "";
+    public static String currentNow = "";
 
     private static boolean isSchedEnabled;
 
@@ -84,14 +81,14 @@ public class BatteryWorker {
         if (Utils.isRooted() && bypassSupported)
             battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
 
-        if (MainActivity.isRunning)
-            MainActivity.updateStatus(manualBypass);
-
         if (!manualBypass)
             battWorker(context.getApplicationContext(), charging);
 
         if (BatteryService.isBypassed())
             chargingState = "Idle";
+
+        if (MainActivity.isRunning)
+            MainActivity.updateStatus(manualBypass);
     }
     public static void setBypass(Boolean state, Boolean isManual) {
         manualBypass = isManual;
@@ -184,15 +181,11 @@ public class BatteryWorker {
                     Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else
-            chargingState = "Discharging: " + currentNow;
+        } else chargingState = "Discharging: " + currentNow;
+
     }
 
-    public static void updateStats() {
-        temperature = Float.parseFloat(ShellUtils.fastCmd("cat " + tempFile));
-        percentage = Integer.parseInt(ShellUtils.fastCmd("cat " + percentageFile));
-        currentNow = ShellUtils.fastCmd("cat " + currentFile) + " mA";
-
+    public static void updateStats(Boolean charging) {
         temperature = temperature / 10F;
         battTemp = temperature + " °C";
     }
