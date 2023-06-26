@@ -10,6 +10,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.topjohnwu.superuser.Shell;
+
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String
@@ -94,10 +96,11 @@ public class SettingsActivity extends AppCompatActivity {
             listener = (sharedPreferences, key) -> {
                 if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false))
                     BatteryWorker.isOngoing = false;
-                else if (key.equals(PREF_IDLE_LEVEL) && BatteryService.isBypassed() &&
-                        (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) > BatteryWorker.percentage))
-                        BatteryWorker.setBypass(false, false);
-                else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
+                else if (key.equals(PREF_IDLE_LEVEL) &&
+                        (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
+                    Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+                    BatteryWorker.manualBypass = false;
+                }else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
                         BatteryWorker.setBypass(false, false);
             };
         }

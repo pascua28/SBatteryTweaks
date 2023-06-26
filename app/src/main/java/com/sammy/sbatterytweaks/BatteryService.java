@@ -18,7 +18,7 @@ import java.io.File;
 public class BatteryService extends Service {
     private Context context;
     Handler mHandler = new Handler();
-    private final File testmodeFIle = new File("/sys/class/power_supply/battery/test_mode");
+    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
     public static boolean isCharging;
 
     private static int battTestMode = 0;
@@ -59,7 +59,7 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                BatteryWorker.bypassSupported = testmodeFIle.exists() && Utils.isRooted();
+                BatteryWorker.bypassSupported = fullCapFIle.exists() && Utils.isRooted();
                 isCharging = batteryReceiver.isCharging();
 
                 if (MainActivity.isRunning) {
@@ -69,7 +69,7 @@ public class BatteryService extends Service {
 
                 if (MainActivity.isRunning || isCharging) {
                     if (BatteryWorker.bypassSupported)
-                        battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat " + testmodeFIle.toString()));
+                        BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle.toString()));
 
                     BatteryWorker.percentage = batteryReceiver.getLevel();
                     BatteryWorker.temperature = batteryReceiver.getTemp();
@@ -84,6 +84,6 @@ public class BatteryService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
     public static boolean isBypassed() {
-        return battTestMode == 1 && isCharging;
+        return isCharging && BatteryWorker.percentage >= BatteryWorker.battFullCap;
     }
 }

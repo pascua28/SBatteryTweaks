@@ -31,7 +31,7 @@ public class BatteryWorker {
     private static float thresholdTemp;
     private static float tempDelta;
     public static int percentage;
-    public static int battTestMode = 0;
+    public static int battFullCap = 0;
     private static float cdSeconds;
     private static long cooldown;
 
@@ -81,7 +81,7 @@ public class BatteryWorker {
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
         if (Utils.isRooted() && bypassSupported)
-            battTestMode = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/test_mode"));
+            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
 
         if (!manualBypass)
             battWorker(context.getApplicationContext());
@@ -92,27 +92,12 @@ public class BatteryWorker {
     public static void setBypass(Boolean state, Boolean isManual) {
         manualBypass = isManual;
         if (state)
-            Shell.cmd("echo 1 > /sys/class/power_supply/battery/test_mode").exec();
+            Shell.cmd("echo " + percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
         else {
             // Allow overriding the toggle when turning it off.
             manualBypass = false;
 
-            // From the kernel source, writing "2" to test_mode should be enough but it doesn't cover all charging cases.
-            Shell.cmd("echo 0 > /sys/class/power_supply/battery/test_mode").exec();
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            }
-            Shell.cmd("echo 1 > /sys/class/power_supply/battery/batt_slate_mode").exec();
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            }
-            Shell.cmd("echo 0 > /sys/class/power_supply/battery/batt_slate_mode").exec();
+            Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
         }
     }
 
@@ -152,8 +137,11 @@ public class BatteryWorker {
     }
 
     private static void battWorker(Context context) {
-        if (idleEnabled && (percentage >= idleLevel) && !BatteryService.isBypassed()) {
-            setBypass(true, false);
+        if (idleEnabled && !BatteryService.isBypassed() && battFullCap != idleLevel) {
+            Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            manualBypass = false;
+        } else if (idleEnabled && idleLevel == battFullCap && BatteryService.isBypassed()) {
+            manualBypass = false;
         } else if (isSchedEnabled && isLazyTime()) {
             if (fastChargeEnabled)
                 ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");

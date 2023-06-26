@@ -34,7 +34,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(false);
 
-            if (BatteryWorker.battTestMode == 1)
+            if (BatteryWorker.battFullCap == BatteryWorker.percentage)
                 BatteryWorker.setBypass(false, false);
 
             if (BatteryWorker.autoReset) {
