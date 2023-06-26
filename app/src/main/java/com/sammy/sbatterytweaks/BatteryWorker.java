@@ -82,7 +82,7 @@ public class BatteryWorker {
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
-        if (Utils.isRooted() && bypassSupported)
+        if (bypassSupported)
             battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
 
         if (!manualBypass)
