@@ -15,6 +15,8 @@ public class BatteryReceiver extends BroadcastReceiver {
     private float mTemp;
     private int mStatus;
 
+    private int mVolt;
+
     private final File statsFile = new File("/data/system/batterystats.bin");
 
     @Override
@@ -26,6 +28,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         mTemp = (float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
         mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+        mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
@@ -33,9 +36,6 @@ public class BatteryReceiver extends BroadcastReceiver {
         } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
             if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(false);
-
-            if (BatteryWorker.battFullCap == BatteryWorker.percentage)
-                BatteryWorker.setBypass(false, false);
 
             if (BatteryWorker.autoReset) {
                 if (statsFile.exists())
@@ -52,6 +52,8 @@ public class BatteryReceiver extends BroadcastReceiver {
     public float getTemp() {
         return mTemp;
     }
+
+    public int getVolt() { return mVolt; }
 
     public boolean isCharging() { return mStatus > 0; }
 }

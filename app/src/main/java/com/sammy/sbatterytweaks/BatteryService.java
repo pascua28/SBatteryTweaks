@@ -65,6 +65,7 @@ public class BatteryService extends Service {
                 if (MainActivity.isRunning) {
                     BatteryManager manager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
                     BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE) + " mA";
+                    BatteryWorker.voltage = batteryReceiver.getVolt() + " mV";
                 }
 
                 if (MainActivity.isRunning || isCharging) {

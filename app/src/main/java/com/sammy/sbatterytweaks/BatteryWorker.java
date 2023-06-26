@@ -28,7 +28,7 @@ public class BatteryWorker {
     private static boolean fastChargeEnabled;
     private static boolean pauseMode;
     public static float temperature;
-    private static float thresholdTemp;
+    public static float thresholdTemp;
     private static float tempDelta;
     public static int percentage;
     public static int battFullCap = 0;
@@ -38,6 +38,8 @@ public class BatteryWorker {
     private static int startHour, startMinute;
 
     public static String currentNow = "";
+
+    public static String voltage = "";
 
     private static boolean isSchedEnabled;
 
@@ -169,14 +171,14 @@ public class BatteryWorker {
 
     public static void updateStats(Boolean charging) {
         temperature = temperature / 10F;
-        battTemp = temperature + " °C";
+        battTemp = temperature + "°C";
 
         if (BatteryService.isBypassed())
             chargingState = "Idle";
         else if (charging)
-            chargingState = "Charging: " + currentNow;
+            chargingState = "Charging";
         else
-            chargingState = "Discharging: " + currentNow;
+            chargingState = "Discharging";
     }
 
 }

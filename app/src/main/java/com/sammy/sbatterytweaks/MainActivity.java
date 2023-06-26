@@ -5,15 +5,18 @@ import static java.lang.String.format;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
@@ -26,11 +29,9 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
-    private static TextView chargingStatus;
-    private static TextView battTemperature;
-    private static TextView fastChgStatus;
-    private static TextView bypassText;
-    private static ToggleButton bypassToggle;
+    private static TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
+            bypassText, remainingCap;
+    private static Switch bypassToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         int actualCapacity = Utils.getActualCapacity(this);
         int fullcapnom;
         float battHealth;
+
+        CardView idleCard = (CardView) findViewById(R.id.idleCardView);
+        CardView capacityCard = (CardView) findViewById(R.id.capacityView);
 
         isRunning = true;
         boolean isRootAvailable = Utils.isRooted();
@@ -66,30 +70,33 @@ public class MainActivity extends AppCompatActivity {
 
         bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
+        levelText = findViewById(R.id.levelText);
+        currentText = findViewById(R.id.currentText);
+        voltText = findViewById(R.id.voltageText);
+        remainingCap = findViewById(R.id.remainingCap);
+
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);
-        TextView headerText = findViewById(R.id.batteryHeader);
         TextView ratedCapacity = findViewById(R.id.capacityText);
 
         if (Utils.isRooted()) {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float)fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth !=0)
-                headerText.setText(format("Battery status (Health: %s%%)", format(Locale.ENGLISH, "%.2f", battHealth)));
-            else headerText.setText("Battery status:");
+                remainingCap.setText(battHealth + "%");
+            else capacityCard.setVisibility(View.GONE);
         } else {
-            headerText.setText("Battery status:");
+            capacityCard.setVisibility(View.GONE);
         }
 
         if (actualCapacity != 0)
-            ratedCapacity.setText(String.format("Rated capacity: %d mAh", actualCapacity));
+            ratedCapacity.setText(String.format("%d mAh", actualCapacity));
 
         bypassToggle = findViewById(R.id.bypassToggle);
-        bypassText.setText("Passthrough charging:");
+        bypassText.setText("Idle charging:");
 
         if (!BatteryWorker.bypassSupported) {
-            bypassText.setAlpha(0.5f);
-            bypassToggle.setEnabled(false);
+            idleCard.setVisibility(View.GONE);
         }
         bypassToggle.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -149,22 +156,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void updateStatus(boolean manualBypass) {
+            String lvlText, battPercent;
+            battPercent = BatteryWorker.percentage + "%";
+            lvlText = battPercent;
             chargingStatus.setText(BatteryWorker.chargingState);
+            if (BatteryService.isCharging)
+                lvlText = "⚡" + battPercent;
+
+            levelText.setText(lvlText);
+            currentText.setText(BatteryWorker.currentNow);
+            voltText.setText(BatteryWorker.voltage);
             battTemperature.setText(BatteryWorker.battTemp);
+            if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
+                battTemperature.setTextColor(Color.parseColor("#A80505"));
+            else battTemperature.setTextColor(Color.parseColor("#187A4A"));
+
             fastChgStatus.setText(BatteryWorker.fastChargeStatus);
             bypassToggle.setChecked(BatteryService.isBypassed());
             if (bypassToggle.isChecked()) {
                 if (manualBypass) {
-                    bypassText.setText("Passthrough charging (user):");
+                    bypassText.setText("Idle charging (user):");
                     if (!bypassToggle.isEnabled())
                         bypassToggle.setEnabled(true);
                 } else {
-                        bypassText.setText("Passthrough charging (auto):");
+                        bypassText.setText("Idle charging (auto):");
                         if (bypassToggle.isEnabled())
                             bypassToggle.setEnabled(false);
                     }
                 } else {
-                bypassText.setText("Passthrough charging:");
+                bypassText.setText("Idle charging:");
                 if (!bypassToggle.isEnabled())
                     bypassToggle.setEnabled(true);
             }
