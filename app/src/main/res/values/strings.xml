@@ -2,4 +2,6 @@
     <string name="app_name">Samsung Battery Tweaker</string>
     <string name="app_name_short">S Battery Tweaker</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="loading">Loading...</string>
+    <string name="dots">...</string>
 </resources>

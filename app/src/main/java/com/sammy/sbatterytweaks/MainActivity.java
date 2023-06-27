@@ -79,6 +79,14 @@ public class MainActivity extends AppCompatActivity {
         fastChgStatus = findViewById(R.id.fastCharge);
         TextView ratedCapacity = findViewById(R.id.capacityText);
 
+        // Set initial text for some entries
+        chargingStatus.setText(R.string.loading);
+        fastChgStatus.setText(R.string.loading);
+        currentText.setText(R.string.loading);
+        voltText.setText(R.string.loading);
+        levelText.setText(R.string.dots);
+        battTemperature.setText(R.string.dots);
+
         if (Utils.isRooted()) {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float)fullcapnom / actualCapacity) * 100;
