@@ -16,10 +16,14 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryService extends Service {
-    private Context context;
-    Handler mHandler = new Handler();
-    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
     public static boolean isCharging;
+    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
+    Handler mHandler = new Handler();
+    private Context context;
+
+    public static boolean isBypassed() {
+        return isCharging && BatteryWorker.percentage >= BatteryWorker.battFullCap;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -68,7 +72,7 @@ public class BatteryService extends Service {
 
                 if (MainActivity.isRunning || isCharging) {
                     if (BatteryWorker.bypassSupported)
-                        BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle.toString()));
+                        BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
 
                     BatteryWorker.percentage = batteryReceiver.getLevel();
                     BatteryWorker.temperature = batteryReceiver.getTemp();
@@ -81,8 +85,5 @@ public class BatteryService extends Service {
         mHandler.post(runnable);
 
         return super.onStartCommand(intent, flags, startId);
-    }
-    public static boolean isBypassed() {
-        return isCharging && BatteryWorker.percentage >= BatteryWorker.battFullCap;
     }
 }

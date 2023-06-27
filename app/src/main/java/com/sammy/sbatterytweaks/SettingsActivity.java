@@ -102,8 +102,8 @@ public class SettingsActivity extends AppCompatActivity {
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
                     Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
                     BatteryWorker.manualBypass = false;
-                }else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
-                        BatteryWorker.setBypass(false, false);
+                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
+                    BatteryWorker.setBypass(false, false);
             };
         }
 

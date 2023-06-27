@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
+import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.text.ParseException;
@@ -20,42 +21,33 @@ public class BatteryWorker {
     public static String chargingState;
     public static String battTemp;
     public static String fastChargeStatus;
-    private static boolean serviceEnabled;
     public static boolean isOngoing;
-    private static boolean timerEnabled;
-    private static boolean shouldCoolDown;
     public static boolean manualBypass = false;
-    private static boolean fastChargeEnabled;
-    private static boolean pauseMode;
     public static float temperature;
     public static float thresholdTemp;
-    private static float tempDelta;
     public static int percentage;
     public static int battFullCap = 0;
-    private static float cdSeconds;
-    private static long cooldown;
-
-    private static int startHour, startMinute;
-
     public static String currentNow = "";
-
     public static String voltage = "";
-
-    private static boolean isSchedEnabled;
-
     public static boolean idleEnabled;
     public static boolean disableSync;
-    private static int idleLevel;
-
     public static boolean autoReset;
+    public static boolean bypassSupported;
     static SimpleDateFormat sdf;
     static Date currTime;
-
     static Date start;
-
+    private static boolean serviceEnabled;
+    private static boolean timerEnabled;
+    private static boolean shouldCoolDown;
+    private static boolean fastChargeEnabled;
+    private static boolean pauseMode;
+    private static float tempDelta;
+    private static float cdSeconds;
+    private static long cooldown;
+    private static int startHour, startMinute;
+    private static boolean isSchedEnabled;
+    private static int idleLevel;
     private static int duration;
-
-    public static boolean bypassSupported;
     private static com.topjohnwu.superuser.Shell Shell;
 
     public static void batteryWorker(Context context) {
@@ -91,15 +83,16 @@ public class BatteryWorker {
         if (MainActivity.isRunning)
             MainActivity.updateStatus(manualBypass);
     }
+
     public static void setBypass(Boolean state, Boolean isManual) {
         manualBypass = isManual;
         if (state)
-            Shell.cmd("echo " + percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            com.topjohnwu.superuser.Shell.cmd("echo " + percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
         else {
             // Allow overriding the toggle when turning it off.
             manualBypass = false;
 
-            Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            com.topjohnwu.superuser.Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
         }
     }
 
@@ -126,21 +119,21 @@ public class BatteryWorker {
     private static void startTimer() {
         cooldown = (long) cdSeconds * 1000 * 2;
         new CountDownTimer(cooldown, 1000) {
-                public void onTick(long millisUntilFinished) {
-                    isOngoing = true;
+            public void onTick(long millisUntilFinished) {
+                isOngoing = true;
 
-                    shouldCoolDown = millisUntilFinished > (cooldown / 2);
-                }
+                shouldCoolDown = millisUntilFinished > (cooldown / 2);
+            }
 
-                public void onFinish () {
-                    isOngoing = false;
-                }
-            }.start();
+            public void onFinish() {
+                isOngoing = false;
+            }
+        }.start();
     }
 
     private static void battWorker(Context context) {
         if (idleEnabled && !BatteryService.isBypassed() && battFullCap != idleLevel) {
-            Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            com.topjohnwu.superuser.Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
             manualBypass = false;
         } else if (idleEnabled && idleLevel == battFullCap && BatteryService.isBypassed()) {
             manualBypass = false;

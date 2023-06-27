@@ -11,13 +11,11 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
+    private final File statsFile = new File("/data/system/batterystats.bin");
     private int mLevel;
     private float mTemp;
     private int mStatus;
-
     private int mVolt;
-
-    private final File statsFile = new File("/data/system/batterystats.bin");
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -53,7 +51,11 @@ public class BatteryReceiver extends BroadcastReceiver {
         return mTemp;
     }
 
-    public int getVolt() { return mVolt; }
+    public int getVolt() {
+        return mVolt;
+    }
 
-    public boolean isCharging() { return mStatus > 0; }
+    public boolean isCharging() {
+        return mStatus > 0;
+    }
 }

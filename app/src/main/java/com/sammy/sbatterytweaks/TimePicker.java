@@ -7,28 +7,26 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import nl.joery.timerangepicker.TimeRangePicker;
 
 public class TimePicker extends Dialog implements View.OnClickListener {
     public static final String
-        PREF_START_HOUR = "startHour";
+            PREF_START_HOUR = "startHour";
     public static final String
             PREF_START_MINUTE = "startMinute";
+    public static final String
+            PREF_DURATION = "duration";
     public final String
             PREF_END_HOUR = "endHour";
     public final String
             PREF_END_MINUTE = "endMinute";
-    public static final String
-            PREF_DURATION = "duration";
-
     public Activity c;
     public Button saveBtn;
     private int startHour, startMinute, endHour, endMinute, duration;
