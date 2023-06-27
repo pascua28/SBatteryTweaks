@@ -39,7 +39,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.github.pascua28:SeekBarPreference:7732d42cc2378e0c3d378ce36607b27a0c623a24'
-    implementation 'com.github.topjohnwu.libsu:core:5.0.3'
+    implementation 'com.github.topjohnwu.libsu:core:5.1.0'
     implementation 'nl.joery.timerangepicker:timerangepicker:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
