@@ -21,8 +21,6 @@ public class BatteryService extends Service {
     private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
     public static boolean isCharging;
 
-    private static int battTestMode = 0;
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;

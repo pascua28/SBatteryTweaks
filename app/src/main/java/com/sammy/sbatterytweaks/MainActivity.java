@@ -1,7 +1,5 @@
 package com.sammy.sbatterytweaks;
 
-import static java.lang.String.format;
-
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -13,7 +11,6 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -22,7 +19,6 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -89,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isRooted()) {
             fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
-            battHealth = ((float)fullcapnom / actualCapacity) * 100;
-            if (fullcapnom != 0 && battHealth !=0)
+            battHealth = ((float) fullcapnom / actualCapacity) * 100;
+            if (fullcapnom != 0 && battHealth != 0)
                 remainingCap.setText(battHealth + "%");
             else capacityCard.setVisibility(View.GONE);
         } else {
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryWorker.bypassSupported) {
             idleCard.setVisibility(View.GONE);
         }
-        bypassToggle.setOnClickListener(new View.OnClickListener(){
+        bypassToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BatteryWorker.setBypass(bypassToggle.isChecked(), true);
@@ -164,38 +160,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void updateStatus(boolean manualBypass) {
-            String lvlText, battPercent;
-            battPercent = BatteryWorker.percentage + "%";
-            lvlText = battPercent;
-            chargingStatus.setText(BatteryWorker.chargingState);
-            if (BatteryService.isCharging)
-                lvlText = "⚡" + battPercent;
+        String lvlText, battPercent;
+        battPercent = BatteryWorker.percentage + "%";
+        lvlText = battPercent;
+        chargingStatus.setText(BatteryWorker.chargingState);
+        if (BatteryService.isCharging)
+            lvlText = "⚡" + battPercent;
 
-            levelText.setText(lvlText);
-            currentText.setText(BatteryWorker.currentNow);
-            voltText.setText(BatteryWorker.voltage);
-            battTemperature.setText(BatteryWorker.battTemp);
-            if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
-                battTemperature.setTextColor(Color.parseColor("#A80505"));
-            else battTemperature.setTextColor(Color.parseColor("#187A4A"));
+        levelText.setText(lvlText);
+        currentText.setText(BatteryWorker.currentNow);
+        voltText.setText(BatteryWorker.voltage);
+        battTemperature.setText(BatteryWorker.battTemp);
+        if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
+            battTemperature.setTextColor(Color.parseColor("#A80505"));
+        else battTemperature.setTextColor(Color.parseColor("#187A4A"));
 
-            fastChgStatus.setText(BatteryWorker.fastChargeStatus);
-            bypassToggle.setChecked(BatteryService.isBypassed());
-            if (bypassToggle.isChecked()) {
-                if (manualBypass) {
-                    bypassText.setText("Idle charging (user):");
-                    if (!bypassToggle.isEnabled())
-                        bypassToggle.setEnabled(true);
-                } else {
-                        bypassText.setText("Idle charging (auto):");
-                        if (bypassToggle.isEnabled())
-                            bypassToggle.setEnabled(false);
-                    }
-                } else {
-                bypassText.setText("Idle charging:");
+        fastChgStatus.setText(BatteryWorker.fastChargeStatus);
+        bypassToggle.setChecked(BatteryService.isBypassed());
+        if (bypassToggle.isChecked()) {
+            if (manualBypass) {
+                bypassText.setText("Idle charging (user):");
                 if (!bypassToggle.isEnabled())
                     bypassToggle.setEnabled(true);
+            } else {
+                bypassText.setText("Idle charging (auto):");
+                if (bypassToggle.isEnabled())
+                    bypassToggle.setEnabled(false);
             }
+        } else {
+            bypassText.setText("Idle charging:");
+            if (!bypassToggle.isEnabled())
+                bypassToggle.setEnabled(true);
+        }
     }
 
     @SuppressWarnings("deprecation")

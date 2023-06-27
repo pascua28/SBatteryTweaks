@@ -12,11 +12,7 @@ import java.lang.reflect.Method;
 public class Utils {
     public static boolean isRooted() {
         Shell.getShell();
-        if (TRUE.equals(Shell.isAppGrantedRoot())) {
-            return true;
-        } else {
-            return false;
-        }
+        return TRUE.equals(Shell.isAppGrantedRoot());
     }
 
     public static int getActualCapacity(Context context) {

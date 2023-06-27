@@ -82,11 +82,13 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             Preference timePreference = findPreference("timePickerBtn");
-            timePreference.setOnPreferenceClickListener(p -> {
-                TimePicker picker = new TimePicker(getActivity());
-                picker.show();
-                return true;
-            });
+            if (timePreference != null) {
+                timePreference.setOnPreferenceClickListener(p -> {
+                    TimePicker picker = new TimePicker(getActivity());
+                    picker.show();
+                    return true;
+                });
+            }
         }
 
         @Override
