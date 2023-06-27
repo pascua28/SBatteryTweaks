@@ -28,26 +28,13 @@
         android:weightSum="2">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="fill_parent"
-            android:layout_height="150dp"
-            android:layout_marginTop="50dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="10dp"
-            app:cardMaxElevation="12dp"
-            app:cardPreventCornerOverlap="true"
-            app:cardUseCompatPadding="true">
+            style="@style/TopCardView">
 
             <TextView
-                style="@style/BatteryViewDisplay"
+                style="@style/TopCardText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|center"
-                android:layout_marginTop="10dp"
-                android:text="Battery Level"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:visibility="visible" />
+                android:text="Battery Level" />
 
             <TextView
                 android:id="@+id/levelText"
@@ -55,32 +42,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="30dp"
-                android:textStyle="bold"
-                android:visibility="visible" />
+                android:textSize="30sp"
+                android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="fill_parent"
-            android:layout_height="150dp"
-            android:layout_marginTop="50dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="10dp"
-            app:cardMaxElevation="12dp"
-            app:cardPreventCornerOverlap="true"
-            app:cardUseCompatPadding="true">
+            style="@style/TopCardView">
 
             <TextView
-                style="@style/BatteryViewDisplay"
+                style="@style/TopCardText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|center"
-                android:layout_marginTop="10dp"
-                android:text="Temperature"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:visibility="visible" />
+                android:text="Temperature" />
 
             <TextView
                 android:id="@+id/tempText"
@@ -88,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="30dp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 android:visibility="visible" />
         </androidx.cardview.widget.CardView>
@@ -108,20 +81,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Status" />
 
             <TextView
                 android:id="@+id/chargingText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -129,20 +94,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Fast charging" />
 
             <TextView
                 android:id="@+id/fastCharge"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -150,20 +107,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Current" />
 
             <TextView
                 android:id="@+id/currentText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
 
         </androidx.cardview.widget.CardView>
 
@@ -172,20 +121,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Rated capacity" />
 
             <TextView
                 android:id="@+id/capacityText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -194,20 +135,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Remaining capacity" />
 
             <TextView
                 android:id="@+id/remainingCap"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -215,20 +148,12 @@
             app:layout_anchor="@+id/linearLayout3">
 
             <TextView
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp"
+                style="@style/StatusText"
                 android:text="Voltage level" />
 
             <TextView
                 android:id="@+id/voltageText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                style="@style/ValueText" />
 
         </androidx.cardview.widget.CardView>
 
@@ -239,11 +164,7 @@
 
             <TextView
                 android:id="@+id/bypassText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="15dp" />
+                style="@style/StatusText" />
 
             <Switch
                 android:id="@+id/bypassToggle"

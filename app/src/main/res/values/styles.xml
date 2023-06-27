@@ -17,4 +17,45 @@
         <item name="cardMaxElevation">12dp</item>
         <item name="layout_anchorGravity">bottom|center</item>
     </style>
+
+    <style name="TopCardView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">150dp</item>
+        <item name="android:layout_marginTop">50dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">10dp</item>
+        <item name="cardMaxElevation">12dp</item>
+        <item name="cardPreventCornerOverlap">true</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <style name="TopCardText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:layout_gravity">top|center</item>
+        <item name="android:layout_marginTop">10dp</item>
+    </style>
+
+    <style name="StatusText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">left|center_vertical</item>
+        <item name="android:layout_marginLeft">15dp</item>
+    </style>
+
+    <style name="ValueText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">right|center_vertical</item>
+        <item name="android:layout_marginRight">15dp</item>
+    </style>
 </resources>
