@@ -50,7 +50,7 @@ public class BatteryWorker {
     private static int duration;
     private static com.topjohnwu.superuser.Shell Shell;
 
-    public static void batteryWorker(Context context) {
+    public static void batteryWorker(Context context, Boolean isCharging) {
         fastChargeEnabled = ShellUtils.fastCmd("settings get system adaptive_fast_charging").equals("1");
         if (fastChargeEnabled) fastChargeStatus = "Enabled";
         else fastChargeStatus = "Disabled";
@@ -77,7 +77,7 @@ public class BatteryWorker {
         if (bypassSupported)
             battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
 
-        if (!manualBypass)
+        if (!manualBypass && isCharging)
             battWorker(context.getApplicationContext());
 
         if (MainActivity.isRunning)
