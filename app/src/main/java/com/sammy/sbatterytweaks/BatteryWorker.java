@@ -135,6 +135,11 @@ public class BatteryWorker {
         }.start();
     }
 
+    private static void enableFastCharge(int enabled)
+    {
+        ShellUtils.fastCmd("settings put system adaptive_fast_charging " + enabled);
+    }
+
     private static void battWorker(Context context) {
         if (!serviceEnabled)
             return;
@@ -147,13 +152,13 @@ public class BatteryWorker {
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled)
-                ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
+                enableFastCharge(0);
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(false, false);
                 Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
             } else if (!fastChargeEnabled) {
-                ShellUtils.fastCmd(" settings put system adaptive_fast_charging 1");
+                enableFastCharge(1);
                 Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
         } else if (temperature >= thresholdTemp) {
@@ -164,7 +169,7 @@ public class BatteryWorker {
                 setBypass(true, false);
                 Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled && !BatteryService.isBypassed()) {
-                ShellUtils.fastCmd(" settings put system adaptive_fast_charging 0");
+                enableFastCharge(0);
                 Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
             }
         }
