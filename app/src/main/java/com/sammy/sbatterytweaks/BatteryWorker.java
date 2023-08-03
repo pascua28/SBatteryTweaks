@@ -136,6 +136,9 @@ public class BatteryWorker {
     }
 
     private static void battWorker(Context context) {
+        if (!serviceEnabled)
+            return;
+
         if (idleEnabled && !BatteryService.isBypassed() && battFullCap != idleLevel) {
             com.topjohnwu.superuser.Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
             manualBypass = false;
@@ -145,7 +148,7 @@ public class BatteryWorker {
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled)
                 ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
-        } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {
+        } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(false, false);
                 Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
@@ -153,7 +156,7 @@ public class BatteryWorker {
                 ShellUtils.fastCmd(" settings put system adaptive_fast_charging 1");
                 Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
-        } else if ((temperature >= thresholdTemp) && serviceEnabled) {
+        } else if (temperature >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
                 startTimer();
 
