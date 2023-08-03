@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.text.ParseException;
@@ -25,7 +24,6 @@ public class BatteryWorker {
     public static boolean manualBypass = false;
     public static float temperature;
     public static float thresholdTemp;
-    public static int percentage;
     public static int battFullCap = 0;
     public static String currentNow = "";
     public static String voltage = "";
@@ -47,6 +45,10 @@ public class BatteryWorker {
     private static int startHour, startMinute;
     private static boolean isSchedEnabled;
     private static int idleLevel;
+
+    private static boolean lvlSwitch;
+
+    private static int lvlThreshold;
     private static int duration;
     private static com.topjohnwu.superuser.Shell Shell;
 
@@ -66,6 +68,8 @@ public class BatteryWorker {
         isSchedEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_ENABLED, false);
         idleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_IDLE_SWITCH, false);
         idleLevel = sharedPref.getInt(SettingsActivity.PREF_IDLE_LEVEL, 75);
+        lvlSwitch = sharedPref.getBoolean(SettingsActivity.PREF_BATT_LVL_SWITCH, false);
+        lvlThreshold = sharedPref.getInt(SettingsActivity.PREF_BATT_LVL_THRESHOLD, 60);
         disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
         autoReset = sharedPref.getBoolean(SettingsActivity.PREF_RESET_STATS, false);
 
@@ -87,7 +91,7 @@ public class BatteryWorker {
     public static void setBypass(Boolean state, Boolean isManual) {
         manualBypass = isManual;
         if (state)
-            com.topjohnwu.superuser.Shell.cmd("echo " + percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            com.topjohnwu.superuser.Shell.cmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
         else {
             // Allow overriding the toggle when turning it off.
             manualBypass = false;
@@ -137,7 +141,8 @@ public class BatteryWorker {
             manualBypass = false;
         } else if (idleEnabled && idleLevel == battFullCap && BatteryService.isBypassed()) {
             manualBypass = false;
-        } else if (isSchedEnabled && isLazyTime()) {
+        } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
+                (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled)
                 ShellUtils.fastCmd("settings put system adaptive_fast_charging 0");
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown)) && serviceEnabled) {

@@ -38,6 +38,12 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String
             PREF_RESET_STATS = "resetstats";
 
+    public  static final String
+            PREF_BATT_LVL_SWITCH = "lvlThresholdSwitch";
+
+    public static final String
+            PREF_BATT_LVL_THRESHOLD = "lvlThreshold";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)

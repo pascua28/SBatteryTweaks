@@ -1,124 +1,138 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/settings">
 
     <PreferenceCategory app:title="Battery Monitor Service">
 
         <SwitchPreferenceCompat
+            app:defaultValue="true"
             app:key="enableservice"
-            app:title="Enable Service"
             app:singleLineTitle="false"
             app:summary="If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures"
-            app:defaultValue="true" />
+            app:title="Enable Service" />
 
         <SwitchPreferenceCompat
             android:dependency="enableservice"
+            app:defaultValue="false"
             app:key="pauseMode"
-            app:title="Bypass charging mode"
             app:singleLineTitle="false"
             app:summary="Automatically pause charging to cool down battery instead of disabling fast charging"
-            app:defaultValue="false" />
+            app:title="Bypass charging mode" />
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Battery Temperature Thresholds">
 
         <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:defaultValue="36.5"
             android:dependency="enableservice"
             android:key="thresholdUp"
+            android:singleLineTitle="false"
             android:summary="If battery temperature reaches this threshold, fastcharging will be disabled or charging will be suspended"
             android:title="Threshold temperature"
-            android:singleLineTitle="false"
-            app:minValueFloat="30.0"
             app:maxValueFloat="45.0"
-            app:units="°C"
+            app:minValueFloat="30.0"
             app:stepSize="0.1"
-            android:defaultValue="36.5"
-            />
+            app:units="°C" />
 
         <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:defaultValue="0.5"
             android:dependency="enableservice"
             android:key="tempDelta"
+            android:singleLineTitle="false"
             android:summary="The amount of temperature needed to go down before re-enabling fastcharge or resuming charge"
             android:title="Cooldown temperature"
-            android:singleLineTitle="false"
-            app:minValueFloat="0.1"
             app:maxValueFloat="5.0"
-            app:units="°C"
+            app:minValueFloat="0.1"
             app:stepSize="0.1"
-            android:defaultValue="0.5"
-            />
+            app:units="°C" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Timer-based temperature cooldown" >
+    <PreferenceCategory app:title="Battery level threshold">
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="lvlThresholdSwitch"
+            app:singleLineTitle="false"
+            app:summary="Disable fast charging mode when battery level reaches this percentage"
+            app:title="Battery level threshold" />
+
+        <SeekBarPreference
+            android:defaultValue="60"
+            android:dependency="lvlThresholdSwitch"
+            android:key="lvlThreshold"
+            app:maxValue="95"
+            app:minValue="30"
+            app:showSeekBarValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Timer-based temperature cooldown">
         <SwitchPreferenceCompat
             android:dependency="enableservice"
+            app:defaultValue="false"
             app:key="timerSwitch"
-            app:title="Enable timer-based temperature cooldown"
             app:singleLineTitle="false"
-            app:defaultValue="false" />
+            app:title="Enable timer-based temperature cooldown" />
 
         <tk.zwander.seekbarpreference.SeekBarPreferenceNew
+            android:defaultValue="30"
             android:dependency="timerSwitch"
             android:key="cdSeconds"
-            android:summary="Turn off fastcharging or suspend charging for this amount of time"
-            android:title="Cooldown time"
             android:singleLineTitle="false"
-            app:minValueFloat="30"
+            android:summary="Disable fastcharging or suspend charging for this amount of time"
+            android:title="Cooldown time"
             app:maxValueFloat="600"
+            app:minValueFloat="30"
             app:stepSize="10"
-            app:units="s"
-            android:defaultValue="30"
-            />
+            app:units="s" />
     </PreferenceCategory>
-    <PreferenceCategory app:title="Scheduled charge control" >
+    <PreferenceCategory app:title="Scheduled charge control">
         <SwitchPreferenceCompat
             android:dependency="enableservice"
+            app:defaultValue="false"
             app:key="schedSwitch"
-            app:title="Scheduled charge control"
             app:singleLineTitle="false"
-            app:summary="When this is enabled, normal charging rate will always be used during the specified time."
-            app:defaultValue="false" />
+            app:summary="Normal charging rate will always be used during this specified time."
+            app:title="Scheduled charge control" />
 
         <Preference
             android:dependency="schedSwitch"
             android:key="timePickerBtn"
-            android:title="Time Picker"
-            android:singleLineTitle="false" />
+            android:singleLineTitle="false"
+            android:title="Time Picker" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Miscellaneous">
 
         <SwitchPreferenceCompat
             android:dependency="enableservice"
-            app:key="disablesync"
-            app:title="Auto disable sync"
-            app:singleLineTitle="false"
             android:summary="Disable auto sync when not charging to save battery and re-enable it when charging"
-            app:defaultValue="false" />
+            app:defaultValue="false"
+            app:key="disablesync"
+            app:singleLineTitle="false"
+            app:title="Auto disable sync" />
 
         <SwitchPreferenceCompat
             android:dependency="enableservice"
-            app:key="resetstats"
-            app:title="Reset battery stats"
-            app:singleLineTitle="false"
             android:summary="Auto delete batterystats.bin file upon disconnecting from charger"
-            app:defaultValue="false" />
+            app:defaultValue="false"
+            app:key="resetstats"
+            app:singleLineTitle="false"
+            app:title="Reset battery stats" />
 
         <SwitchPreferenceCompat
             android:key="idleSwitch"
-            android:title="Configure passthrough level"
             android:singleLineTitle="false"
             android:summary="Stop charging at this specified level"
+            android:title="Configure passthrough level"
             app:defaultValue="false" />
 
         <SeekBarPreference
+            android:defaultValue="75"
             android:dependency="idleSwitch"
             android:key="idleLevel"
             app:maxValue="95"
             app:minValue="30"
-            android:defaultValue="75"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>

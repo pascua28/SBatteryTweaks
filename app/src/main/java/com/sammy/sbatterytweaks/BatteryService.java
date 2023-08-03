@@ -17,12 +17,14 @@ import java.io.File;
 
 public class BatteryService extends Service {
     public static boolean isCharging;
+
+    public static int percentage;
     private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
     Handler mHandler = new Handler();
     private Context context;
 
     public static boolean isBypassed() {
-        return isCharging && BatteryWorker.percentage >= BatteryWorker.battFullCap;
+        return isCharging && percentage >= BatteryWorker.battFullCap;
     }
 
     @Override
@@ -74,7 +76,7 @@ public class BatteryService extends Service {
                     if (BatteryWorker.bypassSupported)
                         BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
 
-                    BatteryWorker.percentage = batteryReceiver.getLevel();
+                    percentage = batteryReceiver.getLevel();
                     BatteryWorker.temperature = batteryReceiver.getTemp();
 
                     BatteryWorker.updateStats(isCharging);

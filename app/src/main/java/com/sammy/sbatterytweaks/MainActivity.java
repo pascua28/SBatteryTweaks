@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void updateStatus(boolean manualBypass) {
         String lvlText, battPercent;
-        battPercent = BatteryWorker.percentage + "%";
+        battPercent = BatteryService.percentage + "%";
         lvlText = battPercent;
         chargingStatus.setText(BatteryWorker.chargingState);
         if (BatteryService.isCharging)
