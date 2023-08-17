@@ -24,7 +24,7 @@ public class BatteryService extends Service {
     private Context context;
 
     public static boolean isBypassed() {
-        return isCharging && percentage >= BatteryWorker.battFullCap;
+        return isCharging && BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap;
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -37,7 +38,7 @@ public class BatteryWorker {
     private static boolean serviceEnabled;
     private static boolean timerEnabled;
     private static boolean shouldCoolDown;
-    private static boolean fastChargeEnabled;
+    private static int fastChargeEnabled;
     private static boolean pauseMode;
     private static float tempDelta;
     private static float cdSeconds;
@@ -53,9 +54,13 @@ public class BatteryWorker {
     private static com.topjohnwu.superuser.Shell Shell;
 
     public static void batteryWorker(Context context, Boolean isCharging) {
-        fastChargeEnabled = ShellUtils.fastCmd("settings get system adaptive_fast_charging").equals("1");
-        if (fastChargeEnabled) fastChargeStatus = "Enabled";
-        else fastChargeStatus = "Disabled";
+        try {
+            fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
+            if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
+            else fastChargeStatus = "Disabled";
+        } catch (Settings.SettingNotFoundException e) {
+            fastChargeStatus = "Not supported";
+        }
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
@@ -135,9 +140,9 @@ public class BatteryWorker {
         }.start();
     }
 
-    private static void enableFastCharge(int enabled)
+    private static void enableFastCharge(Context context, int enabled)
     {
-        ShellUtils.fastCmd("settings put system adaptive_fast_charging " + enabled);
+        Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
     }
 
     private static void battWorker(Context context) {
@@ -151,14 +156,14 @@ public class BatteryWorker {
             manualBypass = false;
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
-            if (fastChargeEnabled)
-                enableFastCharge(0);
+            if (fastChargeEnabled == 1)
+                enableFastCharge(context,0);
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(false, false);
                 Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
-            } else if (!fastChargeEnabled) {
-                enableFastCharge(1);
+            } else if (fastChargeEnabled == 0) {
+                enableFastCharge(context,1);
                 Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
         } else if (temperature >= thresholdTemp) {
@@ -168,8 +173,8 @@ public class BatteryWorker {
             if (pauseMode && !BatteryService.isBypassed()) {
                 setBypass(true, false);
                 Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
-            } else if (fastChargeEnabled && !BatteryService.isBypassed()) {
-                enableFastCharge(0);
+            } else if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
+                enableFastCharge(context,0);
                 Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
             }
         }
