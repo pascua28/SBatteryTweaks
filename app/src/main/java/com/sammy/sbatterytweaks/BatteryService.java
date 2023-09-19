@@ -39,12 +39,16 @@ public class BatteryService extends Service {
         NotificationChannel channel = new NotificationChannel(
                 CHANNELID,
                 CHANNELID,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_NONE
         );
 
-        getSystemService(NotificationManager.class).createNotificationChannel(channel);
-        Notification.Builder notification = new Notification.Builder(this, CHANNELID)
-                .setSmallIcon(R.drawable.ic_launcher);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
+        notificationManager.createNotificationChannel(channel);
+
+        Notification.Builder notification = new Notification.Builder(this, CHANNELID).setOngoing(true)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setCategory(Notification.CATEGORY_SERVICE);
 
         startForeground(1001, notification.build());
 
