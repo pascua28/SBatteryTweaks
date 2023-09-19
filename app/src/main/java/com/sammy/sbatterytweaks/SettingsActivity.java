@@ -44,6 +44,9 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String
             PREF_BATT_LVL_THRESHOLD = "lvlThreshold";
 
+    public static final String
+            PREF_TOAST_NOTIF = "enabletoast";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)

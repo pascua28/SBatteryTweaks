@@ -50,6 +50,8 @@ public class BatteryWorker {
     private static boolean lvlSwitch;
 
     private static int lvlThreshold;
+
+    private static boolean enableToast;
     private static int duration;
     private static com.topjohnwu.superuser.Shell Shell;
 
@@ -77,6 +79,7 @@ public class BatteryWorker {
         lvlThreshold = sharedPref.getInt(SettingsActivity.PREF_BATT_LVL_THRESHOLD, 60);
         disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
         autoReset = sharedPref.getBoolean(SettingsActivity.PREF_RESET_STATS, false);
+        enableToast = sharedPref.getBoolean(SettingsActivity.PREF_TOAST_NOTIF, false);
 
         SharedPreferences timePref = context.getSharedPreferences("timePref", Context.MODE_PRIVATE);
         startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
@@ -161,10 +164,14 @@ public class BatteryWorker {
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(false, false);
-                Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
+
+                if (enableToast)
+                    Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 0) {
                 enableFastCharge(context,1);
-                Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
+
+                if (enableToast)
+                    Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
         } else if (temperature >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
@@ -172,10 +179,14 @@ public class BatteryWorker {
 
             if (pauseMode && !BatteryService.isBypassed()) {
                 setBypass(true, false);
-                Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
+
+                if (enableToast)
+                    Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
                 enableFastCharge(context,0);
-                Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
+
+                if (enableToast)
+                    Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
             }
         }
     }

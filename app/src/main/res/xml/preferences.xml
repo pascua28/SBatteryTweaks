@@ -103,6 +103,13 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Miscellaneous">
+        <SwitchPreferenceCompat
+            android:dependency="enableservice"
+            android:summary="Enable toast notifications when fast charging is enabled/disabled or when charging is paused/resumed"
+            app:defaultValue="false"
+            app:key="enabletoast"
+            app:singleLineTitle="false"
+            app:title="Toast notifications" />
 
         <SwitchPreferenceCompat
             android:dependency="enableservice"
