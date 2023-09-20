@@ -81,7 +81,11 @@ public class BatteryService extends Service {
                         BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
 
                     percentage = batteryReceiver.getLevel();
-                    BatteryWorker.temperature = batteryReceiver.getTemp();
+
+                    if (Utils.isRooted())
+                        BatteryWorker.temperature = Float.parseFloat(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/temp"));
+                    else
+                        BatteryWorker.temperature = batteryReceiver.getTemp();
 
                     BatteryWorker.updateStats(isCharging);
                     BatteryWorker.batteryWorker(context, isCharging);
