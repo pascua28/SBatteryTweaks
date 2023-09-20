@@ -53,6 +53,7 @@ public class BatteryWorker {
 
     private static boolean enableToast;
     private static int duration;
+    private static boolean protectEnabled;
     private static com.topjohnwu.superuser.Shell Shell;
 
     public static void batteryWorker(Context context, Boolean isCharging) {
@@ -63,6 +64,8 @@ public class BatteryWorker {
         } catch (Settings.SettingNotFoundException e) {
             fastChargeStatus = "Not supported";
         }
+
+        protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1");
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
@@ -160,7 +163,7 @@ public class BatteryWorker {
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled == 1)
-                enableFastCharge(context,0);
+                enableFastCharge(context, 0);
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(false, false);
@@ -173,6 +176,9 @@ public class BatteryWorker {
                 if (enableToast)
                     Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
+        } else if ((BatteryService.isBypassed() || (!bypassSupported && protectEnabled && BatteryService.percentage >= 85))) {
+            if (fastChargeEnabled == 0)
+                enableFastCharge(context,1);
         } else if (temperature >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
                 startTimer();
@@ -195,7 +201,7 @@ public class BatteryWorker {
         temperature = temperature / 10F;
         battTemp = temperature + "°C";
 
-        if (BatteryService.isBypassed())
+        if (BatteryService.isBypassed() || (!bypassSupported && protectEnabled && BatteryService.percentage >= 85))
             chargingState = "Idle";
         else if (charging)
             chargingState = "Charging";
