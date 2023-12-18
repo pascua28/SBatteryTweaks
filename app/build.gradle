@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.sammy.sbatterytweaks"
         minSdk 29
-        targetSdk 31
+        targetSdk 33
         versionCode 1
         versionName '3.6'
 
@@ -28,6 +28,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.sammy.sbatterytweaks'
 }
 
 dependencies {
