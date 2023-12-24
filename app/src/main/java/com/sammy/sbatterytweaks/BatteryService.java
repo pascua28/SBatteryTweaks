@@ -48,9 +48,10 @@ public class BatteryService extends Service {
 
         Notification.Builder notification = new Notification.Builder(this, CHANNELID).setOngoing(true)
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setCategory(Notification.CATEGORY_SERVICE);
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setOnlyAlertOnce(true);
 
-        startForeground(1001, notification.build());
+        startForeground(1002, notification.build());
 
         BatteryReceiver batteryReceiver = new BatteryReceiver();
 
@@ -89,6 +90,12 @@ public class BatteryService extends Service {
 
                     BatteryWorker.updateStats(isCharging);
                     BatteryWorker.batteryWorker(context, isCharging);
+
+                    notification.setContentText("Temperature: " + BatteryWorker.battTemp);
+                    notificationManager.notify(1002, notification.build());
+                } else {
+                    notification.setContentText("");
+                    notificationManager.notify(1002, notification.build());
                 }
             }
         };
