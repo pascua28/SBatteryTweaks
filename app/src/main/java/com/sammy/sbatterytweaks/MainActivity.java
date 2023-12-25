@@ -3,8 +3,10 @@ package com.sammy.sbatterytweaks;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -15,6 +17,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
@@ -169,11 +173,22 @@ public class MainActivity extends AppCompatActivity {
                     }, 500);
         }
         permissionDialog(permGranted);
+        
         if (!Settings.System.canWrite(this)) {
             Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
             Uri permissionUri = Uri.fromParts("package", getPackageName(), null);
             permissionIntent.setData(permissionUri);
             startActivity(permissionIntent);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]
+                        {
+                                android.Manifest.permission.POST_NOTIFICATIONS
+                        }, 1);
+            }
         }
     }
 
