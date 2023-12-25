@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
@@ -168,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
                     }, 500);
         }
         permissionDialog(permGranted);
+        if (!Settings.System.canWrite(this)) {
+            Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+            Uri permissionUri = Uri.fromParts("package", getPackageName(), null);
+            permissionIntent.setData(permissionUri);
+            startActivity(permissionIntent);
+        }
     }
 
     @Override
