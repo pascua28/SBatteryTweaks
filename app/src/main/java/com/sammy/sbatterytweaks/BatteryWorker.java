@@ -148,7 +148,11 @@ public class BatteryWorker {
 
     private static void enableFastCharge(Context context, int enabled)
     {
-        Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
+        try {
+            Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
+        } catch (Exception f) {
+            f.printStackTrace();
+        }
     }
 
     private static void battWorker(Context context) {
