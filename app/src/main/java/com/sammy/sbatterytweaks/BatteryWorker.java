@@ -151,7 +151,12 @@ public class BatteryWorker {
         try {
             Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
         } catch (Exception f) {
-            f.printStackTrace();
+            if (Utils.isRooted())
+                com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
+            else {
+                fastChargeStatus = fastChargeStatus + " (failed to toggle)";
+                f.printStackTrace();
+            }
         }
     }
 
