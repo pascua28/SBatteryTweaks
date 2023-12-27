@@ -88,10 +88,6 @@ public class MainActivity extends AppCompatActivity {
         isRunning = true;
         boolean isRootAvailable = Utils.isRooted();
 
-        String requiredPermission = "android.permission.WRITE_SECURE_SETTINGS";
-
-        int permGranted = getApplicationContext().checkCallingOrSelfPermission(requiredPermission);
-
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         Button settingsButton = findViewById(R.id.settingsBtn);
@@ -159,20 +155,6 @@ public class MainActivity extends AppCompatActivity {
             openURL.setData(Uri.parse("https://github.com/pascua28/SupportMe"));
             startActivity(openURL);
         });
-
-        if (isRootAvailable && permGranted < 0) {
-            Shell.cmd("pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS").exec();
-            Toast.makeText(this, "Permission granted! Restarting…", Toast.LENGTH_SHORT).show();
-            new Timer().schedule(
-                    new TimerTask() {
-                        @Override
-                        public void run() {
-                            finish();
-                            startActivity(getIntent());
-                        }
-                    }, 500);
-        }
-        permissionDialog(permGranted);
         
         if (!Settings.System.canWrite(this)) {
             Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
@@ -220,24 +202,5 @@ public class MainActivity extends AppCompatActivity {
     private boolean foregroundServiceRunning() {
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         return activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
-    }
-
-    private void permissionDialog(int ret) {
-        if (ret < 0) {
-            AlertDialog.Builder builder
-                    = new AlertDialog
-                    .Builder(MainActivity.this);
-            builder.setMessage("WRITE_SECURE_SETTINGS not granted!\n\nTo grant access, run\n" +
-                    "'adb shell pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS'\n" +
-                    "on your computer");
-            builder.setCancelable(false);
-
-            builder
-                    .setPositiveButton(
-                            "Okay",
-                            (dialog, which) -> Toast.makeText(getApplicationContext(), "App may not function correctly", Toast.LENGTH_LONG).show());
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-        }
     }
 }

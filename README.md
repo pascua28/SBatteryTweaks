@@ -3,11 +3,6 @@
 # S Battery Tweaker
 A simple app to prolong battery longevity by limiting charge rate/suspending charge based on temperature.
 
-## ADB setup (one time setup only; not needed for root users)
-Run:
-
-    adb shell pm grant com.sammy.sbatterytweaks android.permission.WRITE_SECURE_SETTINGS
-
 # External Libraries:
 
  - Root utilities - https://github.com/topjohnwu/libsu
