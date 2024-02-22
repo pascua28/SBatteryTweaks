@@ -16,6 +16,7 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryService extends Service {
+    BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isCharging;
 
     public static int percentage;
@@ -89,7 +90,7 @@ public class BatteryService extends Service {
                         BatteryWorker.temperature = batteryReceiver.getTemp();
 
                     BatteryWorker.updateStats(isCharging);
-                    BatteryWorker.batteryWorker(context, isCharging);
+                    batteryWorker.batteryWorker(context, isCharging);
 
                     notification.setContentText("Temperature: " + BatteryWorker.battTemp);
                     notificationManager.notify(1002, notification.build());

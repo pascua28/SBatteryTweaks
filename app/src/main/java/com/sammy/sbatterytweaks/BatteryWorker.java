@@ -1,8 +1,11 @@
 package com.sammy.sbatterytweaks;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.widget.Toast;
@@ -56,7 +59,7 @@ public class BatteryWorker {
     private static boolean protectEnabled;
     private static com.topjohnwu.superuser.Shell Shell;
 
-    public static void batteryWorker(Context context, Boolean isCharging) {
+    public void batteryWorker(Context context, Boolean isCharging) {
         try {
             fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
             if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
@@ -146,21 +149,31 @@ public class BatteryWorker {
         }.start();
     }
 
-    private static void enableFastCharge(Context context, int enabled)
+    private void enableFastCharge(Context context, int enabled)
     {
         try {
             Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
-        } catch (Exception f) {
-            if (Utils.isRooted())
-                com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
-            else {
-                fastChargeStatus = fastChargeStatus + " (failed to toggle)";
-                f.printStackTrace();
+        } catch (Exception e) {
+            try {
+                ContentResolver cr = context.getContentResolver();
+
+                ContentValues cv = new ContentValues(2);
+                cv.put("name", "adaptive_fast_charging");
+                cv.put("value", enabled);
+                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
+            } catch (Exception f) {
+                if (Utils.isRooted())
+                    com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
+                else {
+                    fastChargeStatus = fastChargeStatus + " (failed to toggle)";
+                    e.printStackTrace();
+                    f.printStackTrace();
+                }
             }
         }
     }
 
-    private static void battWorker(Context context) {
+    private void battWorker(Context context) {
         if (!serviceEnabled)
             return;
 
