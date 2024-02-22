@@ -48,7 +48,10 @@ public class MainActivity extends AppCompatActivity {
         battTemperature.setText(BatteryWorker.battTemp);
         if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
             battTemperature.setTextColor(Color.parseColor("#A80505"));
-        else battTemperature.setTextColor(Color.parseColor("#187A4A"));
+        else if (BatteryWorker.temperature > (BatteryWorker.thresholdTemp - BatteryWorker.tempDelta))
+            battTemperature.setTextColor(Color.parseColor("#CCBC2F"));
+        else
+            battTemperature.setTextColor(Color.parseColor("#187A4A"));
 
         fastChgStatus.setText(BatteryWorker.fastChargeStatus);
         bypassToggle.setChecked(BatteryService.isBypassed());

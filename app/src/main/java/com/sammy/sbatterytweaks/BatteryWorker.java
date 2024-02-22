@@ -43,7 +43,7 @@ public class BatteryWorker {
     private static boolean shouldCoolDown;
     private static int fastChargeEnabled;
     private static boolean pauseMode;
-    private static float tempDelta;
+    public static float tempDelta;
     private static float cdSeconds;
     private static long cooldown;
     private static int startHour, startMinute;
