@@ -57,7 +57,6 @@ public class BatteryWorker {
     private static boolean enableToast;
     private static int duration;
     private static boolean protectEnabled;
-    private static com.topjohnwu.superuser.Shell Shell;
 
     public void batteryWorker(Context context, Boolean isCharging) {
         try {

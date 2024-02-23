@@ -30,8 +30,6 @@ public class TimePicker extends Dialog implements View.OnClickListener {
     public Activity c;
     public Button saveBtn;
     private int startHour, startMinute, endHour, endMinute, duration;
-    private TimeRangePicker timeRangePicker;
-    private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
     public TimePicker(Activity a) {
@@ -44,13 +42,13 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.fragment_time_picker);
-        saveBtn = (Button) findViewById(R.id.saveBtn);
+        saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
 
         TextView start_Time = findViewById(R.id.start_time);
         TextView end_Time = findViewById(R.id.end_time);
 
-        pref = getContext().getSharedPreferences("timePref", Context.MODE_PRIVATE);
+        SharedPreferences pref = getContext().getSharedPreferences("timePref", Context.MODE_PRIVATE);
         editor = pref.edit();
 
         startHour = pref.getInt(PREF_START_HOUR, 22);
@@ -59,7 +57,7 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         endMinute = pref.getInt(PREF_END_MINUTE, 0);
         duration = pref.getInt(PREF_DURATION, 480);
 
-        timeRangePicker = findViewById(picker);
+        TimeRangePicker timeRangePicker = findViewById(picker);
 
         timeRangePicker.setStartTime(new TimeRangePicker.Time(startHour, startMinute));
         timeRangePicker.setEndTimeMinutes((endHour * 60) + endMinute);

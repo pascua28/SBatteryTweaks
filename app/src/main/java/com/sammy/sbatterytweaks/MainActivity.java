@@ -1,7 +1,6 @@
 package com.sammy.sbatterytweaks;
 
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -21,11 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,11 +79,10 @@ public class MainActivity extends AppCompatActivity {
         int fullcapnom;
         float battHealth;
 
-        CardView idleCard = (CardView) findViewById(R.id.idleCardView);
-        CardView capacityCard = (CardView) findViewById(R.id.capacityView);
+        CardView idleCard = findViewById(R.id.idleCardView);
+        CardView capacityCard = findViewById(R.id.capacityView);
 
         isRunning = true;
-        boolean isRootAvailable = Utils.isRooted();
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
@@ -141,12 +134,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryWorker.bypassSupported) {
             idleCard.setVisibility(View.GONE);
         }
-        bypassToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BatteryWorker.setBypass(bypassToggle.isChecked(), true);
-            }
-        });
+        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(bypassToggle.isChecked(), true));
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
