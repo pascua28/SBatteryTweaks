@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
+import android.text.TextUtils;
 
 import com.topjohnwu.superuser.ShellUtils;
 
@@ -25,7 +27,8 @@ public class BatteryService extends Service {
     private Context context;
 
     public static boolean isBypassed() {
-        return isCharging && BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap;
+        return isCharging && (BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap) ||
+                (BatteryWorker.pausePdSupported && BatteryWorker.pausePdEnabled);
     }
 
     @Override
@@ -69,12 +72,13 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 mHandler.postDelayed(this, 2000);
-                BatteryWorker.bypassSupported = fullCapFIle.exists() && Utils.isRooted();
+                BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted()) ||
+                        (BatteryWorker.pausePdSupported);
                 isCharging = batteryReceiver.isCharging();
 
                 if (MainActivity.isRunning) {
                     BatteryManager manager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-                    BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE) + " mA";
+                    BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
                     BatteryWorker.voltage = batteryReceiver.getVolt() + " mV";
                 }
 

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -29,18 +30,22 @@ public class BatteryWorker {
     public static float temperature;
     public static float thresholdTemp;
     public static int battFullCap = 0;
-    public static String currentNow = "";
+    public static int currentNow;
     public static String voltage = "";
     public static boolean idleEnabled;
     public static boolean disableSync;
     public static boolean autoReset;
     public static boolean bypassSupported;
+
+    public static boolean pausePdSupported;
     static SimpleDateFormat sdf;
     static Date currTime;
     static Date start;
     private static boolean serviceEnabled;
     private static boolean timerEnabled;
     private static boolean shouldCoolDown;
+
+    public static boolean pausePdEnabled;
     private static int fastChargeEnabled;
     private static boolean pauseMode;
     public static float tempDelta;
@@ -66,6 +71,10 @@ public class BatteryWorker {
         } catch (Settings.SettingNotFoundException e) {
             fastChargeStatus = "Not supported";
         }
+
+        pausePdSupported = !TextUtils.isEmpty(Settings.System.getString(context.getContentResolver(), "pass_through"));
+        if (pausePdSupported)
+            pausePdEnabled = Settings.System.getString(context.getContentResolver(), "pass_through").equals("1");
 
         protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1");
 
@@ -101,14 +110,36 @@ public class BatteryWorker {
             MainActivity.updateStatus(manualBypass);
     }
 
-    public static void setBypass(Boolean state, Boolean isManual) {
+    public static void setBypass(Context context, int enabled, Boolean isManual) {
         manualBypass = isManual;
-        if (state)
-            com.topjohnwu.superuser.Shell.cmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
-        else {
+
+        if (enabled == 0) {
             // Allow overriding the toggle when turning it off.
             manualBypass = false;
+        }
 
+        if (pausePdSupported) {
+            try {
+                Settings.System.putInt(context.getContentResolver(), "pass_through", enabled);
+            } catch (Exception e) {
+                try {
+                    ContentResolver cr = context.getContentResolver();
+
+                    ContentValues cv = new ContentValues(2);
+                    cv.put("name", "pass_through");
+                    cv.put("value", enabled);
+                    cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
+                } catch (Exception f) {
+                    if (Utils.isRooted())
+                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through" + enabled).exec();
+                }
+            }
+            return;
+        }
+
+        if (enabled == 1)
+            com.topjohnwu.superuser.Shell.cmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+        else {
             com.topjohnwu.superuser.Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
         }
     }
@@ -187,7 +218,7 @@ public class BatteryWorker {
                 enableFastCharge(context, 0);
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
-                setBypass(false, false);
+                setBypass(context, 0, false);
 
                 if (enableToast)
                     Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
@@ -197,7 +228,7 @@ public class BatteryWorker {
                 if (enableToast)
                     Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
-        } else if ((BatteryService.isBypassed() || (!bypassSupported && protectEnabled && BatteryService.percentage >= 85))) {
+        } else if (currentNow < 50 && currentNow > -50) {
             if (fastChargeEnabled == 0)
                 enableFastCharge(context,1);
         } else if (temperature >= thresholdTemp) {
@@ -205,7 +236,7 @@ public class BatteryWorker {
                 startTimer();
 
             if (pauseMode && !BatteryService.isBypassed()) {
-                setBypass(true, false);
+                setBypass(context, 1,false);
 
                 if (enableToast)
                     Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();

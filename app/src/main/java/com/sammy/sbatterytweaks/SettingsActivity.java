@@ -77,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
-            if (!Utils.isRooted() && !BatteryWorker.bypassSupported) {
+            if (!BatteryWorker.bypassSupported){
                 if (pauseModeSwitch != null) {
                     pauseModeSwitch.setEnabled(false);
                 }
@@ -112,7 +112,7 @@ public class SettingsActivity extends AppCompatActivity {
                     Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
                     BatteryWorker.manualBypass = false;
                 } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
-                    BatteryWorker.setBypass(false, false);
+                    BatteryWorker.setBypass(getContext(), 0, false);
             };
         }
 

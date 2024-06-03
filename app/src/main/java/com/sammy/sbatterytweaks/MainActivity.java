@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             lvlText = "⚡" + battPercent;
 
         levelText.setText(lvlText);
-        currentText.setText(BatteryWorker.currentNow);
+        currentText.setText(BatteryWorker.currentNow + "mA");
         voltText.setText(BatteryWorker.voltage);
         battTemperature.setText(BatteryWorker.battTemp);
         if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryWorker.bypassSupported) {
             idleCard.setVisibility(View.GONE);
         }
-        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(bypassToggle.isChecked(), true));
+        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1:0, true));
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
