@@ -71,7 +71,6 @@ public class BatteryService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mHandler.postDelayed(this, 2000);
                 BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted()) ||
                         (BatteryWorker.pausePdSupported);
                 isCharging = batteryReceiver.isCharging();
@@ -102,6 +101,7 @@ public class BatteryService extends Service {
                     notification.setContentText("");
                     notificationManager.notify(1002, notification.build());
                 }
+                mHandler.postDelayed(this, 2500);
             }
         };
         mHandler.post(runnable);
