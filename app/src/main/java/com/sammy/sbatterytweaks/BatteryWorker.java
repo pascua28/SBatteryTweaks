@@ -83,38 +83,37 @@ public class BatteryWorker {
             MainActivity.updateStatus(manualBypass);
     }
 
-    public static void setBypass(Context context, int enabled, Boolean isManual) {
+    public static void setBypass(Context context, int bypass, Boolean isManual) {
         manualBypass = isManual;
 
-        if (enabled == 0) {
+        if (bypass == 0) {
             // Allow overriding the toggle when turning it off.
             manualBypass = false;
         }
 
         if (pausePdSupported) {
             try {
-                Settings.System.putInt(context.getContentResolver(), "pass_through", enabled);
+                Settings.System.putInt(context.getContentResolver(), "pass_through", bypass);
             } catch (Exception e) {
                 try {
                     ContentResolver cr = context.getContentResolver();
 
                     ContentValues cv = new ContentValues(2);
                     cv.put("name", "pass_through");
-                    cv.put("value", enabled);
+                    cv.put("value", bypass);
                     cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
                 } catch (Exception f) {
                     if (Utils.isRooted())
-                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through " + enabled).exec();
+                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through " + bypass).exec();
                 }
             }
             return;
         }
 
-        if (enabled == 1)
+        if (bypass == 1)
             com.topjohnwu.superuser.Shell.cmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
-        else {
+        else
             com.topjohnwu.superuser.Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
-        }
     }
 
     @SuppressLint("SimpleDateFormat")
