@@ -104,7 +104,7 @@ public class BatteryWorker {
                     cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
                 } catch (Exception f) {
                     if (Utils.isRooted())
-                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through" + enabled).exec();
+                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through " + enabled).exec();
                 }
             }
             return;
