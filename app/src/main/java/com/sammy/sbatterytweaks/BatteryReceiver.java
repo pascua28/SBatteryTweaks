@@ -12,10 +12,8 @@ import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
-    private int mLevel;
+    private int mLevel, mStatus, mVolt;
     private float mTemp;
-    private int mStatus;
-    private int mVolt;
 
     @Override
     public void onReceive(Context context, Intent intent) {

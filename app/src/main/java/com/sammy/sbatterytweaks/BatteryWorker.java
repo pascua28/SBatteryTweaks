@@ -22,46 +22,19 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class BatteryWorker {
-    public static String chargingState;
-    public static String battTemp;
-    public static String fastChargeStatus;
-    public static boolean isOngoing;
-    public static boolean manualBypass = false;
-    public static float temperature;
-    public static float thresholdTemp;
-    public static int battFullCap = 0;
-    public static int currentNow;
-    public static String voltage = "";
-    public static boolean idleEnabled;
-    public static boolean disableSync;
-    public static boolean autoReset;
-    public static boolean bypassSupported;
-
-    public static boolean pausePdSupported;
-    static SimpleDateFormat sdf;
-    static Date currTime;
-    static Date start;
-    private static boolean serviceEnabled;
-    private static boolean timerEnabled;
-    private static boolean shouldCoolDown;
-
-    public static boolean pausePdEnabled;
-    private static int fastChargeEnabled;
-    private static boolean pauseMode;
-    public static float tempDelta;
+    public static String chargingState, battTemp, fastChargeStatus, voltage = "";
+    public static boolean isOngoing, manualBypass = false, idleEnabled, disableSync,
+            autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
+    private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
+            lvlSwitch, enableToast, protectEnabled, isSchedEnabled;
+    public static float temperature, thresholdTemp, tempDelta;
     private static float cdSeconds;
+    public static int battFullCap = 0, currentNow;
+    private static int fastChargeEnabled, startHour, startMinute, idleLevel,
+            lvlThreshold, duration;
     private static long cooldown;
-    private static int startHour, startMinute;
-    private static boolean isSchedEnabled;
-    private static int idleLevel;
-
-    private static boolean lvlSwitch;
-
-    private static int lvlThreshold;
-
-    private static boolean enableToast;
-    private static int duration;
-    private static boolean protectEnabled;
+    static SimpleDateFormat sdf;
+    static Date currTime, start;
 
     public void batteryWorker(Context context, Boolean isCharging) {
         try {

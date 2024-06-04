@@ -18,14 +18,10 @@ import nl.joery.timerangepicker.TimeRangePicker;
 
 public class TimePicker extends Dialog implements View.OnClickListener {
     public static final String
-            PREF_START_HOUR = "startHour";
-    public static final String
-            PREF_START_MINUTE = "startMinute";
-    public static final String
-            PREF_DURATION = "duration";
-    public final String
-            PREF_END_HOUR = "endHour";
-    public final String
+            PREF_START_HOUR = "startHour",
+            PREF_START_MINUTE = "startMinute",
+            PREF_DURATION = "duration",
+            PREF_END_HOUR = "endHour",
             PREF_END_MINUTE = "endMinute";
     public Activity c;
     public Button saveBtn;

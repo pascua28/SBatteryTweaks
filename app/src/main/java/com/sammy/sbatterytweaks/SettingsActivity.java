@@ -15,36 +15,19 @@ import com.topjohnwu.superuser.Shell;
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String
-            KEY_PREF_SERVICE = "enableservice";
-    public static final String
-            KEY_PREF_THRESHOLD_UP = "thresholdUp";
-    public static final String
-            KEY_PREF_TEMP_DELTA = "tempDelta";
-    public static final String
-            KEY_PREF_BYPASS_MODE = "pauseMode";
-    public static final String
-            KEY_PREF_TIMER_SWITCH = "timerSwitch";
-    public static final String
-            KEY_PREF_CD_SECONDS = "cdSeconds";
-    public static final String
-            PREF_SCHED_ENABLED = "schedSwitch";
-    public static final String
-            PREF_IDLE_SWITCH = "idleSwitch";
-    public static final String
-            PREF_IDLE_LEVEL = "idleLevel";
-    public static final String
-            PREF_DISABLE_SYNC = "disablesync";
-
-    public static final String
-            PREF_RESET_STATS = "resetstats";
-
-    public  static final String
-            PREF_BATT_LVL_SWITCH = "lvlThresholdSwitch";
-
-    public static final String
-            PREF_BATT_LVL_THRESHOLD = "lvlThreshold";
-
-    public static final String
+            KEY_PREF_SERVICE = "enableservice",
+            KEY_PREF_THRESHOLD_UP = "thresholdUp",
+            KEY_PREF_TEMP_DELTA = "tempDelta",
+            KEY_PREF_BYPASS_MODE = "pauseMode",
+            KEY_PREF_TIMER_SWITCH = "timerSwitch",
+            KEY_PREF_CD_SECONDS = "cdSeconds",
+            PREF_SCHED_ENABLED = "schedSwitch",
+            PREF_IDLE_SWITCH = "idleSwitch",
+            PREF_IDLE_LEVEL = "idleLevel",
+            PREF_DISABLE_SYNC = "disablesync",
+            PREF_RESET_STATS = "resetstats",
+            PREF_BATT_LVL_SWITCH = "lvlThresholdSwitch",
+            PREF_BATT_LVL_THRESHOLD = "lvlThreshold",
             PREF_TOAST_NOTIF = "enabletoast";
 
     @Override
