@@ -100,7 +100,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (!BatteryWorker.pausePdSupported && BatteryWorker.bypassSupported) {
                         Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
                     }
-                    //Reset bypass state. BatteryService will take care of this
+                    //Reset bypass state. BatteryService will change this anyway
                     if (BatteryWorker.pausePdSupported) {
                         BatteryWorker.setBypass(getContext(), 0, true);
                     }
