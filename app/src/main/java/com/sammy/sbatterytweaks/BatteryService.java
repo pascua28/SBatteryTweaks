@@ -98,8 +98,10 @@ public class BatteryService extends Service {
                         if (statsFile.exists())
                             ShellUtils.fastCmd("rm " + statsFile);
                     }
-
                 }
+
+                notification.setContentText("Temperature: " + mTemp / 10 + " °C");
+                notificationManager.notify(1002, notification.build());
             }
         };
         this.registerReceiver(this.batteryReceiver, ifilter);
@@ -142,12 +144,6 @@ public class BatteryService extends Service {
                             BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
                         BatteryWorker.setBypass(context, 1, false);
                     }
-
-                    notification.setContentText("Temperature: " + BatteryWorker.battTemp);
-                    notificationManager.notify(1002, notification.build());
-                } else {
-                    notification.setContentText("");
-                    notificationManager.notify(1002, notification.build());
                 }
                 mHandler.postDelayed(this, 2500);
             }
