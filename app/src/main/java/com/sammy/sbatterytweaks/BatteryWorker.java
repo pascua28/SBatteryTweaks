@@ -45,7 +45,6 @@ public class BatteryWorker {
             fastChargeStatus = "Not supported";
         }
 
-        pausePdSupported = !TextUtils.isEmpty(Settings.System.getString(context.getContentResolver(), "pass_through"));
         if (pausePdSupported)
             pausePdEnabled = Settings.System.getString(context.getContentResolver(), "pass_through").equals("1");
 

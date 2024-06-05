@@ -52,6 +52,16 @@ public class BatteryService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted());
+        try {
+            Settings.System.getInt(getContentResolver(), "pass_through");
+            BatteryWorker.pausePdSupported = true;
+        } catch (Settings.SettingNotFoundException e) {
+            BatteryWorker.pausePdSupported = false;
+            e.printStackTrace();
+        }
+
         final IntentFilter ifilter = new IntentFilter();
         ifilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         ifilter.addAction(Intent.ACTION_POWER_CONNECTED);
@@ -108,9 +118,6 @@ public class BatteryService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted()) ||
-                        (BatteryWorker.pausePdSupported);
-
                 if (MainActivity.isRunning) {
                     BatteryManager manager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
                     BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);

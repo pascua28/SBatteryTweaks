@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         CardView idleCard = findViewById(R.id.idleCardView);
         CardView capacityCard = findViewById(R.id.capacityView);
+        idleCard.setVisibility(View.GONE);
 
         isRunning = true;
 
@@ -131,8 +132,8 @@ public class MainActivity extends AppCompatActivity {
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText("Idle charging:");
 
-        if (!BatteryWorker.bypassSupported) {
-            idleCard.setVisibility(View.GONE);
+        if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
+            idleCard.setVisibility(View.VISIBLE);
         }
         bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1:0, true));
 

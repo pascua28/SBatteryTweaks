@@ -57,17 +57,22 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
+            pauseModeSwitch.setEnabled(false);
             SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
-            if (!BatteryWorker.bypassSupported){
+            if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
                 if (pauseModeSwitch != null) {
-                    pauseModeSwitch.setEnabled(false);
+                    pauseModeSwitch.setEnabled(true);
                 }
+            }
+            if (!BatteryWorker.bypassSupported) {
                 if (idleSwitch != null) {
                     idleSwitch.setEnabled(false);
                 }
+            }
 
+            if (!Utils.isRooted()) {
                 if (resetSwitch != null) {
                     resetSwitch.setEnabled(false);
                 }
