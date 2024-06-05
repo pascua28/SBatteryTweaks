@@ -68,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (!foregroundServiceRunning()) {
+            Intent serviceIntent = new Intent(this,
+                    BatteryService.class);
+            startForegroundService(serviceIntent);
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
             setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
         else
@@ -90,12 +99,6 @@ public class MainActivity extends AppCompatActivity {
         Button settingsButton = findViewById(R.id.settingsBtn);
 
         Button donateButton = findViewById(R.id.supportBtn);
-
-        if (!foregroundServiceRunning()) {
-            Intent serviceIntent = new Intent(this,
-                    BatteryService.class);
-            startForegroundService(serviceIntent);
-        }
 
         bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
