@@ -85,7 +85,7 @@ public class BatteryService extends Service {
                 mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
                 mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
-                isCharging = manager.isCharging();
+                isCharging = mStatus > 0;
 
                 if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
                     if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
