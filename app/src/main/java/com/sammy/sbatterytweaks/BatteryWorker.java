@@ -29,8 +29,8 @@ public class BatteryWorker {
             lvlSwitch, enableToast, protectEnabled, isSchedEnabled;
     public static float temperature, thresholdTemp, tempDelta;
     private static float cdSeconds;
-    public static int battFullCap = 0, currentNow;
-    private static int fastChargeEnabled, startHour, startMinute, idleLevel,
+    public static int battFullCap = 0, currentNow, idleLevel;
+    private static int fastChargeEnabled, startHour, startMinute,
             lvlThreshold, duration;
     private static long cooldown;
     static SimpleDateFormat sdf;

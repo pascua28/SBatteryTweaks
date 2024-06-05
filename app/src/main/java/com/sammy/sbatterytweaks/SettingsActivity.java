@@ -59,16 +59,16 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
             pauseModeSwitch.setEnabled(false);
             SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
+            idleSwitch.setEnabled(false);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
             if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
                 if (pauseModeSwitch != null) {
                     pauseModeSwitch.setEnabled(true);
                 }
-            }
-            if (!BatteryWorker.bypassSupported) {
+
                 if (idleSwitch != null) {
-                    idleSwitch.setEnabled(false);
+                    idleSwitch.setEnabled(true);
                 }
             }
 
@@ -97,7 +97,13 @@ public class SettingsActivity extends AppCompatActivity {
                     BatteryWorker.isOngoing = false;
                 else if (key.equals(PREF_IDLE_LEVEL) &&
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
-                    Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+                    if (!BatteryWorker.pausePdSupported && BatteryWorker.bypassSupported) {
+                        Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+                    }
+                    //Reset bypass state. BatteryService will take care of this
+                    if (BatteryWorker.pausePdSupported) {
+                        BatteryWorker.setBypass(getContext(), 0, true);
+                    }
                     BatteryWorker.manualBypass = false;
                 } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
                     BatteryWorker.setBypass(getContext(), 0, false);

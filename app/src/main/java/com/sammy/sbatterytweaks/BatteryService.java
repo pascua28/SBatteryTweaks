@@ -138,6 +138,11 @@ public class BatteryService extends Service {
                     BatteryWorker.updateStats(isCharging);
                     batteryWorker.batteryWorker(context, isCharging);
 
+                    if (!isBypassed() && BatteryWorker.pausePdSupported &&
+                            BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
+                        BatteryWorker.setBypass(context, 1, false);
+                    }
+
                     notification.setContentText("Temperature: " + BatteryWorker.battTemp);
                     notificationManager.notify(1002, notification.build());
                 } else {
