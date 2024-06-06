@@ -20,11 +20,10 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryService extends Service {
-    BatteryWorker batteryWorker = new BatteryWorker();
     public static boolean isCharging;
     public static int percentage;
-    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
-    private final File statsFile = new File("/data/system/batterystats.bin");
+    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity"),
+            statsFile = new File("/data/system/batterystats.bin");
     private int mLevel, mStatus, mVolt;
     private float mTemp;
     private BroadcastReceiver batteryReceiver;
@@ -66,7 +65,6 @@ public class BatteryService extends Service {
         ifilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         ifilter.addAction(Intent.ACTION_POWER_CONNECTED);
         ifilter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-        BatteryManager manager = (BatteryManager) this.getSystemService(Context.BATTERY_SERVICE);
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         assert notificationManager != null;
@@ -81,11 +79,15 @@ public class BatteryService extends Service {
         this.batteryReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mTemp = (float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
+                mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
                 mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
                 mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
                 isCharging = mStatus > 0;
+                percentage = mLevel;
+
+                BatteryWorker.voltage = mVolt + " mV";
+                BatteryWorker.temperature = mTemp;
 
                 if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
                     if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
@@ -100,7 +102,7 @@ public class BatteryService extends Service {
                     }
                 }
 
-                notification.setContentText("Temperature: " + mTemp / 10 + " °C");
+                notification.setContentText("Temperature: " + mTemp + " °C");
                 notificationManager.notify(1002, notification.build());
             }
         };
@@ -120,32 +122,22 @@ public class BatteryService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (MainActivity.isRunning) {
-                    BatteryManager manager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-                    BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
-                    BatteryWorker.voltage = mVolt + " mV";
-                }
-
                 if (MainActivity.isRunning || isCharging) {
+                    BatteryManager manager = (BatteryManager) getSystemService(Context.BATTERY_SERVICE);
+                    BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
+
                     if (BatteryWorker.bypassSupported)
                         BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
 
-                    percentage = mLevel;
-
-                    if (Utils.isRooted())
-                        BatteryWorker.temperature = Float.parseFloat(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/temp"));
-                    else
-                        BatteryWorker.temperature = mTemp;
-
                     BatteryWorker.updateStats(isCharging);
-                    batteryWorker.batteryWorker(context, isCharging);
+                    BatteryWorker.batteryWorker(context, isCharging);
 
                     if (!isBypassed() && BatteryWorker.pausePdSupported &&
                             BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
                         BatteryWorker.setBypass(context, 1, false);
                     }
                 }
-                mHandler.postDelayed(this, 2500);
+                mHandler.postDelayed(this, 3000);
             }
         };
         mHandler.post(runnable);

@@ -36,7 +36,7 @@ public class BatteryWorker {
     static SimpleDateFormat sdf;
     static Date currTime, start;
 
-    public void batteryWorker(Context context, Boolean isCharging) {
+    public static void batteryWorker(Context context, Boolean isCharging) {
         try {
             fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
             if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
@@ -150,7 +150,7 @@ public class BatteryWorker {
         }.start();
     }
 
-    private void enableFastCharge(Context context, int enabled)
+    private static void enableFastCharge(Context context, int enabled)
     {
         try {
             Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
@@ -174,7 +174,7 @@ public class BatteryWorker {
         }
     }
 
-    private void battWorker(Context context) {
+    private static void battWorker(Context context) {
         if (!serviceEnabled)
             return;
 
@@ -221,7 +221,6 @@ public class BatteryWorker {
     }
 
     public static void updateStats(Boolean charging) {
-        temperature = temperature / 10F;
         battTemp = temperature + "°C";
 
         if (BatteryService.isBypassed() || (!bypassSupported && protectEnabled && BatteryService.percentage >= 85))
