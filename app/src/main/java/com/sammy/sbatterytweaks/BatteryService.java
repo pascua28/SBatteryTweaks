@@ -40,7 +40,8 @@ public class BatteryService extends Service {
 
     public static boolean isBypassed() {
         return isCharging && (BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap) ||
-                (BatteryWorker.pausePdSupported && BatteryWorker.pausePdEnabled);
+                (BatteryWorker.pausePdSupported && BatteryWorker.pausePdEnabled) ||
+                (BatteryWorker.currentNow < 50 && BatteryWorker.currentNow > -50);
     }
 
     @Override

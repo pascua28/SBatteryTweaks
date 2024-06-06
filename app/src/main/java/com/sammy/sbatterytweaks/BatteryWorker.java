@@ -181,7 +181,7 @@ public class BatteryWorker {
         if (idleEnabled && !BatteryService.isBypassed() && battFullCap != idleLevel) {
             com.topjohnwu.superuser.Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
             manualBypass = false;
-        } else if (idleEnabled && idleLevel == battFullCap && BatteryService.isBypassed()) {
+        } else if (idleEnabled && idleLevel >= battFullCap && BatteryService.isBypassed()) {
             manualBypass = false;
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
@@ -199,7 +199,7 @@ public class BatteryWorker {
                 if (enableToast)
                     Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
             }
-        } else if (currentNow < 50 && currentNow > -50) {
+        } else if (BatteryService.isBypassed()) {
             if (fastChargeEnabled == 0)
                 enableFastCharge(context,1);
         } else if (temperature >= thresholdTemp) {
