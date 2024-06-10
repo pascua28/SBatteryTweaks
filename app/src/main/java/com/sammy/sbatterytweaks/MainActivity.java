@@ -1,12 +1,15 @@
 package com.sammy.sbatterytweaks;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("BatteryLife")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!foregroundServiceRunning()) {
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         }
+        PowerManager powerManager = (PowerManager) this.getSystemService(POWER_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
             setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
@@ -167,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
                         }, 1);
             }
         }
+
+        if (!powerManager.isIgnoringBatteryOptimizations(getPackageName()))
+            startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:"+getPackageName())));
     }
 
     @Override

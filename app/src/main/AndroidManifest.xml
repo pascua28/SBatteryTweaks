@@ -10,6 +10,7 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="com.netvor.settings.tables.provider.permission.SETTINGS_TABLES_PROVIDER" />
     <queries>
         <provider android:authorities="com.netvor.provider.SettingsDatabaseProvider" />
