@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -48,7 +47,12 @@ public class BatteryWorker {
         if (pausePdSupported)
             pausePdEnabled = Settings.System.getString(context.getContentResolver(), "pass_through").equals("1");
 
-        protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1");
+        try {
+            protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1");
+        } catch (Exception e) {
+            e.printStackTrace();
+            protectEnabled = false;
+        }
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);

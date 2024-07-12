@@ -13,7 +13,6 @@ import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.text.TextUtils;
 
 import com.topjohnwu.superuser.ShellUtils;
 

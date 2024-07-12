@@ -12,6 +12,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.topjohnwu.superuser.Shell;
 
+import java.util.Objects;
+
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String
@@ -57,19 +59,17 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
             SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
+            assert pauseModeSwitch != null;
             pauseModeSwitch.setEnabled(false);
             SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
+            assert idleSwitch != null;
             idleSwitch.setEnabled(false);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
             if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
-                if (pauseModeSwitch != null) {
-                    pauseModeSwitch.setEnabled(true);
-                }
+                pauseModeSwitch.setEnabled(true);
 
-                if (idleSwitch != null) {
-                    idleSwitch.setEnabled(true);
-                }
+                idleSwitch.setEnabled(true);
             }
 
             if (!Utils.isRooted()) {
@@ -93,6 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             listener = (sharedPreferences, key) -> {
+                assert key != null;
                 if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false))
                     BatteryWorker.isOngoing = false;
                 else if (key.equals(PREF_IDLE_LEVEL) &&
@@ -113,13 +114,15 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onResume() {
             super.onResume();
-            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
+            Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
+                    .registerOnSharedPreferenceChangeListener(listener);
         }
 
         @Override
         public void onPause() {
             super.onPause();
-            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(listener);
+            Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
+                    .unregisterOnSharedPreferenceChangeListener(listener);
         }
     }
 }
