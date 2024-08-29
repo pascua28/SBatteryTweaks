@@ -189,7 +189,7 @@ public class BatteryWorker {
             manualBypass = false;
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
-            if (fastChargeEnabled == 1)
+            if (fastChargeEnabled == 1 && !BatteryService.isBypassed())
                 enableFastCharge(context, 0);
         } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
