@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
             startForegroundService(serviceIntent);
-            Intent intent = getIntent();
+            Intent intent = this.getIntent();
             finish();
             startActivity(intent);
         }

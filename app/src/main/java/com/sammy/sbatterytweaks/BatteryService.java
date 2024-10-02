@@ -17,7 +17,7 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryService extends Service {
-    public static boolean isCharging;
+    public static boolean isCharging, manualBypass = false;
 
     public static int percentage;
     private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");

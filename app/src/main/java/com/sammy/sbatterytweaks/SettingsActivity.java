@@ -2,6 +2,7 @@ package com.sammy.sbatterytweaks;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Switch;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -31,6 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
             PREF_BATT_LVL_SWITCH = "lvlThresholdSwitch",
             PREF_BATT_LVL_THRESHOLD = "lvlThreshold",
             PREF_TOAST_NOTIF = "enabletoast";
+
+    private Switch idleToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,20 @@ public class SettingsActivity extends AppCompatActivity {
                 idleSwitch.setEnabled(true);
             }
 
+            if (pauseModeSwitch.isEnabled()) {
+                pauseModeSwitch.setOnPreferenceClickListener(v-> {
+                    BatteryWorker.setBypass(getContext(), 0, true);
+                    return false;
+                });
+            }
+
+            if (idleSwitch.isEnabled()) {
+                idleSwitch.setOnPreferenceClickListener(v-> {
+                    BatteryWorker.setBypass(getContext(), 0, true);
+                    return false;
+                });
+            }
+
             if (!Utils.isRooted()) {
                 if (resetSwitch != null) {
                     resetSwitch.setEnabled(false);
@@ -105,8 +122,8 @@ public class SettingsActivity extends AppCompatActivity {
                     if (BatteryWorker.pausePdSupported) {
                         BatteryWorker.setBypass(getContext(), 0, true);
                     }
-                    BatteryWorker.manualBypass = false;
-                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryWorker.manualBypass)
+                    BatteryService.manualBypass = false;
+                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryService.manualBypass)
                     BatteryWorker.setBypass(getContext(), 0, false);
             };
         }

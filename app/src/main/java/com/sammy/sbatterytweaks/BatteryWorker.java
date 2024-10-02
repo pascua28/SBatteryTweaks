@@ -22,7 +22,7 @@ import java.util.Date;
 
 public class BatteryWorker {
     public static String chargingState, battTemp, fastChargeStatus, voltage = "";
-    public static boolean isOngoing, manualBypass = false, idleEnabled, disableSync,
+    public static boolean isOngoing, idleEnabled, disableSync,
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
             lvlSwitch, enableToast, protectEnabled, isSchedEnabled;
@@ -79,19 +79,19 @@ public class BatteryWorker {
         if (bypassSupported)
             battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
 
-        if (!manualBypass && isCharging)
+        if (!BatteryService.manualBypass && isCharging)
             battWorker(context.getApplicationContext());
 
         if (MainActivity.isRunning)
-            MainActivity.updateStatus(manualBypass);
+            MainActivity.updateStatus(BatteryService.manualBypass);
     }
 
     public static void setBypass(Context context, int bypass, Boolean isManual) {
-        manualBypass = isManual;
+        BatteryService.manualBypass = isManual;
 
         if (bypass == 0) {
             // Allow overriding the toggle when turning it off.
-            manualBypass = false;
+            BatteryService.manualBypass = false;
         }
 
         if (pausePdSupported) {
@@ -182,11 +182,10 @@ public class BatteryWorker {
         if (!serviceEnabled)
             return;
 
-        if (idleEnabled && !BatteryService.isBypassed() && battFullCap != idleLevel) {
-            com.topjohnwu.superuser.Shell.cmd("echo " + idleLevel + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
-            manualBypass = false;
-        } else if (idleEnabled && idleLevel >= battFullCap && BatteryService.isBypassed()) {
-            manualBypass = false;
+        if (idleEnabled && !BatteryService.isBypassed() && BatteryService.percentage >= idleLevel) {
+            setBypass(context, 1, false);
+        } else if (idleEnabled && BatteryService.percentage >= idleLevel && BatteryService.isBypassed()) {
+            BatteryService.manualBypass = false;
         } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled == 1 && !BatteryService.isBypassed())
