@@ -41,7 +41,16 @@ public class BatteryWorker {
             if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
             else fastChargeStatus = "Disabled";
         } catch (Settings.SettingNotFoundException e) {
-            fastChargeStatus = "Not supported";
+            if (Utils.isRooted()) {
+                int siopLevel = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/siop_level"));
+                if (siopLevel == 100) {
+                    fastChargeStatus = "Enabled (siop - " + siopLevel + ")";
+                    fastChargeEnabled = 1;
+                } else {
+                    fastChargeStatus = "Disabled ( siop - " + siopLevel + ")" ;
+                    fastChargeEnabled = 0;
+                }
+            } else fastChargeStatus = "Not supported";
         }
 
         if (pausePdSupported)
@@ -157,23 +166,37 @@ public class BatteryWorker {
     private static void enableFastCharge(Context context, int enabled)
     {
         try {
-            Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
-        } catch (Exception e) {
-            try {
-                ContentResolver cr = context.getContentResolver();
+            String adaptiveFast =
+                    Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging");
 
-                ContentValues cv = new ContentValues(2);
-                cv.put("name", "adaptive_fast_charging");
-                cv.put("value", enabled);
-                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
-            } catch (Exception f) {
-                if (Utils.isRooted())
-                    com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
-                else {
-                    fastChargeStatus = fastChargeStatus + " (failed to toggle)";
-                    e.printStackTrace();
-                    f.printStackTrace();
+            if (adaptiveFast == null)
+                throw new Settings.SettingNotFoundException("Not found");
+
+            try {
+                Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
+            } catch (Exception e) {
+                try {
+                    ContentResolver cr = context.getContentResolver();
+
+                    ContentValues cv = new ContentValues(2);
+                    cv.put("name", "adaptive_fast_charging");
+                    cv.put("value", enabled);
+                    cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
+                } catch (Exception f) {
+                    if (Utils.isRooted())
+                        com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
+                    else {
+                        fastChargeStatus = fastChargeStatus + " (failed to toggle)";
+                        e.printStackTrace();
+                        f.printStackTrace();
+                    }
                 }
+            }
+        } catch (Settings.SettingNotFoundException ignored) {
+            if (Utils.isRooted()) {
+                if (enabled == 1) {
+                    ShellUtils.fastCmd("echo 100 > /sys/class/power_supply/battery/siop_level");
+                } else ShellUtils.fastCmd("echo 60 > /sys/class/power_supply/battery/siop_level");
             }
         }
     }
