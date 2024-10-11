@@ -51,6 +51,15 @@ public class BatteryService extends Service {
             BatteryWorker.pausePdSupported = false;
             e.printStackTrace();
         }
+        buildNotif();
+
+        BatteryReceiver batteryReceiver = new BatteryReceiver();
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(batteryReceiver, ifilter);
+        IntentFilter ACTION_POWER_CONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_CONNECTED");
+        IntentFilter ACTION_POWER_DISCONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_DISCONNECTED");
+        registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
+        registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
     }
 
     @Override
@@ -59,32 +68,10 @@ public class BatteryService extends Service {
         stopBackgroundTask();
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        context = this;
-        buildNotif();
-
-        BatteryReceiver batteryReceiver = new BatteryReceiver();
-
-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(batteryReceiver, ifilter);
-
-        IntentFilter ACTION_POWER_CONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_CONNECTED");
-        IntentFilter ACTION_POWER_DISCONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_DISCONNECTED");
-
-        registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
-        registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
-
-        startBackgroundTask(context);
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
     public static void startBackgroundTask(Context c) {
         if (mHandler.hasMessages(0))
                 return;
 
-        BatteryReceiver batteryReceiver = new BatteryReceiver();
         BatteryManager manager = (BatteryManager) c.getSystemService(BATTERY_SERVICE);
         runnable = new Runnable() {
             @Override
