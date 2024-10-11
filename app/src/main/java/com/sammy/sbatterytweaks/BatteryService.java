@@ -74,7 +74,7 @@ public class BatteryService extends Service {
         runnable = new Runnable() {
             @Override
             public void run() {
-                BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
+                BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
 
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
