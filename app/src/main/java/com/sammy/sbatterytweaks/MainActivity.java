@@ -181,14 +181,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         isRunning = true;
-        BatteryService.startBackgroundTask(this);
+        BatteryService.startBackgroundTask();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         isRunning = true;
-        BatteryService.startBackgroundTask(this);
+        BatteryService.startBackgroundTask();
     }
 
     @Override
