@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.ShellUtils;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class BatteryWorker {
     private static long cooldown;
     static SimpleDateFormat sdf;
     static Date currTime, start;
+    private static final File siopFile = new File("/sys/class/power_supply/battery/siop_level");
 
     public static void batteryWorker(Context context, Boolean isCharging) {
         try {
@@ -41,13 +43,13 @@ public class BatteryWorker {
             if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
             else fastChargeStatus = "Disabled";
         } catch (Settings.SettingNotFoundException e) {
-            if (Utils.isRooted()) {
-                int siopLevel = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/siop_level"));
+            if (Utils.isRooted() && siopFile.exists()) {
+                int siopLevel = Integer.parseInt(ShellUtils.fastCmd("cat " + siopFile));
                 if (siopLevel == 100) {
                     fastChargeStatus = "Enabled (siop - " + siopLevel + ")";
                     fastChargeEnabled = 1;
                 } else {
-                    fastChargeStatus = "Disabled ( siop - " + siopLevel + ")" ;
+                    fastChargeStatus = "Disabled (siop - " + siopLevel + ")" ;
                     fastChargeEnabled = 0;
                 }
             } else fastChargeStatus = "Not supported";
@@ -186,10 +188,8 @@ public class BatteryWorker {
                 }
             }
         } catch (Settings.SettingNotFoundException ignored) {
-            if (Utils.isRooted()) {
-                if (enabled == 1) {
-                    ShellUtils.fastCmd("echo 100 > /sys/class/power_supply/battery/siop_level");
-                } else ShellUtils.fastCmd("echo 60 > /sys/class/power_supply/battery/siop_level");
+            if (Utils.isRooted() && siopFile.exists()) {
+                ShellUtils.fastCmd("echo " + (enabled == 1 ? 100:60) + " > " + siopFile);
             }
         }
     }
