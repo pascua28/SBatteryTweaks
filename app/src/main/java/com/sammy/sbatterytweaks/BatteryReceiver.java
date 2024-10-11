@@ -49,20 +49,11 @@ public class BatteryReceiver extends BroadcastReceiver {
             if (!MainActivity.isRunning)
                 BatteryService.stopBackgroundTask();
         }
-
         BatteryService.updateNotif("Temperature: " + getTemp() + " °C");
     }
 
-    public int getLevel() {
-        return mLevel;
-    }
-
-    public float getTemp() {
+    private float getTemp() {
         return mTemp;
-    }
-
-    public int getVolt() {
-        return mVolt;
     }
 
     public static boolean isCharging() {
