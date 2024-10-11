@@ -17,6 +17,8 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryService extends Service {
+    static NotificationManager notificationManager;
+    static Notification.Builder notification;
     public static boolean isCharging, manualBypass = false;
 
     public static int percentage;
@@ -39,6 +41,7 @@ public class BatteryService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        context = this;
         BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted());
         try {
             Settings.System.getInt(getContentResolver(), "pass_through");
@@ -47,29 +50,8 @@ public class BatteryService extends Service {
             BatteryWorker.pausePdSupported = false;
             e.printStackTrace();
         }
-    }
 
-    @Override
-
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        context = this;
-        final String CHANNELID = "Batt";
-        NotificationChannel channel = new NotificationChannel(
-                CHANNELID,
-                CHANNELID,
-                NotificationManager.IMPORTANCE_NONE
-        );
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        assert notificationManager != null;
-        notificationManager.createNotificationChannel(channel);
-
-        Notification.Builder notification = new Notification.Builder(this, CHANNELID).setOngoing(true)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setOnlyAlertOnce(true);
-
-        startForeground(1002, notification.build());
+        buildNotif();
 
         BatteryReceiver batteryReceiver = new BatteryReceiver();
 
@@ -101,14 +83,37 @@ public class BatteryService extends Service {
                             BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
                         BatteryWorker.setBypass(context, 1, false);
                     }
-                    notification.setContentText("Temperature: " + batteryReceiver.getTemp() + " °C");
-                    notificationManager.notify(1002, notification.build());
                 }
                 mHandler.postDelayed(this, 5000);
             }
         };
         mHandler.post(runnable);
+    }
 
-        return super.onStartCommand(intent, flags, startId);
+    private void buildNotif() {
+        final String CHANNELID = "Batt";
+        NotificationChannel channel = new NotificationChannel(
+                CHANNELID,
+                CHANNELID,
+                NotificationManager.IMPORTANCE_NONE
+        );
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
+        notificationManager.createNotificationChannel(channel);
+
+        notification = new Notification.Builder(this, CHANNELID).setOngoing(true)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setOnlyAlertOnce(true);
+
+        startForeground(1002, notification.build());
+    }
+
+    public static void updateNotif(String msg) {
+        if (notificationManager == null)
+            return;
+        notification.setContentText(msg);
+        notificationManager.notify(1002, notification.build());
     }
 }

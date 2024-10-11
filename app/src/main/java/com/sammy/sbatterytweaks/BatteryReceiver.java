@@ -42,6 +42,8 @@ public class BatteryReceiver extends BroadcastReceiver {
                     ShellUtils.fastCmd("rm " + statsFile);
             }
         }
+
+        BatteryService.updateNotif("Temperature: " + getTemp() + " °C");
     }
 
     public int getLevel() {
