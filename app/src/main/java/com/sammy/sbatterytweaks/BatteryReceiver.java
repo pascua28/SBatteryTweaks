@@ -13,7 +13,7 @@ import java.io.File;
 public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
     private int mLevel;
-    private static int mStatus;
+    private static int mPlugged, mStatus;
     private int mVolt;
     private float mTemp;
 
@@ -25,7 +25,8 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-        mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        mPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        mStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
         BatteryWorker.voltage = mVolt + " mV";
@@ -57,6 +58,10 @@ public class BatteryReceiver extends BroadcastReceiver {
     }
 
     public static boolean isCharging() {
-        return mStatus > 0;
+        return mPlugged > 0;
+    }
+
+    public static boolean notCharging() {
+        return mPlugged > 0 && mStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING;
     }
 }

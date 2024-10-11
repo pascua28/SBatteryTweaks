@@ -25,7 +25,7 @@ public class BatteryWorker {
     public static boolean isOngoing, idleEnabled, disableSync,
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
-            lvlSwitch, enableToast, protectEnabled, isSchedEnabled;
+            lvlSwitch, enableToast, isSchedEnabled;
     public static float temperature, thresholdTemp, tempDelta;
     private static float cdSeconds;
     public static int battFullCap = 0, currentNow, idleLevel;
@@ -55,13 +55,6 @@ public class BatteryWorker {
 
         if (pausePdSupported)
             pausePdEnabled = Settings.System.getString(context.getContentResolver(), "pass_through").equals("1");
-
-        try {
-            protectEnabled = Settings.Global.getString(context.getContentResolver(), "protect_battery").equals("1");
-        } catch (Exception e) {
-            e.printStackTrace();
-            protectEnabled = false;
-        }
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
@@ -114,7 +107,7 @@ public class BatteryWorker {
                     cv.put("name", "pass_through");
                     cv.put("value", bypass);
                     cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
-                } catch (Exception f) {
+                } catch (Exception ignored) {
                     if (Utils.isRooted())
                         com.topjohnwu.superuser.Shell.cmd("settings put system pass_through " + bypass).exec();
                 }
@@ -249,7 +242,7 @@ public class BatteryWorker {
     public static void updateStats(Boolean charging) {
         battTemp = temperature + "°C";
 
-        if (BatteryService.isBypassed() || (!bypassSupported && protectEnabled && BatteryService.percentage >= 85))
+        if (BatteryService.isBypassed())
             chargingState = "Idle";
         else if (charging)
             chargingState = "Charging";

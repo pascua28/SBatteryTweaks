@@ -26,12 +26,11 @@ public class BatteryService extends Service {
 
     static Handler mHandler = new Handler();
     static Runnable runnable;
-    private Context context;
 
     public static boolean isBypassed() {
-        return BatteryReceiver.isCharging() && (BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap) ||
-                (BatteryWorker.pausePdSupported && BatteryWorker.pausePdEnabled) ||
-                (BatteryWorker.currentNow < 50 && BatteryWorker.currentNow > -50);
+        return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
+                BatteryWorker.pausePdSupported &&
+                BatteryWorker.pausePdEnabled);
     }
 
     @Override
@@ -42,7 +41,6 @@ public class BatteryService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        context = this;
         BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted());
         try {
             Settings.System.getInt(getContentResolver(), "pass_through");
