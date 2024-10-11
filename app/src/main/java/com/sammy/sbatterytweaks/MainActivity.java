@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         battPercent = BatteryService.percentage + "%";
         lvlText = battPercent;
         chargingStatus.setText(BatteryWorker.chargingState);
-        if (BatteryService.isCharging)
+        if (BatteryReceiver.isCharging())
             lvlText = "⚡" + battPercent;
 
         levelText.setText(lvlText);
@@ -181,24 +181,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         isRunning = true;
+        BatteryService.startBackgroundTask(this);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         isRunning = true;
+        BatteryService.startBackgroundTask(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         isRunning = false;
+        if (!BatteryReceiver.isCharging())
+            BatteryService.stopBackgroundTask();
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         isRunning = false;
+        if (!BatteryReceiver.isCharging())
+            BatteryService.stopBackgroundTask();
     }
 
     @SuppressWarnings("deprecation")

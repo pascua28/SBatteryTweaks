@@ -12,7 +12,9 @@ import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
-    private int mLevel, mStatus, mVolt;
+    private int mLevel;
+    private static int mStatus;
+    private int mVolt;
     private float mTemp;
 
     @Override
@@ -23,7 +25,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-        mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+        mStatus = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
         BatteryWorker.voltage = mVolt + " mV";
@@ -33,6 +35,8 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(true);
+
+            BatteryService.startBackgroundTask(context);
         } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
             if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(false);
@@ -41,6 +45,9 @@ public class BatteryReceiver extends BroadcastReceiver {
                 if (statsFile.exists())
                     ShellUtils.fastCmd("rm " + statsFile);
             }
+
+            if (!MainActivity.isRunning)
+                BatteryService.stopBackgroundTask();
         }
 
         BatteryService.updateNotif("Temperature: " + getTemp() + " °C");
@@ -58,7 +65,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         return mVolt;
     }
 
-    public boolean isCharging() {
+    public static boolean isCharging() {
         return mStatus > 0;
     }
 }

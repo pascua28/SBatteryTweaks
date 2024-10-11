@@ -19,16 +19,17 @@ import java.io.File;
 public class BatteryService extends Service {
     static NotificationManager notificationManager;
     static Notification.Builder notification;
-    public static boolean isCharging, manualBypass = false;
+    public static boolean manualBypass = false;
 
     public static int percentage;
-    private final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
+    private static final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
 
-    Handler mHandler = new Handler();
+    static Handler mHandler = new Handler();
+    static Runnable runnable;
     private Context context;
 
     public static boolean isBypassed() {
-        return isCharging && (BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap) ||
+        return BatteryReceiver.isCharging() && (BatteryWorker.bypassSupported && percentage >= BatteryWorker.battFullCap) ||
                 (BatteryWorker.pausePdSupported && BatteryWorker.pausePdEnabled) ||
                 (BatteryWorker.currentNow < 50 && BatteryWorker.currentNow > -50);
     }
@@ -50,7 +51,17 @@ public class BatteryService extends Service {
             BatteryWorker.pausePdSupported = false;
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopBackgroundTask();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        context = this;
         buildNotif();
 
         BatteryReceiver batteryReceiver = new BatteryReceiver();
@@ -64,30 +75,44 @@ public class BatteryService extends Service {
         registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
         registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
 
-        Runnable runnable = new Runnable() {
+        startBackgroundTask(context);
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    public static void startBackgroundTask(Context c) {
+        if (mHandler.hasMessages(0))
+                return;
+
+        BatteryReceiver batteryReceiver = new BatteryReceiver();
+        BatteryManager manager = (BatteryManager) c.getSystemService(BATTERY_SERVICE);
+        runnable = new Runnable() {
             @Override
             public void run() {
-                isCharging = batteryReceiver.isCharging();
+                BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
 
-                if (MainActivity.isRunning || isCharging) {
-                    BatteryManager manager = (BatteryManager) getSystemService(Context.BATTERY_SERVICE);
-                    BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
+                if (BatteryWorker.bypassSupported)
+                    BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
 
-                    if (BatteryWorker.bypassSupported)
-                        BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
+                BatteryWorker.updateStats(BatteryReceiver.isCharging());
+                BatteryWorker.batteryWorker(c, BatteryReceiver.isCharging());
 
-                    BatteryWorker.updateStats(isCharging);
-                    BatteryWorker.batteryWorker(context, isCharging);
-
-                    if (!isBypassed() && BatteryWorker.pausePdSupported &&
-                            BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
-                        BatteryWorker.setBypass(context, 1, false);
-                    }
+                if (!isBypassed() && BatteryWorker.pausePdSupported &&
+                        BatteryWorker.idleEnabled && percentage >= BatteryWorker.idleLevel) {
+                    BatteryWorker.setBypass(c, 1, false);
                 }
-                mHandler.postDelayed(this, 5000);
+                mHandler.postDelayed(this, 2500);
             }
         };
+        mHandler.sendEmptyMessage(0);
         mHandler.post(runnable);
+    }
+
+    public static void stopBackgroundTask() {
+        if (mHandler.hasMessages(0)) {
+            mHandler.removeMessages(0);
+            mHandler.removeCallbacks(runnable);
+        }
     }
 
     private void buildNotif() {
