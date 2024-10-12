@@ -1,7 +1,10 @@
 package com.sammy.sbatterytweaks;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -21,7 +25,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import com.topjohnwu.superuser.ShellUtils;
+import rikka.shizuku.Shizuku;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,9 +72,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
+
+    private void onRequestPermissionsResult(int requestCode, int grantResult) {
+        if (grantResult == PackageManager.PERMISSION_GRANTED)
+            forceStop(this);
+    }
+
     @SuppressLint("BatteryLife")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Shizuku.addRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
+
         if (!foregroundServiceRunning()) {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
@@ -79,9 +92,10 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         }
+
         PowerManager powerManager = (PowerManager) this.getSystemService(POWER_SERVICE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
         else
             setTheme(R.style.Theme_ChargeRateAutomator_NoActionBar);
@@ -89,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         int actualCapacity = Utils.getActualCapacity(this);
-        int fullcapnom;
+        int fullcapnom = -1;
         float battHealth;
 
         CardView idleCard = findViewById(R.id.idleCardView);
@@ -123,11 +137,15 @@ public class MainActivity extends AppCompatActivity {
         levelText.setText(R.string.dots);
         battTemperature.setText(R.string.dots);
 
-        if (Utils.isRooted()) {
-            fullcapnom = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
+        if (!Utils.isRooted()) {
+                Utils.shizukuCheckPermission();
+        }
+
+        if (Utils.isPrivileged()) {
+            fullcapnom = Integer.parseInt(Utils.runCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float) fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth != 0)
-                remainingCap.setText(battHealth + "%");
+                remainingCap.setText(String.format("%.2f", battHealth) + "%");
             else capacityCard.setVisibility(View.GONE);
         } else {
             capacityCard.setVisibility(View.GONE);
@@ -150,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         donateButton.setOnClickListener(v -> {
-            Intent openURL = new Intent(android.content.Intent.ACTION_VIEW);
+            Intent openURL = new Intent(Intent.ACTION_VIEW);
             openURL.setData(Uri.parse("https://github.com/pascua28/SupportMe"));
             startActivity(openURL);
         });
@@ -163,11 +181,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     == PackageManager.PERMISSION_DENIED) {
                 ActivityCompat.requestPermissions(this, new String[]
                         {
-                                android.Manifest.permission.POST_NOTIFICATIONS
+                                Manifest.permission.POST_NOTIFICATIONS
                         }, 1);
             }
         }
@@ -197,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         isRunning = false;
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
-
+        Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
     }
 
     @Override
@@ -206,11 +224,18 @@ public class MainActivity extends AppCompatActivity {
         isRunning = false;
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
+        Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
     }
 
     @SuppressWarnings("deprecation")
     private boolean foregroundServiceRunning() {
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         return activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
+    }
+
+    public static void forceStop(Context context) {
+        String packageName = context.getPackageName();
+        Toast.makeText(context, "Shizuku granted. Please restart.", Toast.LENGTH_SHORT).show();
+        Utils.runCmd("am force-stop " + packageName);
     }
 }

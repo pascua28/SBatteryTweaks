@@ -22,7 +22,7 @@ public class BatteryService extends Service {
     public static boolean manualBypass = false;
 
     public static int percentage;
-    private static final File fullCapFIle = new File("/sys/class/power_supply/battery/batt_full_capacity");
+    private static String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
 
     static Handler mHandler = new Handler();
     static Runnable runnable;
@@ -43,7 +43,8 @@ public class BatteryService extends Service {
     public void onCreate() {
         super.onCreate();
         context = this;
-        BatteryWorker.bypassSupported = (fullCapFIle.exists() && Utils.isRooted());
+        BatteryWorker.bypassSupported = (Utils.isPrivileged() &&
+                Utils.runCmd("ls " + fullCapFIle).contains(fullCapFIle));
         try {
             Settings.System.getInt(getContentResolver(), "pass_through");
             BatteryWorker.pausePdSupported = true;
@@ -68,7 +69,7 @@ public class BatteryService extends Service {
                 BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
 
                 if (BatteryWorker.bypassSupported)
-                    BatteryWorker.battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat " + fullCapFIle));
+                    BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
 
                 BatteryWorker.updateStats(BatteryReceiver.isCharging());
                 BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());

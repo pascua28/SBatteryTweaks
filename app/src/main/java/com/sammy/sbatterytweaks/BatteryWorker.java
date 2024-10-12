@@ -35,7 +35,7 @@ public class BatteryWorker {
     private static long cooldown;
     static SimpleDateFormat sdf;
     static Date currTime, start;
-    private static final File siopFile = new File("/sys/class/power_supply/battery/siop_level");
+    private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
 
     public static void batteryWorker(Context context, Boolean isCharging) {
         try {
@@ -43,8 +43,8 @@ public class BatteryWorker {
             if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
             else fastChargeStatus = "Disabled";
         } catch (Settings.SettingNotFoundException e) {
-            if (Utils.isRooted() && siopFile.exists()) {
-                int siopLevel = Integer.parseInt(ShellUtils.fastCmd("cat " + siopFile));
+            if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
+                int siopLevel = Integer.parseInt(Utils.runCmd("cat " + siopFile));
                 if (siopLevel == 100) {
                     fastChargeStatus = "Enabled (siop - " + siopLevel + ")";
                     fastChargeEnabled = 1;
@@ -81,7 +81,7 @@ public class BatteryWorker {
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
         if (bypassSupported)
-            battFullCap = Integer.parseInt(ShellUtils.fastCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
+            battFullCap = Integer.parseInt(Utils.runCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
 
         if (!BatteryService.manualBypass && isCharging)
             battWorker(context.getApplicationContext());
@@ -110,17 +110,17 @@ public class BatteryWorker {
                     cv.put("value", bypass);
                     cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
                 } catch (Exception ignored) {
-                    if (Utils.isRooted())
-                        com.topjohnwu.superuser.Shell.cmd("settings put system pass_through " + bypass).exec();
+                    if (Utils.isPrivileged())
+                        Utils.runCmd("settings put system pass_through " + bypass);
                 }
             }
             return;
         }
 
         if (bypass == 1)
-            com.topjohnwu.superuser.Shell.cmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            Utils.runCmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity");
         else
-            com.topjohnwu.superuser.Shell.cmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity").exec();
+            Utils.runCmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity");
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -178,8 +178,8 @@ public class BatteryWorker {
                     cv.put("value", enabled);
                     cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
                 } catch (Exception f) {
-                    if (Utils.isRooted())
-                        com.topjohnwu.superuser.Shell.cmd("settings put system adaptive_fast_charging " + enabled).exec();
+                    if (Utils.isPrivileged())
+                        Utils.runCmd("settings put system adaptive_fast_charging " + enabled);
                     else {
                         fastChargeStatus = fastChargeStatus + " (failed to toggle)";
                         e.printStackTrace();
@@ -188,8 +188,8 @@ public class BatteryWorker {
                 }
             }
         } catch (Settings.SettingNotFoundException ignored) {
-            if (Utils.isRooted() && siopFile.exists()) {
-                ShellUtils.fastCmd("echo " + (enabled == 1 ? 100:60) + " > " + siopFile);
+            if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
+                Utils.runCmd("echo " + (enabled == 1 ? 100:60) + " > " + siopFile);
             }
         }
     }
