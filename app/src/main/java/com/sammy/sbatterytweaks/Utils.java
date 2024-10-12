@@ -2,8 +2,12 @@ package com.sammy.sbatterytweaks;
 
 import static java.lang.Boolean.TRUE;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
 
 import com.topjohnwu.superuser.Shell;
 import com.topjohnwu.superuser.ShellUtils;
@@ -114,5 +118,29 @@ public class Utils {
         }
 
         return false;
+    }
+
+    public static int changeSetting(Context context, String setting, int value) {
+        try {
+            Settings.System.putInt(context.getContentResolver(), setting, value);
+            return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                ContentResolver cr = context.getContentResolver();
+
+                ContentValues cv = new ContentValues(2);
+                cv.put("name", setting);
+                cv.put("value", value);
+                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
+                return 0;
+            } catch (Exception f) {
+                f.printStackTrace();
+                if (isPrivileged()) {
+                    runCmd("settings put system " + setting + " " + value);
+                    return 0;
+                } else return -1;
+            }
+        }
     }
 }

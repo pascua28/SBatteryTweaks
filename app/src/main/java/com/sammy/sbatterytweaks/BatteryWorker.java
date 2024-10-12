@@ -99,21 +99,7 @@ public class BatteryWorker {
         }
 
         if (pausePdSupported) {
-            try {
-                Settings.System.putInt(context.getContentResolver(), "pass_through", bypass);
-            } catch (Exception e) {
-                try {
-                    ContentResolver cr = context.getContentResolver();
-
-                    ContentValues cv = new ContentValues(2);
-                    cv.put("name", "pass_through");
-                    cv.put("value", bypass);
-                    cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
-                } catch (Exception ignored) {
-                    if (Utils.isPrivileged())
-                        Utils.runCmd("settings put system pass_through " + bypass);
-                }
-            }
+            Utils.changeSetting(context, "pass_through", bypass);
             return;
         }
 
@@ -167,25 +153,8 @@ public class BatteryWorker {
             if (adaptiveFast == null)
                 throw new Settings.SettingNotFoundException("Not found");
 
-            try {
-                Settings.System.putInt(context.getContentResolver(), "adaptive_fast_charging", enabled);
-            } catch (Exception e) {
-                try {
-                    ContentResolver cr = context.getContentResolver();
-
-                    ContentValues cv = new ContentValues(2);
-                    cv.put("name", "adaptive_fast_charging");
-                    cv.put("value", enabled);
-                    cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
-                } catch (Exception f) {
-                    if (Utils.isPrivileged())
-                        Utils.runCmd("settings put system adaptive_fast_charging " + enabled);
-                    else {
-                        fastChargeStatus = fastChargeStatus + " (failed to toggle)";
-                        e.printStackTrace();
-                        f.printStackTrace();
-                    }
-                }
+            if (Utils.changeSetting(context, "adaptive_fast_charging", enabled) < 0) {
+                fastChargeStatus = fastChargeStatus + " (failed to toggle)";
             }
         } catch (Settings.SettingNotFoundException ignored) {
             if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
