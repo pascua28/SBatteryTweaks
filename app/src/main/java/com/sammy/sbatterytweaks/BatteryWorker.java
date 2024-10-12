@@ -103,9 +103,10 @@ public class BatteryWorker {
             return;
         }
 
-        if (bypass == 1)
+        if (bypass == 1) {
             Utils.runCmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity");
-        else
+            enableFastCharge(context, 1);
+        } else
             Utils.runCmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity");
     }
 
