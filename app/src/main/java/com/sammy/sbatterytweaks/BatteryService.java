@@ -19,7 +19,7 @@ import java.io.File;
 public class BatteryService extends Service {
     static NotificationManager notificationManager;
     static Notification.Builder notification;
-    public static boolean manualBypass = false;
+    public static boolean manualBypass = true;
 
     public static int percentage;
     private static String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
