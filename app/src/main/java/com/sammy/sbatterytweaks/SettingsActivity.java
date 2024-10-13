@@ -9,9 +9,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
-
-import com.topjohnwu.superuser.Shell;
 
 import java.util.Objects;
 
@@ -68,6 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
             assert idleSwitch != null;
             idleSwitch.setEnabled(false);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 
             if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
                 pauseModeSwitch.setEnabled(true);
@@ -85,6 +85,11 @@ public class SettingsActivity extends AppCompatActivity {
             if (idleSwitch.isEnabled()) {
                 idleSwitch.setOnPreferenceClickListener(v-> {
                     BatteryWorker.setBypass(getContext(), 0, true);
+                    if (idleSwitch.isChecked()) {
+                        if (!BatteryWorker.pausePdSupported) {
+                            BatteryWorker.setBypass(sharedPreferences.getInt(PREF_IDLE_LEVEL, 75));
+                        }
+                    }
                     return false;
                 });
             }
@@ -116,7 +121,7 @@ public class SettingsActivity extends AppCompatActivity {
                 else if (key.equals(PREF_IDLE_LEVEL) &&
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
                     if (!BatteryWorker.pausePdSupported && BatteryWorker.bypassSupported) {
-                        Shell.cmd("echo " + sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) + " > /sys/class/power_supply/battery/batt_full_capacity").exec();
+                        BatteryWorker.setBypass(sharedPreferences.getInt(PREF_IDLE_LEVEL, 75));
                     }
                     //Reset bypass state. BatteryService will change this anyway
                     if (BatteryWorker.pausePdSupported) {

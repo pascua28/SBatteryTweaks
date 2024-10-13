@@ -1,20 +1,15 @@
 package com.sammy.sbatterytweaks;
 
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import com.topjohnwu.superuser.ShellUtils;
-
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -31,7 +26,7 @@ public class BatteryWorker {
     private static float cdSeconds;
     public static int battFullCap = 0, currentNow, idleLevel;
     private static int fastChargeEnabled, startHour, startMinute,
-            lvlThreshold, duration;
+            lvlThreshold, duration, protectEnabled;
     private static long cooldown;
     static SimpleDateFormat sdf;
     static Date currTime, start;
@@ -81,13 +76,17 @@ public class BatteryWorker {
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
         if (bypassSupported)
-            battFullCap = Integer.parseInt(Utils.runCmd("cat /sys/class/power_supply/battery/batt_full_capacity"));
+            battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.fullCapFIle));
 
         if (!BatteryService.manualBypass && isCharging)
             battWorker(context.getApplicationContext());
 
         if (MainActivity.isRunning)
             MainActivity.updateStatus(BatteryService.manualBypass);
+    }
+
+    public static void setBypass(int level) {
+        Utils.runCmd("echo " + level + " > " + BatteryService.fullCapFIle);
     }
 
     public static void setBypass(Context context, int bypass, Boolean isManual) {
@@ -104,10 +103,22 @@ public class BatteryWorker {
         }
 
         if (bypass == 1) {
-            Utils.runCmd("echo " + BatteryService.percentage + " > /sys/class/power_supply/battery/batt_full_capacity");
+            setBypass(BatteryService.percentage);
             enableFastCharge(context, 1);
-        } else
-            Utils.runCmd("echo 100 > /sys/class/power_supply/battery/batt_full_capacity");
+        } else {
+            int bypassVal = 0;
+            try {
+                protectEnabled = Settings.Global.getInt(context.getContentResolver(), "protect_battery");
+            } catch (Settings.SettingNotFoundException ignored) {
+                protectEnabled = -1;
+            }
+            if (protectEnabled == 1) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    bypassVal = 85;
+                } else bypassVal = 80;
+            } else bypassVal = 100;
+            setBypass(bypassVal);
+        }
     }
 
     @SuppressLint("SimpleDateFormat")

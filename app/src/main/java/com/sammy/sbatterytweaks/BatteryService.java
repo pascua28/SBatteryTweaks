@@ -12,17 +12,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 
-import com.topjohnwu.superuser.ShellUtils;
-
-import java.io.File;
-
 public class BatteryService extends Service {
     static NotificationManager notificationManager;
     static Notification.Builder notification;
     public static boolean manualBypass = true;
 
     public static int percentage;
-    private static String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
+    public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
 
     static Handler mHandler = new Handler();
     static Runnable runnable;
