@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
 
+import com.scwang.wave.MultiWaveHeader;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.io.File;
@@ -47,8 +48,9 @@ public class BatteryReceiver extends BroadcastReceiver {
                     ShellUtils.fastCmd("rm " + statsFile);
             }
 
-            if (!MainActivity.isRunning)
+            if (!MainActivity.isRunning) {
                 BatteryService.stopBackgroundTask();
+            }
         }
         BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C");
     }

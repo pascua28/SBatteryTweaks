@@ -27,6 +27,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.scwang.wave.MultiWaveHeader;
+
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends AppCompatActivity {
@@ -176,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
 
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText(R.string.idle_charging_text);
+        MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
+        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
 
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
@@ -218,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
+        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
     }
@@ -225,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
+        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
     }
