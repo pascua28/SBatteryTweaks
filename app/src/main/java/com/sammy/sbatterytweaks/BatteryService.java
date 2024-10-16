@@ -67,7 +67,7 @@ public class BatteryService extends Service {
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
 
-                BatteryWorker.updateStats(BatteryReceiver.isCharging());
+                BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
                 BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
 
                 if (!isBypassed() && BatteryWorker.pausePdSupported &&

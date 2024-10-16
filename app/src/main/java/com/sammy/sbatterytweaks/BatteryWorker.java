@@ -35,13 +35,7 @@ public class BatteryWorker {
     static Date currTime, start;
     private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
 
-    private static String idle, charging, discharging;
-
     public static void batteryWorker(Context context, Boolean isCharging) {
-        idle = context.getString(R.string.idle);
-        charging = context.getString(R.string.charging);
-        discharging = context.getString(R.string.discharging);
-
         try {
             fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
             if (fastChargeEnabled == 1) fastChargeStatus = context.getString(R.string.enabled);
@@ -230,15 +224,15 @@ public class BatteryWorker {
         }
     }
 
-    public static void updateStats(Boolean isCharging) {
+    public static void updateStats(Context context, Boolean isCharging) {
         battTemp = temperature + "°C";
 
         if (BatteryService.isBypassed())
-            chargingState = idle;
+            chargingState = context.getString(R.string.idle);
         else if (isCharging)
-            chargingState = charging;
+            chargingState = context.getString(R.string.charging);
         else
-            chargingState = discharging;
+            chargingState = context.getString(R.string.discharging);
     }
 
 }
