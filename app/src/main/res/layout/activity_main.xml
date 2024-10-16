@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,32 +9,62 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.ChargeRateAutomator.PopupOverlay" />
+            android:layout_height="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <!-- TextView inside the Toolbar -->
+            <TextView
+                android:id="@+id/appbar_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:layout_gravity="left" />
+
+            <ImageButton
+                android:id="@+id/supportBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/donate"
+                android:layout_gravity="right"
+                android:background="@drawable/donate"
+                android:clickable="true"
+                android:layout_marginRight="16dp" />
+
+            <ImageButton
+                android:id="@+id/settingsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:contentDescription="@string/settings"
+                android:background="@drawable/settings"
+                android:clickable="true"
+                android:layout_marginRight="8dp" />
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/heading"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:weightSum="2">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/TopCardView">
 
             <TextView
                 style="@style/TopCardText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Battery Level" />
+                android:text="@string/battery_level" />
 
             <TextView
                 android:id="@+id/levelText"
@@ -44,16 +74,16 @@
                 android:layout_gravity="center"
                 android:textSize="30sp"
                 android:textStyle="bold" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/TopCardView">
 
             <TextView
                 style="@style/TopCardText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Temperature" />
+                android:text="@string/temperature" />
 
             <TextView
                 android:id="@+id/tempText"
@@ -64,7 +94,7 @@
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:visibility="visible" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
     <LinearLayout
@@ -72,139 +102,109 @@
         android:layout_height="fill_parent"
         android:orientation="vertical"
         android:layout_marginTop="180dp"
-        app:layout_anchor="@+id/linearLayout3"
+        app:layout_anchor="@+id/heading"
         app:layout_anchorGravity="bottom|center">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Status" />
+                android:text="@string/status" />
 
             <TextView
                 android:id="@+id/chargingText"
                 style="@style/ValueText" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Fast charging" />
+                android:text="@string/fast_charging" />
 
             <TextView
                 android:id="@+id/fastCharge"
                 style="@style/ValueText" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Current" />
+                android:text="@string/current" />
 
             <TextView
                 android:id="@+id/currentText"
                 style="@style/ValueText" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Rated capacity" />
+                android:text="@string/rated_capacity" />
 
             <TextView
                 android:id="@+id/capacityText"
                 style="@style/ValueText" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/capacityView"
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Remaining capacity" />
+                android:text="@string/remaining_capacity" />
 
             <TextView
                 android:id="@+id/remainingCap"
                 style="@style/ValueText" />
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 style="@style/StatusText"
-                android:text="Voltage level" />
+                android:text="@string/voltage_level" />
 
             <TextView
                 android:id="@+id/voltageText"
                 style="@style/ValueText" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/idleCardView"
             style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/linearLayout3">
+            app:layout_anchor="@+id/heading">
 
             <TextView
                 android:id="@+id/bypassText"
                 style="@style/StatusText" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/bypassToggle"
                 style="@style/BatteryViewDisplay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="15dp" />
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="15dp" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/supportBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        android:text="Donate"
-        android:textAlignment="center" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/settingsBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="80dp"
-        android:text="Settings"
-        android:textAlignment="center" />
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:minHeight="?actionBarSize"
-        android:padding="16dp"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,88 @@
 <resources>
-    <string name="app_name">Samsung Battery Tweaker</string>
-    <string name="app_name_short">S Battery Tweaker</string>
+    <string name="app_name" translatable="false">Samsung Battery Tweaker</string>
+    <string name="app_name_short" translatable="false">S Battery Tweaker</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="loading">Loading...</string>
-    <string name="dots">...</string>
+    <string name="donate">Donate</string>
+
+    <!-- Main UI -->
+    <string name="loading">Loading…</string>
+    <string name="dots" translatable="false">...</string>
+    <string name="battery_level">Battery Level</string>
+    <string name="temperature">Temperature</string>
+    <string name="status">Status</string>
+    <string name="fast_charging">Fast charging</string>
+    <string name="current">Current</string>
+    <string name="rated_capacity">Rated capacity</string>
+    <string name="remaining_capacity">Remaining capacity</string>
+    <string name="voltage_level">Voltage level</string>
+    <string name="settings">Settings</string>
+    <!-- Idle charging status -->
+    <string name="idle_charging_user">Idle charging (user):</string>
+    <string name="idle_charging_auto">Idle charging (auto):</string>
+    <string name="idle_charging_text">Idle charging:</string>
+    <!-- Fast charge status -->
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="toggle_failed">failed to toggle</string>
+    <string name="not_supported">Not supported</string>
+    <!-- Charging status -->
+    <string name="idle">Idle</string>
+    <string name="charging">Charging</string>
+    <string name="discharging">Discharging</string>
+
+    <!-- Notification -->
+    <string name="temperature_title">"Temperature: "</string>
+
+    <!-- Toast notifications -->
+    <string name="restart_granted">Shizuku granted. Please restart.</string>
+    <string name="resumed">Charging is resumed!</string>
+    <string name="re_enabled">Fast charging mode is re-enabled</string>
+    <string name="paused">Charging is paused!</string>
+    <string name="fast_charging_disabled">Fast charging mode is disabled</string>
+
+    <!-- Preferences -->
+    <!-- Battery monitor service -->
+    <string name="monitor_service_pref">Battery Monitor Service</string>
+    <string name="monitor_service_title">Enable Service</string>
+    <string name="monitor_service_summary">If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures</string>
+    <!-- Cooldown method -->
+    <string name="cooldown_method_pref">Cooldown method</string>
+    <string name="bypass_charging_title">Bypass charging mode</string>
+    <string name="bypass_charging_summary">Automatically pause charging to cool down battery instead of disabling fast charging</string>
+    <!-- Temperature thresholds -->
+    <string name="temperature_threshold">Battery Temperature Thresholds</string>
+    <string name="threshold_temperature_title">Threshold temperature</string>
+    <string name="threshold_temperature_summary">If battery temperature reaches this threshold, fastcharging will be disabled or charging will be suspended</string>
+    <string name="cooldown_temperature_title">Cooldown temperature</string>
+    <string name="cooldown_temperature_summary">The amount of temperature needed to go down before re-enabling fastcharge or resuming charge</string>
+    <!-- Battery level threshold -->
+    <string name="battery_level_threshold_pref">Battery level threshold</string>
+    <string name="battery_level_threshold_title">Battery level threshold</string>
+    <string name="battery_level_threshold_summary">Disable fast charging mode when battery level reaches this percentage</string>
+    <!-- Timer-based cooldown -->
+    <string name="timer_cooldown_pref">Timer-based temperature cooldown</string>
+    <string name="enable_cooldown_timer">Enable timer-based temperature cooldown</string>
+    <string name="cooldown_time_title">Cooldown time</string>
+    <string name="cooldown_time_summary">Disable fastcharging or suspend charging for this amount of time</string>
+    <!-- Scheduled charge control -->
+    <string name="scheduled_charge_control_pref">Scheduled charge control</string>
+    <string name="scheduled_charge_control_title">Scheduled charge control</string>
+    <string name="scheduled_charge_control_summary">Normal charging rate will always be used during this specified time.</string>
+    <string name="scheduled_charge_control_time">Time Picker</string>
+    <!-- Miscellaneous settings -->
+    <string name="misc_pref">Miscellaneous</string>
+        <!-- Toast notifications -->
+        <string name="toast_notifications_title">Toast notifications</string>
+        <string name="toast_notifications_summary">Enable toast notifications when fast charging is enabled/disabled or when charging is paused/resumed</string>
+        <!-- Autosync settings -->
+        <string name="autosync_title">Auto disable sync</string>
+        <string name="autosync_summary">Disable auto sync when not charging to save battery and re-enable it when charging</string>
+        <!-- Reset battery stats -->
+        <string name="reset_stats_title">Reset battery stats</string>
+        <string name="reset_stats_summary">Auto delete batterystats.bin file upon disconnecting from charger</string>
+        <!-- Passthrough level settings -->
+        <string name="pass_through_level_title">Configure passthrough level</string>
+        <string name="pass_through_level_summary">Stop charging at this specified level</string>
+    <string name="save">Save</string>
+
 </resources>

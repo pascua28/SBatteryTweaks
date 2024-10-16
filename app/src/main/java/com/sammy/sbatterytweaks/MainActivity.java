@@ -10,15 +10,18 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Switch;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -31,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isRunning;
     private static TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
             bypassText, remainingCap;
-    private static Switch bypassToggle;
+    private static SwitchCompat bypassToggle;
+    private Animation rotateAnimation;
+    private Handler handler;
+    private Runnable runnable;
+    private ImageButton settingsButton;
 
     public static void updateStatus(boolean manualBypass) {
         String lvlText, battPercent;
@@ -56,19 +63,31 @@ public class MainActivity extends AppCompatActivity {
         bypassToggle.setChecked(BatteryService.isBypassed());
         if (bypassToggle.isChecked()) {
             if (manualBypass) {
-                bypassText.setText("Idle charging (user):");
+                bypassText.setText(R.string.idle_charging_user);
                 if (!bypassToggle.isEnabled())
                     bypassToggle.setEnabled(true);
             } else {
-                bypassText.setText("Idle charging (auto):");
+                bypassText.setText(R.string.idle_charging_auto);
                 if (bypassToggle.isEnabled())
                     bypassToggle.setEnabled(false);
             }
         } else {
-            bypassText.setText("Idle charging:");
+            bypassText.setText(R.string.idle_charging_text);
             if (!bypassToggle.isEnabled())
                 bypassToggle.setEnabled(true);
         }
+    }
+
+    private void spinningGear() {
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                settingsButton.startAnimation(rotateAnimation);
+                handler.postDelayed(this, 4000);
+            }
+        };
+        handler.post(runnable);
     }
 
     private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
@@ -113,9 +132,11 @@ public class MainActivity extends AppCompatActivity {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-        Button settingsButton = findViewById(R.id.settingsBtn);
+        settingsButton = findViewById(R.id.settingsBtn);
+        rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.spin);
+        spinningGear();
 
-        Button donateButton = findViewById(R.id.supportBtn);
+        ImageButton donateButton = findViewById(R.id.supportBtn);
 
         bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
@@ -154,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             ratedCapacity.setText(String.format("%d mAh", actualCapacity));
 
         bypassToggle = findViewById(R.id.bypassToggle);
-        bypassText.setText("Idle charging:");
+        bypassText.setText(R.string.idle_charging_text);
 
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
@@ -224,6 +245,17 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
+        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isRunning = false;
+        if (!BatteryReceiver.isCharging())
+            BatteryService.stopBackgroundTask();
+        Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
+        handler.removeCallbacks(runnable);
     }
 
     @SuppressWarnings("deprecation")
@@ -234,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void forceStop(Context context) {
         String packageName = context.getPackageName();
-        Toast.makeText(context, "Shizuku granted. Please restart.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, context.getString(R.string.restart_granted), Toast.LENGTH_SHORT).show();
         Utils.runCmd("am force-stop " + packageName);
     }
 }

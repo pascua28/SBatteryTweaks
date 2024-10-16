@@ -14,7 +14,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:trp_thumbIconEnd="@drawable/blank"
-        app:trp_thumbIconStart="@drawable/blank" />
+        app:trp_thumbIconStart="@drawable/blank"
+        app:trp_sliderRangeGradientEnd="@color/material_dynamic_primary90"
+        app:trp_sliderRangeGradientMiddle="@color/material_dynamic_primary70"
+        app:trp_sliderRangeGradientStart="@color/material_dynamic_primary50" />
 
     <Button
         android:id="@+id/saveBtn"
@@ -23,11 +26,10 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:clickable="true"
-        android:text="Save"
+        android:text="@string/save"
         android:textAlignment="center"
         android:textColor="#0097A7"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/start_time"

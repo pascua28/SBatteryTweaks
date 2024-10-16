@@ -25,29 +25,38 @@ public class BatteryWorker {
     public static float temperature, thresholdTemp, tempDelta;
     private static float cdSeconds;
     public static int battFullCap = 0, currentNow, idleLevel;
-    private static int fastChargeEnabled, startHour, startMinute,
-            lvlThreshold, duration, protectEnabled;
+    private static int fastChargeEnabled;
+    private static int startHour;
+    private static int startMinute;
+    private static int lvlThreshold;
+    private static int duration;
     private static long cooldown;
     static SimpleDateFormat sdf;
     static Date currTime, start;
     private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
 
+    private static String idle, charging, discharging;
+
     public static void batteryWorker(Context context, Boolean isCharging) {
+        idle = context.getString(R.string.idle);
+        charging = context.getString(R.string.charging);
+        discharging = context.getString(R.string.discharging);
+
         try {
             fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
-            if (fastChargeEnabled == 1) fastChargeStatus = "Enabled";
-            else fastChargeStatus = "Disabled";
+            if (fastChargeEnabled == 1) fastChargeStatus = context.getString(R.string.enabled);
+            else fastChargeStatus = context.getString(R.string.disabled);
         } catch (Settings.SettingNotFoundException e) {
             if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
                 int siopLevel = Integer.parseInt(Utils.runCmd("cat " + siopFile));
                 if (siopLevel == 100) {
-                    fastChargeStatus = "Enabled (siop - " + siopLevel + ")";
+                    fastChargeStatus = context.getString(R.string.enabled) + " (siop - " + siopLevel + ")";
                     fastChargeEnabled = 1;
                 } else {
-                    fastChargeStatus = "Disabled (siop - " + siopLevel + ")" ;
+                    fastChargeStatus = context.getString(R.string.disabled) + " (siop - " + siopLevel + ")" ;
                     fastChargeEnabled = 0;
                 }
-            } else fastChargeStatus = "Not supported";
+            } else fastChargeStatus = context.getString(R.string.not_supported);
         }
 
         if (pausePdSupported)
@@ -107,6 +116,7 @@ public class BatteryWorker {
             enableFastCharge(context, 1);
         } else {
             int bypassVal = 0;
+            int protectEnabled;
             try {
                 protectEnabled = Settings.Global.getInt(context.getContentResolver(), "protect_battery");
             } catch (Settings.SettingNotFoundException ignored) {
@@ -166,7 +176,7 @@ public class BatteryWorker {
                 throw new Settings.SettingNotFoundException("Not found");
 
             if (Utils.changeSetting(context, "adaptive_fast_charging", enabled) < 0) {
-                fastChargeStatus = fastChargeStatus + " (failed to toggle)";
+                fastChargeStatus = fastChargeStatus + " (" + context.getString(R.string.toggle_failed) + ")";
             }
         } catch (Settings.SettingNotFoundException ignored) {
             if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
@@ -192,12 +202,12 @@ public class BatteryWorker {
                 setBypass(context, 0, false);
 
                 if (enableToast)
-                    Toast.makeText(context, "Charging is resumed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.resumed), Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 0) {
                 enableFastCharge(context,1);
 
                 if (enableToast)
-                    Toast.makeText(context, "Fast charging mode is re-enabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.re_enabled), Toast.LENGTH_SHORT).show();
             }
         } else if (BatteryService.isBypassed()) {
             if (fastChargeEnabled == 0)
@@ -210,25 +220,25 @@ public class BatteryWorker {
                 setBypass(context, 1,false);
 
                 if (enableToast)
-                    Toast.makeText(context, "Charging is paused!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.paused), Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
                 enableFastCharge(context,0);
 
                 if (enableToast)
-                    Toast.makeText(context, "Fast charging mode is disabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.fast_charging_disabled), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    public static void updateStats(Boolean charging) {
+    public static void updateStats(Boolean isCharging) {
         battTemp = temperature + "°C";
 
         if (BatteryService.isBypassed())
-            chargingState = "Idle";
-        else if (charging)
-            chargingState = "Charging";
+            chargingState = idle;
+        else if (isCharging)
+            chargingState = charging;
         else
-            chargingState = "Discharging";
+            chargingState = discharging;
     }
 
 }
