@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
 
-import com.scwang.wave.MultiWaveHeader;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.io.File;

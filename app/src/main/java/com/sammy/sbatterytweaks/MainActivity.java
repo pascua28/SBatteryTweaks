@@ -94,7 +94,15 @@ public class MainActivity extends AppCompatActivity {
                 handler.postDelayed(this, 4000);
             }
         };
-        handler.post(runnable);
+    }
+
+    private void shouldSpin(Boolean shouldSpin) {
+        if (shouldSpin && !handler.hasMessages(0)) {
+            handler.sendEmptyMessage(0);
+            handler.post(runnable);
+        } else {
+            handler.removeCallbacksAndMessages(runnable);
+        }
     }
 
     private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
@@ -142,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.settingsBtn);
         rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.spin);
         spinningGear();
+        shouldSpin(true);
 
         ImageButton donateButton = findViewById(R.id.supportBtn);
 
@@ -231,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
         multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
+        shouldSpin(true);
     }
 
     @Override
@@ -240,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
         multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
+        shouldSpin(true);
     }
 
     @Override
@@ -249,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
+        shouldSpin(false);
     }
 
     @Override
@@ -258,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
-        handler.removeCallbacks(runnable);
+        shouldSpin(false);
     }
 
     @Override
@@ -268,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
-        handler.removeCallbacks(runnable);
+        shouldSpin(false);
     }
 
     @SuppressWarnings("deprecation")
