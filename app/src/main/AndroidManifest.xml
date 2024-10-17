@@ -4,6 +4,7 @@
     package="com.sammy.sbatterytweaks">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
@@ -60,7 +61,12 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".BatteryService" />
+        <service android:name=".BatteryService" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="This is required by the BroadcastReceiver to handle power connected and disconnected events, which start and stop background tasks that limit charging speed to reduce overhead.
+                    It also needs to update temperature data on battery state change for charge limit logic and notification." />
+        </service>
+
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
