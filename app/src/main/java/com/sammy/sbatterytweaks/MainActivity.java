@@ -37,10 +37,15 @@ public class MainActivity extends AppCompatActivity {
     private static TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
             bypassText, remainingCap;
     private static SwitchCompat bypassToggle;
+    static MultiWaveHeader multiWaveHeader;
     private Animation rotateAnimation;
     private Handler handler;
     private Runnable runnable;
     private ImageButton settingsButton;
+
+    public static void updateWaves(int percentage) {
+        multiWaveHeader.setProgress(percentage / 100.0f);
+    }
 
     public static void updateStatus(boolean manualBypass) {
         String lvlText, battPercent;
@@ -178,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText(R.string.idle_charging_text);
-        MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
-        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
+        multiWaveHeader = findViewById(R.id.waveHeader);
+        updateWaves(BatteryService.percentage);
 
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);

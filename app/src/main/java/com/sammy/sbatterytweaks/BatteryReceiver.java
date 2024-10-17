@@ -52,6 +52,10 @@ public class BatteryReceiver extends BroadcastReceiver {
                 BatteryService.stopBackgroundTask();
             }
         }
+
+        if (MainActivity.isRunning) {
+            MainActivity.updateWaves(mLevel);
+        }
         BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C");
     }
 
