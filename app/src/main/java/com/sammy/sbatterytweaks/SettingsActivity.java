@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
-            setTheme(R.style.Theme_ChargeRateAutomator_v31);
+            setTheme(R.style.Theme_ChargeRateAutomator_Settings);
         else
             setTheme(R.style.Theme_ChargeRateAutomator);
         super.onCreate(savedInstanceState);
