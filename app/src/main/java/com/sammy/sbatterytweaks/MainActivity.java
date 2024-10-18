@@ -16,11 +16,11 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Animation rotateAnimation;
     private Handler handler;
     private Runnable runnable;
-    private ImageButton settingsButton;
+    private AppCompatImageButton settingsButton;
 
     public static void updateWaves(int percentage) {
         multiWaveHeader.setProgress(percentage / 100.0f);
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         spinningGear();
         shouldSpin(true);
 
-        ImageButton donateButton = findViewById(R.id.supportBtn);
+        AppCompatImageButton donateButton = findViewById(R.id.supportBtn);
 
         bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
