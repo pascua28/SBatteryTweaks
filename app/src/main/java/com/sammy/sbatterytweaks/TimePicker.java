@@ -9,10 +9,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.material.button.MaterialButton;
 
 import nl.joery.timerangepicker.TimeRangePicker;
 
@@ -24,7 +25,7 @@ public class TimePicker extends Dialog implements View.OnClickListener {
             PREF_END_HOUR = "endHour",
             PREF_END_MINUTE = "endMinute";
     public Activity c;
-    public Button saveBtn;
+    public MaterialButton saveBtn, cancelBtn;
     private int startHour, startMinute, endHour, endMinute, duration;
     private SharedPreferences.Editor editor;
 
@@ -40,6 +41,13 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         setContentView(R.layout.fragment_time_picker);
         saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
+        cancelBtn = findViewById(R.id.cancelBtn);
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
 
         TextView start_Time = findViewById(R.id.start_time);
         TextView end_Time = findViewById(R.id.end_time);
@@ -58,15 +66,15 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         timeRangePicker.setStartTime(new TimeRangePicker.Time(startHour, startMinute));
         timeRangePicker.setEndTimeMinutes((endHour * 60) + endMinute);
 
-        start_Time.setText(String.format("Start: %s", timeRangePicker.getStartTime()));
-        end_Time.setText(String.format("End: %s", timeRangePicker.getEndTime()));
+        start_Time.setText(String.format("%s", timeRangePicker.getStartTime()));
+        end_Time.setText(String.format("%s", timeRangePicker.getEndTime()));
 
         timeRangePicker.setOnTimeChangeListener(new TimeRangePicker.OnTimeChangeListener() {
             @Override
             public void onStartTimeChange(@NonNull TimeRangePicker.Time time) {
                 startHour = time.getHour();
                 startMinute = time.getMinute();
-                start_Time.setText(String.format("Start: %s", time));
+                start_Time.setText(String.format("%s", time));
 
             }
 
@@ -74,7 +82,7 @@ public class TimePicker extends Dialog implements View.OnClickListener {
             public void onEndTimeChange(@NonNull TimeRangePicker.Time time) {
                 endHour = time.getHour();
                 endMinute = time.getMinute();
-                end_Time.setText(String.format("End: %s", time));
+                end_Time.setText(String.format("%s", time));
             }
 
             @Override

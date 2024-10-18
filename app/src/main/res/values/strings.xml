@@ -83,6 +83,11 @@
         <!-- Passthrough level settings -->
         <string name="pass_through_level_title">Configure passthrough level</string>
         <string name="pass_through_level_summary">Stop charging at this specified level</string>
+
+    <!-- Time picker -->
+    <string name="start">Start time</string>
+    <string name="end">End time</string>
     <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 
 </resources>
