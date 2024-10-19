@@ -56,6 +56,9 @@ public class BatteryReceiver extends BroadcastReceiver {
             MainActivity.updateWaves(mLevel);
         }
         BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C");
+        if (!MainActivity.isRunning && mPlugged < 0) {
+            BatteryService.stopBackgroundTask();
+        }
     }
 
     private float getTemp() {
