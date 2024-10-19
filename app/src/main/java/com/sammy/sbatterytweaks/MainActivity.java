@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             setTheme(R.style.Theme_ChargeRateAutomator_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BatteryService.startBackgroundTask();
 
         int actualCapacity = Utils.getActualCapacity(this);
         int fullcapnom = -1;
