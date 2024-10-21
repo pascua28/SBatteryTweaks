@@ -25,185 +25,194 @@
                 android:id="@+id/supportBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/donate"
                 android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
                 android:background="@drawable/donate"
                 android:clickable="true"
-                android:layout_marginEnd="16dp" />
+                android:contentDescription="@string/donate" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/settingsBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:contentDescription="@string/settings"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/settings"
                 android:clickable="true"
-                android:layout_marginEnd="8dp" />
+                android:contentDescription="@string/settings" />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
-        android:id="@+id/heading"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/appBar"
+        app:layout_constraintStart_toStartOf="@id/appBar"
         app:layout_constraintTop_toBottomOf="@id/appBar">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TopCardView">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <com.scwang.wave.MultiWaveHeader
-                android:id="@+id/waveHeader"
+
+            <LinearLayout
+                android:id="@+id/heading"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleY="-1"
-                app:mwhVelocity="0.4"
-                app:mwhProgress="0"
-                app:mwhIsRunning="true"
-                app:mwhGradientAngle="180"
-                app:mwhWaveHeight="15dp"
-                app:mwhColorAlpha="0.3"
-                app:mwhStartColor="@color/material_dynamic_primary50"
-                app:mwhCloseColor="@color/material_dynamic_primary70"
-                app:mwhWaves="PairWave" />
-
-            <TextView
-                style="@style/TopCardText"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/battery_level" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/levelText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
+                <com.google.android.material.card.MaterialCardView style="@style/TopCardView">
+
+                    <com.scwang.wave.MultiWaveHeader
+                        android:id="@+id/waveHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleY="-1"
+                        app:mwhCloseColor="@color/material_dynamic_primary70"
+                        app:mwhColorAlpha="0.3"
+                        app:mwhGradientAngle="180"
+                        app:mwhIsRunning="true"
+                        app:mwhProgress="0"
+                        app:mwhStartColor="@color/material_dynamic_primary50"
+                        app:mwhVelocity="0.4"
+                        app:mwhWaveHeight="15dp"
+                        app:mwhWaves="PairWave" />
+
+                    <TextView
+                        style="@style/TopCardText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/battery_level" />
+
+                    <TextView
+                        android:id="@+id/levelText"
+                        style="@style/BatteryViewDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView style="@style/TopCardView">
+
+                    <TextView
+                        style="@style/TopCardText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature" />
+
+                    <TextView
+                        android:id="@+id/tempText"
+                        style="@style/BatteryViewDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:visibility="visible" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-        </com.google.android.material.card.MaterialCardView>
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/heading">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TopCardView">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardView"
+                    style="@style/CardViewDisplay">
 
-            <TextView
-                style="@style/TopCardText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/temperature" />
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/status" />
 
-            <TextView
-                android:id="@+id/tempText"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:visibility="visible" />
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/chargingText"
+                        style="@style/ValueText" />
+                </com.google.android.material.card.MaterialCardView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/heading">
+                <com.google.android.material.card.MaterialCardView style="@style/CardViewDisplay">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardView"
-            style="@style/CardViewDisplay">
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/fast_charging" />
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/status" />
+                    <TextView
+                        android:id="@+id/fastCharge"
+                        style="@style/ValueText" />
+                </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/chargingText"
-                style="@style/ValueText" />
-        </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView style="@style/CardViewDisplay">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay">
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/current" />
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/fast_charging" />
+                    <TextView
+                        android:id="@+id/currentText"
+                        style="@style/ValueText" />
 
-            <TextView
-                android:id="@+id/fastCharge"
-                style="@style/ValueText" />
-        </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay">
+                <com.google.android.material.card.MaterialCardView style="@style/CardViewDisplay">
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/current" />
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/rated_capacity" />
 
-            <TextView
-                android:id="@+id/currentText"
-                style="@style/ValueText" />
+                    <TextView
+                        android:id="@+id/capacityText"
+                        style="@style/ValueText" />
+                </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/capacityView"
+                    style="@style/CardViewDisplay">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay">
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/remaining_capacity" />
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/rated_capacity" />
+                    <TextView
+                        android:id="@+id/remainingCap"
+                        style="@style/ValueText" />
+                </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/capacityText"
-                style="@style/ValueText" />
-        </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView style="@style/CardViewDisplay">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/capacityView"
-            style="@style/CardViewDisplay">
+                    <TextView
+                        style="@style/StatusText"
+                        android:text="@string/voltage_level" />
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/remaining_capacity" />
+                    <TextView
+                        android:id="@+id/voltageText"
+                        style="@style/ValueText" />
 
-            <TextView
-                android:id="@+id/remainingCap"
-                style="@style/ValueText" />
-        </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/idleCardView"
+                    style="@style/CardViewDisplay"
+                    android:layout_marginBottom="96dp">
 
-            <TextView
-                style="@style/StatusText"
-                android:text="@string/voltage_level" />
+                    <TextView
+                        android:id="@+id/bypassText"
+                        style="@style/StatusText" />
 
-            <TextView
-                android:id="@+id/voltageText"
-                style="@style/ValueText" />
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/bypassToggle"
+                        style="@style/BatteryViewDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="15dp" />
 
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/idleCardView"
-            style="@style/CardViewDisplay">
-
-            <TextView
-                android:id="@+id/bypassText"
-                style="@style/StatusText" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/bypassToggle"
-                style="@style/BatteryViewDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|end"
-                android:layout_marginEnd="15dp" />
-
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
