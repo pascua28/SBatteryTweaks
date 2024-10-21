@@ -120,6 +120,10 @@ public class BatteryWorker {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     bypassVal = 85;
                 } else bypassVal = 80;
+
+                /* Allow charging to 100% */
+                if (BatteryService.percentage >= bypassVal)
+                    bypassVal = 100;
             } else bypassVal = 100;
             setBypass(bypassVal);
         }
