@@ -17,8 +17,10 @@
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
             app:title="@string/app_name"
+            app:titleTextAppearance="@style/ToolBarTitle"
             app:titleTextColor="@color/white">
 
             <androidx.appcompat.widget.AppCompatImageButton

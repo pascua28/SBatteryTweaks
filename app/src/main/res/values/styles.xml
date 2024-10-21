@@ -8,7 +8,7 @@
     </style>
 
     <style name="TopCardView">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">150dp</item>
         <item name="android:layout_weight">1</item>
         <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
@@ -69,5 +69,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">right|center_vertical</item>
         <item name="android:layout_marginRight">15dp</item>
+    </style>
+
+    <style name="ToolBarTitle">
+        <item name="android:textSize">20sp</item>
     </style>
 </resources>
