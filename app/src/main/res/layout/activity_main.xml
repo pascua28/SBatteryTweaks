@@ -9,9 +9,11 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/colorPrimary">
+        android:background="?android:attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
@@ -44,9 +46,9 @@
     <LinearLayout
         android:id="@+id/heading"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="2">
+        app:layout_constraintTop_toBottomOf="@id/appBar">
 
         <com.google.android.material.card.MaterialCardView
             style="@style/TopCardView">
@@ -103,22 +105,15 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="180dp"
-        app:layout_anchor="@+id/heading"
-        app:layout_anchorGravity="bottom|center">
+        app:layout_constraintTop_toBottomOf="@id/heading">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -130,8 +125,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -143,8 +137,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -157,8 +150,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -171,8 +163,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/capacityView"
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -184,8 +175,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 style="@style/StatusText"
@@ -199,8 +189,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/idleCardView"
-            style="@style/CardViewDisplay"
-            app:layout_anchor="@+id/heading">
+            style="@style/CardViewDisplay">
 
             <TextView
                 android:id="@+id/bypassText"
@@ -216,6 +205,5 @@
 
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
