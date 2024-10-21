@@ -17,7 +17,7 @@ public class BatteryService extends Service {
     static Notification.Builder notification;
     public static boolean manualBypass = true;
 
-    public static int currentNow;
+    public static int currentNow, refreshInterval = 2500;
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
 
     static Handler mHandler = new Handler();
@@ -74,7 +74,7 @@ public class BatteryService extends Service {
                         BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
                     BatteryWorker.setBypass(context, 1, false);
                 }
-                mHandler.postDelayed(this, 2500);
+                mHandler.postDelayed(this, refreshInterval);
             }
         };
         startBackgroundTask();

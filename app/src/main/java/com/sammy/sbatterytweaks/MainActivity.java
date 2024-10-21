@@ -34,75 +34,64 @@ import rikka.shizuku.Shizuku;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
-    private static TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
+    private TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
             bypassText, remainingCap;
     private static SwitchCompat bypassToggle;
     static MultiWaveHeader multiWaveHeader;
-    private Animation rotateAnimation;
-    private Handler handler;
-    private Runnable runnable;
     private AppCompatImageButton settingsButton;
+    private Animation rotateAnimation;
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            settingsButton.startAnimation(rotateAnimation);
+            String lvlText, battPercent;
+            battPercent = BatteryReceiver.mLevel + "%";
+            lvlText = battPercent;
+            chargingStatus.setText(BatteryWorker.chargingState);
+            if (BatteryReceiver.isCharging())
+                lvlText = "⚡" + battPercent;
+
+            levelText.setText(lvlText);
+            currentText.setText(BatteryService.currentNow + "mA");
+            voltText.setText(BatteryReceiver.mVolt + "mV");
+            battTemperature.setText(BatteryWorker.battTemp);
+            if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
+                battTemperature.setTextColor(Color.parseColor("#A80505"));
+            else if (BatteryReceiver.mTemp > (BatteryWorker.thresholdTemp - BatteryWorker.tempDelta))
+                battTemperature.setTextColor(Color.parseColor("#CCBC2F"));
+            else
+                battTemperature.setTextColor(Color.parseColor("#187A4A"));
+
+            fastChgStatus.setText(BatteryWorker.fastChargeStatus);
+            bypassToggle.setChecked(BatteryService.isBypassed());
+            if (bypassToggle.isChecked()) {
+                if (BatteryService.manualBypass) {
+                    bypassText.setText(R.string.idle_charging_user);
+                    if (!bypassToggle.isEnabled())
+                        bypassToggle.setEnabled(true);
+                } else {
+                    bypassText.setText(R.string.idle_charging_auto);
+                    if (bypassToggle.isEnabled())
+                        bypassToggle.setEnabled(false);
+                }
+            } else {
+                bypassText.setText(R.string.idle_charging_text);
+                if (!bypassToggle.isEnabled())
+                    bypassToggle.setEnabled(true);
+            }
+            handler.postDelayed(this, BatteryService.refreshInterval);
+        }
+    };
 
     public static void updateWaves(int percentage) {
         multiWaveHeader.setProgress(percentage / 100.0f);
     }
 
-    public static void updateStatus(boolean manualBypass) {
-        String lvlText, battPercent;
-        battPercent = BatteryReceiver.mLevel + "%";
-        lvlText = battPercent;
-        chargingStatus.setText(BatteryWorker.chargingState);
-        if (BatteryReceiver.isCharging())
-            lvlText = "⚡" + battPercent;
-
-        levelText.setText(lvlText);
-        currentText.setText(BatteryService.currentNow + "mA");
-        voltText.setText(BatteryReceiver.mVolt + "mV");
-        battTemperature.setText(BatteryWorker.battTemp);
-        if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
-            battTemperature.setTextColor(Color.parseColor("#A80505"));
-        else if (BatteryReceiver.mTemp > (BatteryWorker.thresholdTemp - BatteryWorker.tempDelta))
-            battTemperature.setTextColor(Color.parseColor("#CCBC2F"));
-        else
-            battTemperature.setTextColor(Color.parseColor("#187A4A"));
-
-        fastChgStatus.setText(BatteryWorker.fastChargeStatus);
-        bypassToggle.setChecked(BatteryService.isBypassed());
-        if (bypassToggle.isChecked()) {
-            if (manualBypass) {
-                bypassText.setText(R.string.idle_charging_user);
-                if (!bypassToggle.isEnabled())
-                    bypassToggle.setEnabled(true);
-            } else {
-                bypassText.setText(R.string.idle_charging_auto);
-                if (bypassToggle.isEnabled())
-                    bypassToggle.setEnabled(false);
-            }
-        } else {
-            bypassText.setText(R.string.idle_charging_text);
-            if (!bypassToggle.isEnabled())
-                bypassToggle.setEnabled(true);
-        }
-    }
-
-    private void spinningGear() {
-        handler = new Handler();
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                settingsButton.startAnimation(rotateAnimation);
-                handler.postDelayed(this, 4000);
-            }
-        };
-    }
-
-    private void shouldSpin(Boolean shouldSpin) {
-        if (shouldSpin && !handler.hasMessages(0)) {
-            handler.sendEmptyMessage(0);
+    private void updateUI(Boolean shouldUpdate) {
+        if (shouldUpdate) {
             handler.post(runnable);
-        } else {
-            handler.removeCallbacksAndMessages(runnable);
-        }
+        } else handler.removeCallbacksAndMessages(null);
     }
 
     private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
@@ -121,9 +110,8 @@ public class MainActivity extends AppCompatActivity {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
             startForegroundService(serviceIntent);
-            Intent intent = getIntent();
             finish();
-            startActivity(intent);
+            startActivity(getIntent());
         }
 
         PowerManager powerManager = (PowerManager) this.getSystemService(POWER_SERVICE);
@@ -149,8 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
         settingsButton = findViewById(R.id.settingsBtn);
         rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.spin);
-        spinningGear();
-        shouldSpin(true);
 
         AppCompatImageButton donateButton = findViewById(R.id.supportBtn);
 
@@ -172,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
         voltText.setText(R.string.loading);
         levelText.setText(R.string.dots);
         battTemperature.setText(R.string.dots);
+
+        updateUI(true);
 
         if (!Utils.isRooted()) {
                 Utils.shizukuCheckPermission();
@@ -240,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
-        shouldSpin(true);
+        updateUI(true);
     }
 
     @Override
@@ -250,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
-        shouldSpin(true);
+        updateUI(true);
     }
 
     @Override
@@ -260,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
-        shouldSpin(false);
+        updateUI(false);
     }
 
     @Override
@@ -270,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
-        shouldSpin(false);
+        updateUI(false);
     }
 
     @Override
@@ -280,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         if (!BatteryReceiver.isCharging())
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
-        shouldSpin(false);
+        updateUI(false);
     }
 
     @SuppressWarnings("deprecation")

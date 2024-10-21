@@ -83,9 +83,6 @@ public class BatteryWorker {
 
         if (!BatteryService.manualBypass && isCharging)
             battWorker(context.getApplicationContext());
-
-        if (MainActivity.isRunning)
-            MainActivity.updateStatus(BatteryService.manualBypass);
     }
 
     public static void setBypass(int level) {
