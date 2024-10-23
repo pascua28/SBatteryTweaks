@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void updateStatus(boolean manualBypass) {
         String lvlText, battPercent;
-        battPercent = BatteryService.percentage + "%";
+        battPercent = BatteryReceiver.mLevel + "%";
         lvlText = battPercent;
         chargingStatus.setText(BatteryWorker.chargingState);
         if (BatteryReceiver.isCharging())
@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
         currentText.setText(BatteryWorker.currentNow + "mA");
         voltText.setText(BatteryWorker.voltage);
         battTemperature.setText(BatteryWorker.battTemp);
-        if (BatteryWorker.temperature >= BatteryWorker.thresholdTemp)
+        if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
             battTemperature.setTextColor(Color.parseColor("#A80505"));
-        else if (BatteryWorker.temperature > (BatteryWorker.thresholdTemp - BatteryWorker.tempDelta))
+        else if (BatteryReceiver.mTemp > (BatteryWorker.thresholdTemp - BatteryWorker.tempDelta))
             battTemperature.setTextColor(Color.parseColor("#CCBC2F"));
         else
             battTemperature.setTextColor(Color.parseColor("#187A4A"));
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             Intent serviceIntent = new Intent(this,
                     BatteryService.class);
             startForegroundService(serviceIntent);
-            Intent intent = this.getIntent();
+            Intent intent = getIntent();
             finish();
             startActivity(intent);
         }
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText(R.string.idle_charging_text);
         multiWaveHeader = findViewById(R.id.waveHeader);
-        updateWaves(BatteryService.percentage);
+        updateWaves(BatteryReceiver.mLevel);
 
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
-        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
+        multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
         shouldSpin(true);
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
-        multiWaveHeader.setProgress(BatteryService.percentage / 100.0f);
+        multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
         BatteryService.startBackgroundTask();
         shouldSpin(true);

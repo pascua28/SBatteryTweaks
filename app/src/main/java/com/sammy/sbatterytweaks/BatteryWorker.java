@@ -22,7 +22,7 @@ public class BatteryWorker {
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
             lvlSwitch, enableToast, isSchedEnabled;
-    public static float temperature, thresholdTemp, tempDelta;
+    public static float thresholdTemp, tempDelta;
     private static float cdSeconds;
     public static int battFullCap = 0, currentNow, idleLevel;
     private static int fastChargeEnabled;
@@ -106,7 +106,7 @@ public class BatteryWorker {
         }
 
         if (bypass == 1) {
-            setBypass(BatteryService.percentage);
+            setBypass(BatteryReceiver.mLevel);
             enableFastCharge(context, 1);
         } else {
             int bypassVal = 0;
@@ -122,7 +122,7 @@ public class BatteryWorker {
                 } else bypassVal = 80;
 
                 /* Allow charging to 100% */
-                if (BatteryService.percentage >= bypassVal)
+                if (BatteryReceiver.mLevel >= bypassVal)
                     bypassVal = 100;
             } else bypassVal = 100;
             setBypass(bypassVal);
@@ -187,15 +187,15 @@ public class BatteryWorker {
         if (!serviceEnabled)
             return;
 
-        if (idleEnabled && !BatteryService.isBypassed() && BatteryService.percentage >= idleLevel) {
+        if (idleEnabled && !BatteryService.isBypassed() && BatteryReceiver.mLevel >= idleLevel) {
             setBypass(context, 1, false);
-        } else if (idleEnabled && BatteryService.percentage >= idleLevel && BatteryService.isBypassed()) {
+        } else if (idleEnabled && BatteryReceiver.mLevel >= idleLevel && BatteryService.isBypassed()) {
             BatteryService.manualBypass = false;
-        } else if ((lvlSwitch && (BatteryService.percentage >= lvlThreshold)) ||
+        } else if ((lvlSwitch && (BatteryReceiver.mLevel >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled == 1 && !BatteryService.isBypassed())
                 enableFastCharge(context, 0);
-        } else if (((temperature <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
+        } else if (((BatteryReceiver.mTemp <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
                 setBypass(context, 0, false);
 
@@ -210,7 +210,7 @@ public class BatteryWorker {
         } else if (BatteryService.isBypassed()) {
             if (fastChargeEnabled == 0)
                 enableFastCharge(context,1);
-        } else if (temperature >= thresholdTemp) {
+        } else if (BatteryReceiver.mTemp >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
                 startTimer();
 
@@ -229,7 +229,7 @@ public class BatteryWorker {
     }
 
     public static void updateStats(Context context, Boolean isCharging) {
-        battTemp = temperature + "°C";
+        battTemp = BatteryReceiver.mTemp + "°C";
 
         if (BatteryService.isBypassed())
             chargingState = context.getString(R.string.idle);

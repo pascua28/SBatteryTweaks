@@ -12,10 +12,10 @@ import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
-    private int mLevel;
+    public static int mLevel;
     private static int mPlugged, mStatus;
     private int mVolt;
-    private float mTemp;
+    public static float mTemp;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,8 +30,6 @@ public class BatteryReceiver extends BroadcastReceiver {
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
         BatteryWorker.voltage = mVolt + " mV";
-        BatteryWorker.temperature = mTemp;
-        BatteryService.percentage = mLevel;
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
