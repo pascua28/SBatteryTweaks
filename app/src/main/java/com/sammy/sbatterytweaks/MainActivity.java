@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         donateButton.setOnClickListener(v -> {
             Intent openURL = new Intent(Intent.ACTION_VIEW);
-            openURL.setData(Uri.parse("https://github.com/pascua28/SupportMe"));
+            openURL.setData(Uri.parse("https://buymeacoffee.com/pascua14"));
             startActivity(openURL);
         });
         
