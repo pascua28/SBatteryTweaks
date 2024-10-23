@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
             lvlText = "⚡" + battPercent;
 
         levelText.setText(lvlText);
-        currentText.setText(BatteryWorker.currentNow + "mA");
-        voltText.setText(BatteryWorker.voltage);
+        currentText.setText(BatteryService.currentNow + "mA");
+        voltText.setText(BatteryReceiver.mVolt + "mV");
         battTemperature.setText(BatteryWorker.battTemp);
         if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
             battTemperature.setTextColor(Color.parseColor("#A80505"));

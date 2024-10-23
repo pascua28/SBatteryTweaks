@@ -1,9 +1,12 @@
 package com.sammy.sbatterytweaks;
 
+import static androidx.core.content.ContextCompat.registerReceiver;
+
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 import com.topjohnwu.superuser.ShellUtils;
@@ -12,9 +15,8 @@ import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
-    public static int mLevel;
+    public static int mLevel, mVolt;
     private static int mPlugged, mStatus;
-    private int mVolt;
     public static float mTemp;
 
     @Override
@@ -28,8 +30,6 @@ public class BatteryReceiver extends BroadcastReceiver {
         mPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         mStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
-
-        BatteryWorker.voltage = mVolt + " mV";
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())

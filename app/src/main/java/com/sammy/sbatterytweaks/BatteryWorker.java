@@ -17,14 +17,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class BatteryWorker {
-    public static String chargingState, battTemp, fastChargeStatus, voltage = "";
+    public static String chargingState, battTemp, fastChargeStatus;
     public static boolean isOngoing, idleEnabled, disableSync,
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
             lvlSwitch, enableToast, isSchedEnabled;
     public static float thresholdTemp, tempDelta;
     private static float cdSeconds;
-    public static int battFullCap = 0, currentNow, idleLevel;
+    public static int battFullCap = 0, idleLevel;
     private static int fastChargeEnabled;
     private static int startHour;
     private static int startMinute;

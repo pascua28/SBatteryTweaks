@@ -17,6 +17,7 @@ public class BatteryService extends Service {
     static Notification.Builder notification;
     public static boolean manualBypass = true;
 
+    public static int currentNow;
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
 
     static Handler mHandler = new Handler();
@@ -61,7 +62,7 @@ public class BatteryService extends Service {
         runnable = new Runnable() {
             @Override
             public void run() {
-                BatteryWorker.currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+                currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
 
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
