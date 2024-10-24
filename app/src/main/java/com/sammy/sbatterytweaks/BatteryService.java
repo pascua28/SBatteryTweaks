@@ -77,6 +77,7 @@ public class BatteryService extends Service {
                 mHandler.postDelayed(this, 2500);
             }
         };
+        startBackgroundTask();
     }
 
     @Override
