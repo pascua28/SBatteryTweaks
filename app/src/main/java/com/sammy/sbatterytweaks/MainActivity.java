@@ -30,6 +30,8 @@ import androidx.preference.PreferenceManager;
 
 import com.scwang.wave.MultiWaveHeader;
 
+import java.util.Locale;
+
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 lvlText = "⚡" + battPercent;
 
             levelText.setText(lvlText);
-            currentText.setText(currentNow + "mA");
-            voltText.setText(BatteryReceiver.mVolt + "mV");
+            currentText.setText(String.format(Locale.getDefault(), "%d mA", currentNow));
+            voltText.setText(String.format(Locale.getDefault(), "%d mV", BatteryReceiver.mVolt));
             battTemperature.setText(BatteryWorker.battTemp);
             if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
                 battTemperature.setTextColor(Color.parseColor("#A80505"));
@@ -182,14 +184,14 @@ public class MainActivity extends AppCompatActivity {
             fullcapnom = Integer.parseInt(Utils.runCmd("cat /sys/class/power_supply/battery/fg_fullcapnom"));
             battHealth = ((float) fullcapnom / actualCapacity) * 100;
             if (fullcapnom != 0 && battHealth != 0)
-                remainingCap.setText(String.format("%.2f", battHealth) + "%");
+                remainingCap.setText(String.format(Locale.getDefault(), "%.2f%%", battHealth));
             else capacityCard.setVisibility(View.GONE);
         } else {
             capacityCard.setVisibility(View.GONE);
         }
 
         if (actualCapacity != 0)
-            ratedCapacity.setText(String.format("%d mAh", actualCapacity));
+            ratedCapacity.setText(String.format(Locale.getDefault(), "%d mAh", actualCapacity));
 
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText(R.string.idle_charging_text);
