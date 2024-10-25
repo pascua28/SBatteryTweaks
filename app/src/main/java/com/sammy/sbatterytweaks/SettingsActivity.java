@@ -76,14 +76,14 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             if (pauseModeSwitch.isEnabled()) {
-                pauseModeSwitch.setOnPreferenceClickListener(v-> {
+                pauseModeSwitch.setOnPreferenceClickListener(v -> {
                     BatteryWorker.setBypass(getContext(), 0, true);
                     return false;
                 });
             }
 
             if (idleSwitch.isEnabled()) {
-                idleSwitch.setOnPreferenceClickListener(v-> {
+                idleSwitch.setOnPreferenceClickListener(v -> {
                     BatteryWorker.setBypass(getContext(), 0, true);
                     if (idleSwitch.isChecked()) {
                         if (!BatteryWorker.pausePdSupported) {

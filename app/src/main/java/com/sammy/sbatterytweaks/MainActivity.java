@@ -35,6 +35,10 @@ import rikka.shizuku.Shizuku;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
+    static MultiWaveHeader multiWaveHeader;
+    private static SwitchCompat bypassToggle;
+    private final Handler handler = new Handler();
+    private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
     private TextView chargingStatus;
     private TextView levelText;
     private TextView currentText;
@@ -42,11 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView battTemperature;
     private TextView fastChgStatus;
     private TextView bypassText;
-    private static SwitchCompat bypassToggle;
-    static MultiWaveHeader multiWaveHeader;
     private AppCompatImageButton settingsButton;
     private Animation rotateAnimation;
-    private final Handler handler = new Handler();
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -96,13 +97,17 @@ public class MainActivity extends AppCompatActivity {
         multiWaveHeader.setProgress(percentage / 100.0f);
     }
 
+    public static void forceStop(Context context) {
+        String packageName = context.getPackageName();
+        Toast.makeText(context, context.getString(R.string.restart_granted), Toast.LENGTH_SHORT).show();
+        Utils.runCmd("am force-stop " + packageName);
+    }
+
     private void updateUI(Boolean shouldUpdate) {
         if (shouldUpdate) {
             handler.post(runnable);
         } else handler.removeCallbacksAndMessages(null);
     }
-
-    private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
 
     private void onRequestPermissionsResult(int requestCode, int grantResult) {
         if (grantResult == PackageManager.PERMISSION_GRANTED)
@@ -170,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         updateUI(true);
 
         if (!Utils.isRooted()) {
-                Utils.shizukuCheckPermission();
+            Utils.shizukuCheckPermission();
         }
 
         if (Utils.isPrivileged()) {
@@ -194,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
         }
-        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1:0, true));
+        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1 : 0, true));
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -206,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             openURL.setData(Uri.parse("https://buymeacoffee.com/pascua14"));
             startActivity(openURL);
         });
-        
+
         if (!Settings.System.canWrite(this)) {
             Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
             Uri permissionUri = Uri.fromParts("package", getPackageName(), null);
@@ -226,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!powerManager.isIgnoringBatteryOptimizations(getPackageName()))
             startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                    Uri.parse("package:"+getPackageName())));
+                    Uri.parse("package:" + getPackageName())));
     }
 
     @Override
@@ -283,11 +288,5 @@ public class MainActivity extends AppCompatActivity {
     private boolean foregroundServiceRunning() {
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         return activityManager.getRunningServices(Integer.MAX_VALUE).stream().anyMatch(service -> BatteryService.class.getName().equals(service.service.getClassName()));
-    }
-
-    public static void forceStop(Context context) {
-        String packageName = context.getPackageName();
-        Toast.makeText(context, context.getString(R.string.restart_granted), Toast.LENGTH_SHORT).show();
-        Utils.runCmd("am force-stop " + packageName);
     }
 }

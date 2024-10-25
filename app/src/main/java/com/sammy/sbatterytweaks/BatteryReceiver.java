@@ -1,12 +1,9 @@
 package com.sammy.sbatterytweaks;
 
-import static androidx.core.content.ContextCompat.registerReceiver;
-
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 import com.topjohnwu.superuser.ShellUtils;
@@ -14,10 +11,18 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
-    private final File statsFile = new File("/data/system/batterystats.bin");
     public static int mLevel, mVolt;
-    private static int mPlugged, mStatus;
     public static float mTemp;
+    private static int mPlugged, mStatus;
+    private final File statsFile = new File("/data/system/batterystats.bin");
+
+    public static boolean isCharging() {
+        return mPlugged > 0;
+    }
+
+    public static boolean notCharging() {
+        return mPlugged > 0 && mStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -61,13 +66,5 @@ public class BatteryReceiver extends BroadcastReceiver {
 
     private float getTemp() {
         return mTemp;
-    }
-
-    public static boolean isCharging() {
-        return mPlugged > 0;
-    }
-
-    public static boolean notCharging() {
-        return mPlugged > 0 && mStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING;
     }
 }

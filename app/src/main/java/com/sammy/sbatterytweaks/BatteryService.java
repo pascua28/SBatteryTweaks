@@ -12,13 +12,11 @@ import android.os.IBinder;
 import android.provider.Settings;
 
 public class BatteryService extends Service {
+    public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
+    public static boolean manualBypass = true;
+    public static int refreshInterval = 2500;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
-    public static boolean manualBypass = true;
-
-    public static int refreshInterval = 2500;
-    public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
-
     static Handler mHandler = new Handler();
     static Runnable runnable;
     private Context context;
@@ -27,6 +25,27 @@ public class BatteryService extends Service {
         return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
                 BatteryWorker.pausePdSupported &&
                 BatteryWorker.pausePdEnabled);
+    }
+
+    public static void startBackgroundTask() {
+        if (mHandler.hasMessages(0))
+            return;
+
+        mHandler.sendEmptyMessage(0);
+        mHandler.post(runnable);
+    }
+
+    public static void stopBackgroundTask() {
+        if (mHandler.hasMessages(0)) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    public static void updateNotif(String msg) {
+        if (notificationManager == null)
+            return;
+        notification.setContentText(msg);
+        notificationManager.notify(1002, notification.build());
     }
 
     @Override
@@ -82,20 +101,6 @@ public class BatteryService extends Service {
         stopBackgroundTask();
     }
 
-    public static void startBackgroundTask() {
-        if (mHandler.hasMessages(0))
-                return;
-
-        mHandler.sendEmptyMessage(0);
-        mHandler.post(runnable);
-    }
-
-    public static void stopBackgroundTask() {
-        if (mHandler.hasMessages(0)) {
-            mHandler.removeCallbacksAndMessages(null);
-        }
-    }
-
     private void buildNotif() {
         final String CHANNELID = "Batt";
         NotificationChannel channel = new NotificationChannel(
@@ -114,12 +119,5 @@ public class BatteryService extends Service {
                 .setOnlyAlertOnce(true);
 
         startForeground(1002, notification.build());
-    }
-
-    public static void updateNotif(String msg) {
-        if (notificationManager == null)
-            return;
-        notification.setContentText(msg);
-        notificationManager.notify(1002, notification.build());
     }
 }

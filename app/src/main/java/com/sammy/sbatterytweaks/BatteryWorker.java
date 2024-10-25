@@ -17,23 +17,23 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class BatteryWorker {
+    private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
     public static String chargingState, battTemp, fastChargeStatus;
     public static boolean isOngoing, idleEnabled, disableSync,
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
+    public static float thresholdTemp, tempDelta;
+    public static int battFullCap = 0, idleLevel;
+    static SimpleDateFormat sdf;
+    static Date currTime, start;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
             lvlSwitch, enableToast, isSchedEnabled;
-    public static float thresholdTemp, tempDelta;
     private static float cdSeconds;
-    public static int battFullCap = 0, idleLevel;
     private static int fastChargeEnabled;
     private static int startHour;
     private static int startMinute;
     private static int lvlThreshold;
     private static int duration;
     private static long cooldown;
-    static SimpleDateFormat sdf;
-    static Date currTime, start;
-    private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
 
     public static void batteryWorker(Context context, Boolean isCharging) {
         try {
@@ -47,7 +47,7 @@ public class BatteryWorker {
                     fastChargeStatus = context.getString(R.string.enabled) + " (siop - " + siopLevel + ")";
                     fastChargeEnabled = 1;
                 } else {
-                    fastChargeStatus = context.getString(R.string.disabled) + " (siop - " + siopLevel + ")" ;
+                    fastChargeStatus = context.getString(R.string.disabled) + " (siop - " + siopLevel + ")";
                     fastChargeEnabled = 0;
                 }
             } else fastChargeStatus = context.getString(R.string.not_supported);
@@ -161,8 +161,7 @@ public class BatteryWorker {
         }.start();
     }
 
-    private static void enableFastCharge(Context context, int enabled)
-    {
+    private static void enableFastCharge(Context context, int enabled) {
         try {
             String adaptiveFast =
                     Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging");
@@ -175,7 +174,7 @@ public class BatteryWorker {
             }
         } catch (Settings.SettingNotFoundException ignored) {
             if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
-                Utils.runCmd("echo " + (enabled == 1 ? 100:60) + " > " + siopFile);
+                Utils.runCmd("echo " + (enabled == 1 ? 100 : 60) + " > " + siopFile);
             }
         }
     }
@@ -199,25 +198,25 @@ public class BatteryWorker {
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.resumed), Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 0) {
-                enableFastCharge(context,1);
+                enableFastCharge(context, 1);
 
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.re_enabled), Toast.LENGTH_SHORT).show();
             }
         } else if (BatteryService.isBypassed()) {
             if (fastChargeEnabled == 0)
-                enableFastCharge(context,1);
+                enableFastCharge(context, 1);
         } else if (BatteryReceiver.mTemp >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
                 startTimer();
 
             if (pauseMode && !BatteryService.isBypassed()) {
-                setBypass(context, 1,false);
+                setBypass(context, 1, false);
 
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.paused), Toast.LENGTH_SHORT).show();
             } else if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
-                enableFastCharge(context,0);
+                enableFastCharge(context, 0);
 
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.fast_charging_disabled), Toast.LENGTH_SHORT).show();
