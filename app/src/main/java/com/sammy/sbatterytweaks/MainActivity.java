@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,16 +35,23 @@ import rikka.shizuku.Shizuku;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
-    private TextView chargingStatus, levelText, currentText, voltText, battTemperature, fastChgStatus,
-            bypassText, remainingCap;
+    private TextView chargingStatus;
+    private TextView levelText;
+    private TextView currentText;
+    private TextView voltText;
+    private TextView battTemperature;
+    private TextView fastChgStatus;
+    private TextView bypassText;
     private static SwitchCompat bypassToggle;
     static MultiWaveHeader multiWaveHeader;
     private AppCompatImageButton settingsButton;
     private Animation rotateAnimation;
-    private Handler handler = new Handler();
-    private Runnable runnable = new Runnable() {
+    private final Handler handler = new Handler();
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            BatteryManager manager = (BatteryManager) getApplicationContext().getSystemService(BATTERY_SERVICE);
+            int currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
             settingsButton.startAnimation(rotateAnimation);
             String lvlText, battPercent;
             battPercent = BatteryReceiver.mLevel + "%";
@@ -53,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 lvlText = "⚡" + battPercent;
 
             levelText.setText(lvlText);
-            currentText.setText(BatteryService.currentNow + "mA");
+            currentText.setText(currentNow + "mA");
             voltText.setText(BatteryReceiver.mVolt + "mV");
             battTemperature.setText(BatteryWorker.battTemp);
             if (BatteryReceiver.mTemp >= BatteryWorker.thresholdTemp)
@@ -145,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         levelText = findViewById(R.id.levelText);
         currentText = findViewById(R.id.currentText);
         voltText = findViewById(R.id.voltageText);
-        remainingCap = findViewById(R.id.remainingCap);
+        TextView remainingCap = findViewById(R.id.remainingCap);
 
         battTemperature = findViewById(R.id.tempText);
         fastChgStatus = findViewById(R.id.fastCharge);

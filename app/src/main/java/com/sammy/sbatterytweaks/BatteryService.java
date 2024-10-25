@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -17,7 +16,7 @@ public class BatteryService extends Service {
     static Notification.Builder notification;
     public static boolean manualBypass = true;
 
-    public static int currentNow, refreshInterval = 2500;
+    public static int refreshInterval = 2500;
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
 
     static Handler mHandler = new Handler();
@@ -58,12 +57,9 @@ public class BatteryService extends Service {
         registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
         registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
 
-        BatteryManager manager = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
         runnable = new Runnable() {
             @Override
             public void run() {
-                currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
-
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
 
