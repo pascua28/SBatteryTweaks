@@ -82,18 +82,6 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            if (idleSwitch.isEnabled()) {
-                idleSwitch.setOnPreferenceClickListener(v -> {
-                    BatteryWorker.setBypass(getContext(), 0, true);
-                    if (idleSwitch.isChecked()) {
-                        if (!BatteryWorker.pausePdSupported) {
-                            BatteryWorker.setBypass(sharedPreferences.getInt(PREF_IDLE_LEVEL, 75));
-                        }
-                    }
-                    return false;
-                });
-            }
-
             if (!Utils.isRooted()) {
                 if (resetSwitch != null) {
                     resetSwitch.setEnabled(false);
@@ -120,13 +108,8 @@ public class SettingsActivity extends AppCompatActivity {
                     BatteryWorker.isOngoing = false;
                 else if (key.equals(PREF_IDLE_LEVEL) &&
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
-                    if (!BatteryWorker.pausePdSupported && BatteryWorker.bypassSupported) {
-                        BatteryWorker.setBypass(sharedPreferences.getInt(PREF_IDLE_LEVEL, 75));
-                    }
-                    //Reset bypass state. BatteryService will change this anyway
-                    if (BatteryWorker.pausePdSupported) {
-                        BatteryWorker.setBypass(getContext(), 0, true);
-                    }
+                    /* Reset bypass state. BatteryService will change this anyway */
+                    BatteryWorker.setBypass(getContext(), 0, true);
                     BatteryService.manualBypass = false;
                 } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryService.manualBypass)
                     BatteryWorker.setBypass(getContext(), 0, false);

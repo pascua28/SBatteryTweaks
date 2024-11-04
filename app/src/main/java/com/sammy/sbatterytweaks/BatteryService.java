@@ -85,8 +85,8 @@ public class BatteryService extends Service {
                 BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
                 BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
 
-                if (!isBypassed() && BatteryWorker.pausePdSupported &&
-                        BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
+                if (!isBypassed() && BatteryWorker.idleEnabled &&
+                        BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
                     BatteryWorker.setBypass(context, 1, false);
                 }
                 mHandler.postDelayed(this, refreshInterval);
