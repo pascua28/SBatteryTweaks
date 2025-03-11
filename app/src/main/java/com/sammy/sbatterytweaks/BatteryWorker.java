@@ -81,7 +81,7 @@ public class BatteryWorker {
         if (bypassSupported)
             battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.fullCapFIle));
 
-        if (!BatteryService.manualBypass && isCharging)
+        if (isCharging)
             battWorker(context.getApplicationContext());
     }
 
@@ -89,14 +89,7 @@ public class BatteryWorker {
         Utils.runCmd("echo " + level + " > " + BatteryService.fullCapFIle);
     }
 
-    public static void setBypass(Context context, int bypass, Boolean isManual) {
-        BatteryService.manualBypass = isManual;
-
-        if (bypass == 0) {
-            // Allow overriding the toggle when turning it off.
-            BatteryService.manualBypass = false;
-        }
-
+    public static void setBypass(Context context, int bypass) {
         if (pausePdSupported) {
             Utils.changeSetting(context, "pass_through", bypass);
             return;
@@ -179,17 +172,13 @@ public class BatteryWorker {
         if (!serviceEnabled)
             return;
 
-        if (idleEnabled && !BatteryService.isBypassed() && BatteryReceiver.mLevel >= idleLevel) {
-            setBypass(context, 1, false);
-        } else if (idleEnabled && BatteryReceiver.mLevel >= idleLevel && BatteryService.isBypassed()) {
-            BatteryService.manualBypass = false;
-        } else if ((lvlSwitch && (BatteryReceiver.mLevel >= lvlThreshold)) ||
+        if ((lvlSwitch && (BatteryReceiver.mLevel >= lvlThreshold)) ||
                 (isSchedEnabled && isLazyTime())) {
             if (fastChargeEnabled == 1 && !BatteryService.isBypassed())
                 enableFastCharge(context, 0);
         } else if (((BatteryReceiver.mTemp <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
             if (pauseMode && BatteryService.isBypassed()) {
-                setBypass(context, 0, false);
+                setBypass(context, 0);
 
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.resumed), Toast.LENGTH_SHORT).show();
@@ -200,14 +189,13 @@ public class BatteryWorker {
                     Toast.makeText(context, context.getString(R.string.re_enabled), Toast.LENGTH_SHORT).show();
             }
         } else if (BatteryService.isBypassed()) {
-            if (fastChargeEnabled == 0)
                 enableFastCharge(context, 1);
         } else if (BatteryReceiver.mTemp >= thresholdTemp) {
             if (timerEnabled && !isOngoing)
                 startTimer();
 
             if (pauseMode && !BatteryService.isBypassed()) {
-                setBypass(context, 1, false);
+                setBypass(context, 1);
 
                 if (enableToast)
                     Toast.makeText(context, context.getString(R.string.paused), Toast.LENGTH_SHORT).show();

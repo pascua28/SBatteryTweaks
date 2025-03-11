@@ -77,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (pauseModeSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
-                    BatteryWorker.setBypass(getContext(), 0, true);
+                    BatteryWorker.setBypass(getContext(), 0);
                     return false;
                 });
             }
@@ -109,10 +109,9 @@ public class SettingsActivity extends AppCompatActivity {
                 else if (key.equals(PREF_IDLE_LEVEL) &&
                         (sharedPreferences.getInt(PREF_IDLE_LEVEL, 75) != BatteryWorker.battFullCap)) {
                     /* Reset bypass state. BatteryService will change this anyway */
-                    BatteryWorker.setBypass(getContext(), 0, true);
-                    BatteryService.manualBypass = false;
-                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed() && !BatteryService.manualBypass)
-                    BatteryWorker.setBypass(getContext(), 0, false);
+                    BatteryWorker.setBypass(getContext(), 0);
+                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed())
+                    BatteryWorker.setBypass(getContext(), 0);
             };
         }
 

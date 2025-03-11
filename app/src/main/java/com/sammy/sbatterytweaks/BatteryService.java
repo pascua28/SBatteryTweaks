@@ -13,7 +13,6 @@ import android.provider.Settings;
 
 public class BatteryService extends Service {
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
-    public static boolean manualBypass = true;
     public static int refreshInterval = 2500;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
@@ -82,13 +81,13 @@ public class BatteryService extends Service {
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
 
-                BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
-                BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
-
                 if (!isBypassed() && BatteryWorker.idleEnabled &&
                         BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
-                    BatteryWorker.setBypass(context, 1, false);
-                }
+                    BatteryWorker.setBypass(context, 1);
+                } else BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
+
+                BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
+
                 mHandler.postDelayed(this, refreshInterval);
             }
         };

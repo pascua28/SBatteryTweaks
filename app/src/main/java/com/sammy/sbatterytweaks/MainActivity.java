@@ -76,21 +76,6 @@ public class MainActivity extends AppCompatActivity {
 
             fastChgStatus.setText(BatteryWorker.fastChargeStatus);
             bypassToggle.setChecked(BatteryService.isBypassed());
-            if (bypassToggle.isChecked()) {
-                if (BatteryService.manualBypass) {
-                    bypassText.setText(R.string.idle_charging_user);
-                    if (!bypassToggle.isEnabled())
-                        bypassToggle.setEnabled(true);
-                } else {
-                    bypassText.setText(R.string.idle_charging_auto);
-                    if (bypassToggle.isEnabled())
-                        bypassToggle.setEnabled(false);
-                }
-            } else {
-                bypassText.setText(R.string.idle_charging_text);
-                if (!bypassToggle.isEnabled())
-                    bypassToggle.setEnabled(true);
-            }
             handler.postDelayed(this, BatteryService.refreshInterval);
         }
     };
@@ -201,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
         }
-        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1 : 0, true));
+        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1 : 0));
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
