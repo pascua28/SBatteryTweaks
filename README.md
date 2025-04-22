@@ -3,6 +3,9 @@
 # S Battery Tweaker
 A simple app to prolong battery longevity by limiting charge rate/suspending charge based on temperature.
 
+# Requirements
+Root access or Shizuku. If none of these are possible, see setup instruction below.
+
 # Setting up for OneUI 6.0+ (No root)
 Unfortunately since OneUI 6.0, we can no longer modify the fast charging settings. To workaround this, you may need to install [this app](https://github.com/gamemn02/Settings-Database-Provider/releases/download/v1.1/settings-database-provider-v1.1-cli.apk "this app") by running this adb command:
 ````
