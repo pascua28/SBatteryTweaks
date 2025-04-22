@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -75,6 +76,14 @@ public class BatteryService extends Service {
         registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
         registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("PROTECT_SETTING", Context.MODE_PRIVATE);
+        try {
+            sharedPreferences.edit().putInt("PROTECT_ENABLED",
+                    Settings.Global.getInt(context.getContentResolver(), "protect_battery")).apply();
+        } catch (Settings.SettingNotFoundException ignored) {
+            sharedPreferences.edit().putInt("PROTECT_ENABLED", -1).apply();
+        }
+
         runnable = new Runnable() {
             @Override
             public void run() {
@@ -84,6 +93,12 @@ public class BatteryService extends Service {
                 if (!isBypassed() && BatteryWorker.idleEnabled &&
                         BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
                     BatteryWorker.setBypass(context, 1);
+                } else if (isBypassed() && BatteryWorker.idleEnabled
+                        && BatteryReceiver.mLevel < BatteryWorker.idleLevel) {
+                    if (BatteryWorker.pausePdSupported) {
+                        Settings.Global.putInt(context.getContentResolver(), "protect_battery", 0);
+                        BatteryWorker.setBypass(context, 0);
+                    } else BatteryWorker.setBypass(BatteryWorker.idleLevel);
                 } else BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
 
                 BatteryWorker.updateStats(context, BatteryReceiver.isCharging());

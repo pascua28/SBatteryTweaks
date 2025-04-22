@@ -85,6 +85,18 @@ public class BatteryWorker {
             battWorker(context.getApplicationContext());
     }
 
+    private static int getDefaultBypass(Context context) {
+        int protectEnabled;
+        SharedPreferences sharedPreferences = context.getSharedPreferences("PROTECT_SETTING", Context.MODE_PRIVATE);
+        protectEnabled = sharedPreferences.getInt("PROTECT_ENABLED", -1);
+
+        if (protectEnabled == 1) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return 85;
+            } else return 80;
+        } else return 100;
+    }
+
     public static void setBypass(int level) {
         Utils.runCmd("echo " + level + " > " + BatteryService.fullCapFIle);
     }
@@ -99,19 +111,7 @@ public class BatteryWorker {
             setBypass(BatteryReceiver.mLevel);
             enableFastCharge(context, 1);
         } else {
-            int bypassVal = 0;
-            int protectEnabled;
-            try {
-                protectEnabled = Settings.Global.getInt(context.getContentResolver(), "protect_battery");
-            } catch (Settings.SettingNotFoundException ignored) {
-                protectEnabled = -1;
-            }
-            if (protectEnabled == 1) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    bypassVal = 85;
-                } else bypassVal = 80;
-            } else bypassVal = 100;
-            setBypass(bypassVal);
+            setBypass(getDefaultBypass(context));
         }
     }
 
