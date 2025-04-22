@@ -96,7 +96,7 @@ public class BatteryService extends Service {
                 } else if (isBypassed() && BatteryWorker.idleEnabled
                         && BatteryReceiver.mLevel < BatteryWorker.idleLevel) {
                     if (BatteryWorker.pausePdSupported) {
-                        Settings.Global.putInt(context.getContentResolver(), "protect_battery", 0);
+                        Utils.changeSetting(context, Utils.Namespace.GLOBAL, "protect_battery", 0);
                         BatteryWorker.setBypass(context, 0);
                     } else BatteryWorker.setBypass(BatteryWorker.idleLevel);
                 } else BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());

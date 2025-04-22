@@ -103,7 +103,7 @@ public class BatteryWorker {
 
     public static void setBypass(Context context, int bypass) {
         if (pausePdSupported) {
-            Utils.changeSetting(context, "pass_through", bypass);
+            Utils.changeSetting(context, Utils.Namespace.SYSTEM, "pass_through", bypass);
             return;
         }
 
@@ -158,7 +158,7 @@ public class BatteryWorker {
             if (adaptiveFast == null)
                 throw new Settings.SettingNotFoundException("Not found");
 
-            if (Utils.changeSetting(context, "adaptive_fast_charging", enabled) < 0) {
+            if (Utils.changeSetting(context, Utils.Namespace.SYSTEM, "adaptive_fast_charging", enabled) < 0) {
                 fastChargeStatus = fastChargeStatus + " (" + context.getString(R.string.toggle_failed) + ")";
             }
         } catch (Settings.SettingNotFoundException ignored) {

@@ -34,6 +34,10 @@ public class Utils {
         return false;
     }
 
+    public static boolean isShizuku() {
+        return shizukuCheckPermission();
+    }
+
     public static String runCmd(String commands) {
         if (isRooted()) {
             return ShellUtils.fastCmd(commands);
@@ -120,9 +124,28 @@ public class Utils {
         return false;
     }
 
-    public static int changeSetting(Context context, String setting, int value) {
+    public enum Namespace {
+        GLOBAL("global"),
+        SYSTEM("system");
+
+        private final String ns;
+
+        Namespace(String ns) {
+            this.ns = ns;
+        }
+
+        String getNs() {
+            return ns;
+        }
+    }
+
+    public static int changeSetting(Context context, Namespace namespace, String setting, int value) {
         try {
-            Settings.System.putInt(context.getContentResolver(), setting, value);
+            if (namespace == Namespace.SYSTEM) {
+                Settings.System.putInt(context.getContentResolver(), setting, value);
+            } else if (namespace == Namespace.GLOBAL) {
+                Settings.Global.putInt(context.getContentResolver(), setting, value);
+            }
             return 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,12 +155,12 @@ public class Utils {
                 ContentValues cv = new ContentValues(2);
                 cv.put("name", setting);
                 cv.put("value", value);
-                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/system"), cv);
+                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/" + namespace.getNs()), cv);
                 return 0;
             } catch (Exception f) {
                 f.printStackTrace();
-                if (isPrivileged()) {
-                    runCmd("settings put system " + setting + " " + value);
+                if (isPrivileged() || isShizuku()) {
+                    runCmd("settings put " + namespace.getNs() + " " + setting + " " + value);
                     return 0;
                 } else return -1;
             }
