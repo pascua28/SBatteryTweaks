@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class BatteryWorker {
-    private static final String siopFile = "/sys/class/power_supply/battery/siop_level";
+    private static final String afcDisableFile = "/sys/class/sec/switch/afc_disable";
     public static String chargingState, battTemp, fastChargeStatus;
     public static boolean isOngoing, idleEnabled, disableSync,
             autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
@@ -41,13 +41,13 @@ public class BatteryWorker {
             if (fastChargeEnabled == 1) fastChargeStatus = context.getString(R.string.enabled);
             else fastChargeStatus = context.getString(R.string.disabled);
         } catch (Settings.SettingNotFoundException e) {
-            if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
-                int siopLevel = Integer.parseInt(Utils.runCmd("cat " + siopFile));
-                if (siopLevel == 100) {
-                    fastChargeStatus = context.getString(R.string.enabled) + " (siop - " + siopLevel + ")";
+            if (Utils.isPrivileged() && Utils.runCmd("ls " + afcDisableFile).contains(afcDisableFile)) {
+                int afcDisabled = Integer.parseInt(Utils.runCmd("cat " + afcDisableFile));
+                if (afcDisabled == 0) {
+                    fastChargeStatus = context.getString(R.string.enabled);
                     fastChargeEnabled = 1;
-                } else {
-                    fastChargeStatus = context.getString(R.string.disabled) + " (siop - " + siopLevel + ")";
+                } else if (afcDisabled == 1) {
+                    fastChargeStatus = context.getString(R.string.disabled);
                     fastChargeEnabled = 0;
                 }
             } else fastChargeStatus = context.getString(R.string.not_supported);
@@ -162,8 +162,8 @@ public class BatteryWorker {
                 fastChargeStatus = fastChargeStatus + " (" + context.getString(R.string.toggle_failed) + ")";
             }
         } catch (Settings.SettingNotFoundException ignored) {
-            if (Utils.isPrivileged() && Utils.runCmd("ls " + siopFile).contains(siopFile)) {
-                Utils.runCmd("echo " + (enabled == 1 ? 100 : 60) + " > " + siopFile);
+            if (Utils.isPrivileged() && Utils.runCmd("ls " + afcDisableFile).contains(afcDisableFile)) {
+                Utils.runCmd("echo " + (enabled == 1 ? 0 : 1) + " > " + afcDisableFile);
             }
         }
     }
