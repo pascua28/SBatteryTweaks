@@ -103,13 +103,23 @@ public class BatteryWorker {
 
     public static void setBypass(Context context, int bypass) {
         if (pausePdSupported) {
+            if (bypass == 1) {
+                enableFastCharge(context, 1);
+
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             Utils.changeSetting(context, Utils.Namespace.SYSTEM, "pass_through", bypass);
             return;
         }
 
         if (bypass == 1) {
-            setBypass(BatteryReceiver.mLevel);
             enableFastCharge(context, 1);
+            setBypass(BatteryReceiver.mLevel);
         } else {
             setBypass(getDefaultBypass(context));
         }
@@ -168,43 +178,71 @@ public class BatteryWorker {
         }
     }
 
+    private static boolean shouldStopFastCharge() {
+        if (pauseMode)
+            return false;
+
+        return (lvlSwitch && BatteryReceiver.mLevel >= lvlThreshold) ||
+                (isSchedEnabled && isLazyTime());
+    }
+
+    private static boolean shouldStartFastCharge() {
+        if (pauseMode)
+            return false;
+
+        return BatteryReceiver.mTemp <= (thresholdTemp - tempDelta) ||
+                (isOngoing && !shouldCoolDown);
+    }
+
+    private static void stopFastCharge(Context context) {
+        if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
+            enableFastCharge(context, 0);
+        }
+    }
+
+    private static void resumeFastCharge(Context context) {
+        if (pauseMode && BatteryService.isBypassed()) {
+            setBypass(context, 0);
+            toast(context, R.string.resumed);
+        } else if (fastChargeEnabled == 0) {
+            enableFastCharge(context, 1);
+            toast(context, R.string.re_enabled);
+        }
+    }
+
+    private static void handleOverheat(Context context) {
+        if (timerEnabled && !isOngoing) startTimer();
+
+        if (pauseMode && !BatteryService.isBypassed()) {
+            setBypass(context, 1);
+            toast(context, R.string.paused);
+        } else if (!pauseMode && fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
+            enableFastCharge(context, 0);
+            toast(context, R.string.fast_charging_disabled);
+        }
+    }
+
+    private static void toast(Context context, int resId) {
+        if (enableToast) {
+            Toast.makeText(context, context.getString(resId), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private static void battWorker(Context context) {
-        if (!serviceEnabled)
+        if (!serviceEnabled) return;
+
+        if (shouldStopFastCharge()) {
+            stopFastCharge(context);
             return;
+        }
 
-        if ((lvlSwitch && (BatteryReceiver.mLevel >= lvlThreshold)) ||
-                (isSchedEnabled && isLazyTime())) {
-            if (fastChargeEnabled == 1 && !BatteryService.isBypassed())
-                enableFastCharge(context, 0);
-        } else if (((BatteryReceiver.mTemp <= (thresholdTemp - tempDelta)) || (isOngoing && !shouldCoolDown))) {
-            if (pauseMode && BatteryService.isBypassed()) {
-                setBypass(context, 0);
+        if (shouldStartFastCharge()) {
+            resumeFastCharge(context);
+            return;
+        }
 
-                if (enableToast)
-                    Toast.makeText(context, context.getString(R.string.resumed), Toast.LENGTH_SHORT).show();
-            } else if (fastChargeEnabled == 0) {
-                enableFastCharge(context, 1);
-
-                if (enableToast)
-                    Toast.makeText(context, context.getString(R.string.re_enabled), Toast.LENGTH_SHORT).show();
-            }
-        } else if (BatteryService.isBypassed()) {
-                enableFastCharge(context, 1);
-        } else if (BatteryReceiver.mTemp >= thresholdTemp) {
-            if (timerEnabled && !isOngoing)
-                startTimer();
-
-            if (pauseMode && !BatteryService.isBypassed()) {
-                setBypass(context, 1);
-
-                if (enableToast)
-                    Toast.makeText(context, context.getString(R.string.paused), Toast.LENGTH_SHORT).show();
-            } else if (fastChargeEnabled == 1 && !BatteryService.isBypassed()) {
-                enableFastCharge(context, 0);
-
-                if (enableToast)
-                    Toast.makeText(context, context.getString(R.string.fast_charging_disabled), Toast.LENGTH_SHORT).show();
-            }
+        if (BatteryReceiver.mTemp >= thresholdTemp) {
+            handleOverheat(context);
         }
     }
 
