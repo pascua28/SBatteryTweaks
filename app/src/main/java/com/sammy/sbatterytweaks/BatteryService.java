@@ -87,9 +87,6 @@ public class BatteryService extends Service {
         runnable = new Runnable() {
             @Override
             public void run() {
-                if (BatteryWorker.bypassSupported)
-                    BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
-
                 BatteryWorker.fetchUpdates(context);
 
                 if (!isBypassed() && BatteryWorker.idleEnabled &&

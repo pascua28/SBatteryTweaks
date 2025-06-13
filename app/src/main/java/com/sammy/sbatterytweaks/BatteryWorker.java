@@ -77,6 +77,9 @@ public class BatteryWorker {
         startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
+
+        if (bypassSupported)
+            battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.fullCapFIle));
     }
 
     public static void batteryWorker(Context context, Boolean isCharging) {
