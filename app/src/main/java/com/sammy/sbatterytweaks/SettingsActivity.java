@@ -103,13 +103,15 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             listener = (sharedPreferences, key) -> {
-                assert key != null;
-                if (key.equals(KEY_PREF_TIMER_SWITCH) && !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false))
+                if (key == null) return;
+
+                if (key.equals(KEY_PREF_TIMER_SWITCH) &&
+                        !sharedPreferences.getBoolean(KEY_PREF_TIMER_SWITCH, false))
                     BatteryWorker.isOngoing = false;
-                else if (key.equals(PREF_IDLE_LEVEL)) {
-                    BatteryWorker.setBypass(getContext(), sharedPreferences.getInt(PREF_IDLE_LEVEL, 75));
-                } else if (key.equals(PREF_IDLE_SWITCH) && BatteryService.isBypassed())
+
+                if (key.equals(PREF_IDLE_LEVEL) || key.equals(PREF_IDLE_SWITCH)) {
                     BatteryWorker.setBypass(getContext(), 0);
+                }
             };
         }
 

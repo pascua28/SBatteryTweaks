@@ -90,6 +90,8 @@ public class BatteryService extends Service {
                 if (BatteryWorker.bypassSupported)
                     BatteryWorker.battFullCap = Integer.parseInt(Utils.runCmd("cat " + fullCapFIle));
 
+                BatteryWorker.fetchUpdates(context);
+
                 if (!isBypassed() && BatteryWorker.idleEnabled &&
                         BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
                     BatteryWorker.setBypass(context, 1);

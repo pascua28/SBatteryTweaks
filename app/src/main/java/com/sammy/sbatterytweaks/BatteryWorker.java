@@ -35,7 +35,7 @@ public class BatteryWorker {
     private static int duration;
     private static long cooldown;
 
-    public static void batteryWorker(Context context, Boolean isCharging) {
+    public static void fetchUpdates(Context context) {
         try {
             fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
             if (fastChargeEnabled == 1) fastChargeStatus = context.getString(R.string.enabled);
@@ -77,10 +77,9 @@ public class BatteryWorker {
         startHour = timePref.getInt(TimePicker.PREF_START_HOUR, 22);
         startMinute = timePref.getInt(TimePicker.PREF_START_MINUTE, 0);
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
+    }
 
-        if (bypassSupported)
-            battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.fullCapFIle));
-
+    public static void batteryWorker(Context context, Boolean isCharging) {
         if (isCharging)
             battWorker(context.getApplicationContext());
     }
