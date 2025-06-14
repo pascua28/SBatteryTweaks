@@ -131,7 +131,7 @@ public class BatteryService extends Service {
         notificationManager.createNotificationChannel(channel);
 
         notification = new Notification.Builder(this, CHANNELID).setOngoing(true)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_monochrome)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setOnlyAlertOnce(true);
 
