@@ -21,6 +21,8 @@ public class BatteryService extends Service {
     static Runnable runnable;
     private Context context;
 
+    public static boolean manualBypass;
+
     public static boolean isBypassed() {
         return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
                 BatteryWorker.pausePdSupported &&
@@ -88,6 +90,10 @@ public class BatteryService extends Service {
             @Override
             public void run() {
                 BatteryWorker.fetchUpdates(context);
+                BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
+
+                if (manualBypass)
+                    return;
 
                 if (!isBypassed() && BatteryWorker.idleEnabled &&
                         BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
@@ -99,8 +105,6 @@ public class BatteryService extends Service {
                         BatteryWorker.setBypass(context, 0);
                     } else BatteryWorker.setBypass(BatteryWorker.idleLevel);
                 } else BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging());
-
-                BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
 
                 mHandler.postDelayed(this, refreshInterval);
             }

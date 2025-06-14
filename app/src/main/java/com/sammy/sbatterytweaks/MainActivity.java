@@ -186,7 +186,11 @@ public class MainActivity extends AppCompatActivity {
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
             idleCard.setVisibility(View.VISIBLE);
         }
-        bypassToggle.setOnClickListener(v -> BatteryWorker.setBypass(getApplicationContext(), bypassToggle.isChecked() ? 1 : 0));
+        bypassToggle.setOnClickListener(v -> {
+            boolean checked = bypassToggle.isChecked();
+            BatteryService.manualBypass = checked;
+            BatteryWorker.setBypass(getApplicationContext(), checked ? 1 : 0);
+        });
 
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
