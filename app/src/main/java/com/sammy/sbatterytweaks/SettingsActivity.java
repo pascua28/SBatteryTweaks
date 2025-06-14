@@ -110,7 +110,8 @@ public class SettingsActivity extends AppCompatActivity {
                     BatteryWorker.isOngoing = false;
 
                 if (key.equals(PREF_IDLE_LEVEL) || key.equals(PREF_IDLE_SWITCH)) {
-                    BatteryWorker.setBypass(getContext(), 0);
+                    if (!BatteryService.manualBypass)
+                        BatteryWorker.setBypass(getContext(), 0);
                 }
             };
         }
