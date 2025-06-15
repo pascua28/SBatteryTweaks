@@ -20,12 +20,12 @@ public class BatteryWorker {
     private static final String afcDisableFile = "/sys/class/sec/switch/afc_disable";
     public static String chargingState, battTemp, fastChargeStatus;
     public static boolean isOngoing, idleEnabled, disableSync,
-            autoReset, bypassSupported, pausePdSupported, pausePdEnabled;
+            autoReset, bypassSupported, pausePdSupported, pausePdEnabled, pauseMode;
     public static float thresholdTemp, tempDelta;
     public static int battFullCap = 0, idleLevel;
     static SimpleDateFormat sdf;
     static Date currTime, start;
-    private static boolean serviceEnabled, timerEnabled, shouldCoolDown, pauseMode,
+    private static boolean serviceEnabled, timerEnabled, shouldCoolDown,
             lvlSwitch, enableToast, isSchedEnabled;
     private static float cdSeconds;
     private static int fastChargeEnabled;
@@ -181,17 +181,11 @@ public class BatteryWorker {
     }
 
     private static boolean shouldStopFastCharge() {
-        if (pauseMode)
-            return false;
-
         return (lvlSwitch && BatteryReceiver.mLevel >= lvlThreshold) ||
                 (isSchedEnabled && isLazyTime());
     }
 
     private static boolean shouldStartFastCharge() {
-        if (pauseMode)
-            return false;
-
         return BatteryReceiver.mTemp <= (thresholdTemp - tempDelta) ||
                 (isOngoing && !shouldCoolDown);
     }
