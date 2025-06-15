@@ -36,6 +36,9 @@ public class BatteryReceiver extends BroadcastReceiver {
         mStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
+        BatteryWorker.fetchUpdates(context);
+        BatteryWorker.updateStats(context, isCharging());
+
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(true);
