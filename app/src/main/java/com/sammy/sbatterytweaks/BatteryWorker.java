@@ -116,6 +116,8 @@ public class BatteryWorker {
             }
 
             Utils.changeSetting(context, Utils.Namespace.SYSTEM, "pass_through", bypass);
+
+            BatteryService.isBypassed = bypass;
             return;
         }
 

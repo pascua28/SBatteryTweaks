@@ -50,6 +50,11 @@ public class BatteryReceiver extends BroadcastReceiver {
                     ShellUtils.fastCmd("rm " + statsFile);
             }
 
+            if (BatteryService.isBypassed == 1) {
+                BatteryWorker.setBypass(context, 0);
+                BatteryService.manualBypass = false;
+            }
+
             if (!MainActivity.isRunning) {
                 BatteryService.stopBackgroundTask();
             }

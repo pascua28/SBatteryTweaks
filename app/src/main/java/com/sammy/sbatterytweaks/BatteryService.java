@@ -14,7 +14,7 @@ import android.provider.Settings;
 
 public class BatteryService extends Service {
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
-    public static int refreshInterval = 2500;
+    public static int refreshInterval = 2500, isBypassed;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
     static Handler mHandler = new Handler();
