@@ -40,7 +40,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        Boolean drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
+        boolean drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
 
         mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
@@ -52,10 +52,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         BatteryWorker.updateStats(context, isCharging());
 
         if (drainMonitorEnabled) {
-            BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-            int mCounter = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
-
-            DrainMonitor.handleBatteryChange(mCounter, ratedCapacity, isCharging());
+            DrainMonitor.handleBatteryChange(context, ratedCapacity, isCharging());
         }
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {

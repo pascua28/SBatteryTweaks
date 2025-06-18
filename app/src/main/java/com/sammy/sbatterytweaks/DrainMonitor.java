@@ -1,5 +1,7 @@
 package com.sammy.sbatterytweaks;
 
+import android.content.Context;
+import android.os.BatteryManager;
 import android.os.SystemClock;
 
 public class DrainMonitor {
@@ -32,11 +34,11 @@ public class DrainMonitor {
         return (float) (Math.round(value * 100) / 100.0);
     }
 
-    public static void handleBatteryChange(int counter,
+    public static void handleBatteryChange(Context context,
                                            int ratedCapacity, boolean chargingStatus) {
-        if (counter < 0) return;
+        if (getCounter(context) < 0) return;
 
-        batteryPct = ((counter / 1000f) / ratedCapacity) * 100;
+        batteryPct = ((getCounter(context) / 1000f) / ratedCapacity) * 100;
         boolean wasCharging = isCharging;
         isCharging = chargingStatus;
 
@@ -141,5 +143,10 @@ public class DrainMonitor {
         screenOnCount = 0;
         screenOffCount = 0;
         ignoreNextDrop = false;
+    }
+
+    private static int getCounter(Context context) {
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
     }
 }
