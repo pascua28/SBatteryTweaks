@@ -190,6 +190,9 @@ public class MainActivity extends AppCompatActivity {
             boolean checked = bypassToggle.isChecked();
             BatteryService.manualBypass = checked;
             BatteryWorker.setBypass(getApplicationContext(), checked ? 1 : 0);
+            BatteryWorker.fetchUpdates(getApplicationContext());
+            BatteryWorker.updateStats(getApplicationContext(), BatteryReceiver.isCharging());
+            updateUI(true);
         });
 
         settingsButton.setOnClickListener(v -> {
