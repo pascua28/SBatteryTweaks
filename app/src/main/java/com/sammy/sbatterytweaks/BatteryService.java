@@ -12,6 +12,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 
+import androidx.core.app.NotificationCompat;
+
 public class BatteryService extends Service {
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
     public static int refreshInterval = 2500, isBypassed;
@@ -43,10 +45,16 @@ public class BatteryService extends Service {
         }
     }
 
-    public static void updateNotif(String msg) {
+    public static void updateNotif(String msg, String msg2, String msg3) {
         if (notificationManager == null)
             return;
-        notification.setContentText(msg);
+
+        notification.setContentTitle(msg)
+                        .setStyle(
+                                new Notification.InboxStyle()
+                                        .addLine(msg2)
+                                        .addLine(msg3)
+                        );
         notificationManager.notify(1002, notification.build());
     }
 
@@ -77,6 +85,10 @@ public class BatteryService extends Service {
         IntentFilter ACTION_POWER_DISCONNECTED = new IntentFilter("android.intent.action.ACTION_POWER_DISCONNECTED");
         registerReceiver(new BatteryReceiver(), ACTION_POWER_CONNECTED);
         registerReceiver(new BatteryReceiver(), ACTION_POWER_DISCONNECTED);
+
+        ScreenReceiver screenReceiver = new ScreenReceiver();
+        registerReceiver(screenReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+        registerReceiver(screenReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("PROTECT_SETTING", Context.MODE_PRIVATE);
         try {

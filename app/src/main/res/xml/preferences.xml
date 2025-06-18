@@ -13,6 +13,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/drain_monitor_service_pref">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="drainmonitor"
+            app:singleLineTitle="false"
+            app:summary="@string/drain_monitor_service_summary"
+            app:title="@string/drain_monitor_service_title" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/cooldown_method_pref">
     <SwitchPreferenceCompat
         android:dependency="enableservice"

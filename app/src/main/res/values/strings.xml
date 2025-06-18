@@ -32,6 +32,8 @@
 
     <!-- Notification -->
     <string name="temperature_title">"Temperature: "</string>
+    <string name="active_drain">Active drain: %1$.2f%%/hr</string>
+    <string name="idle_drain">Idle drain: %1$.2f%%/hr</string>
 
     <!-- Toast notifications -->
     <string name="restart_granted">Shizuku granted. Please restart.</string>
@@ -45,6 +47,10 @@
     <string name="monitor_service_pref">Battery Monitor Service</string>
     <string name="monitor_service_title">Enable Service</string>
     <string name="monitor_service_summary">If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures</string>
+    <!-- Battery drain monitor service -->
+    <string name="drain_monitor_service_pref">Battery Drain Monitor (Experimental)</string>
+    <string name="drain_monitor_service_title">Enable Battery Drain Monitoring</string>
+    <string name="drain_monitor_service_summary">Show a notification of active and idle drain in percentage per hour.</string>
     <!-- Cooldown method -->
     <string name="cooldown_method_pref">Cooldown method</string>
     <string name="bypass_charging_title">Bypass charging mode</string>

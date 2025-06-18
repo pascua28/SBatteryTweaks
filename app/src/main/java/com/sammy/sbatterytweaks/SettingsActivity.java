@@ -18,6 +18,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static final String
             KEY_PREF_SERVICE = "enableservice",
+            KEY_PREF_DRAIN_MONITOR = "drainmonitor",
             KEY_PREF_THRESHOLD_UP = "thresholdUp",
             KEY_PREF_TEMP_DELTA = "tempDelta",
             KEY_PREF_BYPASS_MODE = "pauseMode",
