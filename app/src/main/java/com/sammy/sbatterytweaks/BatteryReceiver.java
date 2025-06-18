@@ -38,9 +38,6 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (ratedCapacity == 0)
             ratedCapacity = Utils.getActualCapacity(context);
 
-        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        int mCounter = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
-
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
         Boolean drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
@@ -54,8 +51,12 @@ public class BatteryReceiver extends BroadcastReceiver {
         BatteryWorker.fetchUpdates(context);
         BatteryWorker.updateStats(context, isCharging());
 
-        if (drainMonitorEnabled)
+        if (drainMonitorEnabled) {
+            BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+            int mCounter = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+
             DrainMonitor.handleBatteryChange(mCounter, ratedCapacity, isCharging());
+        }
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
