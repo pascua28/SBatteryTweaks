@@ -16,6 +16,7 @@ import java.io.File;
 public class BatteryReceiver extends BroadcastReceiver {
     public static int mLevel, mVolt, ratedCapacity = 0;
     public static float mTemp;
+    public static boolean drainMonitorEnabled = false;
     private static int mPlugged, mStatus;
     private final File statsFile = new File("/data/system/batterystats.bin");
 
@@ -40,7 +41,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        boolean drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
+        drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
 
         mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
@@ -86,7 +87,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (isCharging() || !drainMonitorEnabled) {
             activeDrain = "";
             idleDrain = "";
-        } else if (drainMonitorEnabled) {
+        } else {
             if (DrainMonitor.getScreenOnDrainRate() > 0.0f)
                 activeDrain = context.getString(R.string.active_drain, DrainMonitor.getScreenOnDrainRate());
 

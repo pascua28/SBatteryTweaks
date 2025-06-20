@@ -20,8 +20,6 @@ public class DrainMonitor {
     private static boolean initialDropHandled = false;
     private static boolean isCharging = false;
 
-    private static final float DROP_THRESHOLD = 0.1f;
-
     public static float getScreenOnDrainRate() {
         return round(screenOnDrainRate);
     }
@@ -76,43 +74,41 @@ public class DrainMonitor {
                 return;
             }
 
-            if (pctDropped >= DROP_THRESHOLD) {
-                long now = SystemClock.elapsedRealtime();
-                long timeElapsed = now - lastUpdateTime;
+            long now = SystemClock.elapsedRealtime();
+            long timeElapsed = now - lastUpdateTime;
 
-                if (timeElapsed > 0 && initialDropHandled) {
-                    float hoursElapsed = timeElapsed / (1000f * 60f * 60f);
-                    float currentDrainRate = pctDropped / hoursElapsed;
+            if (timeElapsed > 0 && initialDropHandled) {
+                float hoursElapsed = timeElapsed / (1000f * 60f * 60f);
+                float currentDrainRate = pctDropped / hoursElapsed;
 
-                    if (averageCount == 0) {
-                        averageDrainRate = currentDrainRate;
-                    } else {
-                        averageDrainRate = (averageDrainRate * averageCount + currentDrainRate) / (averageCount + 1);
-                    }
-                    averageCount++;
-
-                    if (screenOn) {
-                        if (screenOnCount == 0) {
-                            screenOnDrainRate = currentDrainRate;
-                        } else {
-                            screenOnDrainRate = (screenOnDrainRate * screenOnCount + currentDrainRate) / (screenOnCount + 1);
-                        }
-                        screenOnCount++;
-                    } else {
-                        if (screenOffCount == 0) {
-                            screenOffDrainRate = currentDrainRate;
-                        } else {
-                            screenOffDrainRate = (screenOffDrainRate * screenOffCount + currentDrainRate) / (screenOffCount + 1);
-                        }
-                        screenOffCount++;
-                    }
+                if (averageCount == 0) {
+                    averageDrainRate = currentDrainRate;
+                } else {
+                    averageDrainRate = (averageDrainRate * averageCount + currentDrainRate) / (averageCount + 1);
                 }
+                averageCount++;
 
-                lastBatteryLevel = batteryPct;
-                lastValidLevel = batteryPct;
-                lastUpdateTime = now;
-                initialDropHandled = true;
+                if (screenOn) {
+                    if (screenOnCount == 0) {
+                        screenOnDrainRate = currentDrainRate;
+                    } else {
+                        screenOnDrainRate = (screenOnDrainRate * screenOnCount + currentDrainRate) / (screenOnCount + 1);
+                    }
+                    screenOnCount++;
+                } else {
+                    if (screenOffCount == 0) {
+                        screenOffDrainRate = currentDrainRate;
+                    } else {
+                        screenOffDrainRate = (screenOffDrainRate * screenOffCount + currentDrainRate) / (screenOffCount + 1);
+                    }
+                    screenOffCount++;
+                }
             }
+
+            lastBatteryLevel = batteryPct;
+            lastValidLevel = batteryPct;
+            lastUpdateTime = now;
+            initialDropHandled = true;
         } else if (batteryPct > lastBatteryLevel) {
             resetStats();
             lastBatteryLevel = batteryPct;
