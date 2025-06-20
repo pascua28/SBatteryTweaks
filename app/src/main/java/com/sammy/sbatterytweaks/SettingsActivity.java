@@ -68,7 +68,15 @@ public class SettingsActivity extends AppCompatActivity {
             assert idleSwitch != null;
             idleSwitch.setEnabled(false);
             SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+
+            SwitchPreferenceCompat drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
+            if (!drainMonitorSwitch.isEnabled()) {
+                pauseModeSwitch.setOnPreferenceClickListener(v -> {
+                    DrainMonitor.resetStats();
+                    return false;
+                });
+            }
+
 
             if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
                 pauseModeSwitch.setEnabled(true);

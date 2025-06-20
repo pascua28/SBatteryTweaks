@@ -127,7 +127,7 @@ public class DrainMonitor {
         }
     }
 
-    private static void resetStats() {
+    public static void resetStats() {
         lastBatteryLevel = -1;
         lastValidLevel = -1;
         lastUpdateTime = 0;
