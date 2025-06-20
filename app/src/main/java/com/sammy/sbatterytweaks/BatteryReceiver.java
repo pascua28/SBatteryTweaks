@@ -14,7 +14,7 @@ import com.topjohnwu.superuser.ShellUtils;
 import java.io.File;
 
 public class BatteryReceiver extends BroadcastReceiver {
-    public static int mLevel, mVolt, ratedCapacity = 0;
+    public static int mLevel, mVolt, divisor = -1;
     public static float mTemp;
     public static boolean drainMonitorEnabled = false;
     private static int mPlugged, mStatus;
@@ -36,9 +36,6 @@ public class BatteryReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (ratedCapacity == 0)
-            ratedCapacity = Utils.getActualCapacity(context);
-
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(context);
         drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
@@ -53,7 +50,10 @@ public class BatteryReceiver extends BroadcastReceiver {
         BatteryWorker.updateStats(context, isCharging());
 
         if (drainMonitorEnabled) {
-            DrainMonitor.handleBatteryChange(context, ratedCapacity, isCharging());
+            if (divisor <= 0)
+                divisor = getDivisor(context);
+
+            DrainMonitor.handleBatteryChange(divisor, getCounter(context), isCharging());
         }
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
@@ -101,5 +101,33 @@ public class BatteryReceiver extends BroadcastReceiver {
 
     private float getTemp() {
         return mTemp;
+    }
+
+    public static int getCounter(Context context) {
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+    }
+
+    private static int getDivisor(Context context) {
+        int batteryLevel = BatteryReceiver.mLevel;
+        int counter = getCounter(context);
+
+        int lowerBound = counter / (batteryLevel + 1) / 10;
+        int upperBound = counter / batteryLevel / 10;
+
+        int bestDivisor = 0;
+        int lowestDigitCount = Integer.MAX_VALUE;
+
+        for (int testDivisor = lowerBound; testDivisor <= upperBound; testDivisor++) {
+            float testValue = counter / (testDivisor * 10.0f);
+            int digitCount = String.valueOf(testValue).length();
+
+            if (digitCount < lowestDigitCount) {
+                lowestDigitCount = digitCount;
+                bestDivisor = testDivisor;
+            }
+        }
+
+        return bestDivisor;
     }
 }
