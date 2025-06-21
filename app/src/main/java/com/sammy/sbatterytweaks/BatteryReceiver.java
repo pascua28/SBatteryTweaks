@@ -51,7 +51,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         if (drainMonitorEnabled) {
             if (divisor <= 0)
-                divisor = getDivisor(context);
+                divisor = getStableDivisor(context);
 
             DrainMonitor.handleBatteryChange(divisor, getCounter(context), isCharging());
         }
@@ -129,5 +129,34 @@ public class BatteryReceiver extends BroadcastReceiver {
         }
 
         return bestDivisor;
+    }
+
+    private static int getStableDivisor(Context context) {
+        int consecutiveMatches = 0;
+        int lastDivisor = -1;
+        int currentDivisor;
+        int maxIterations = 100;
+        int iterations = 0;
+
+        while (consecutiveMatches < 3 && iterations < maxIterations) {
+            iterations++;
+            currentDivisor = getDivisor(context);
+
+            if (currentDivisor == lastDivisor) {
+                consecutiveMatches++;
+            } else {
+                consecutiveMatches = 1;
+                lastDivisor = currentDivisor;
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        return lastDivisor;
     }
 }
