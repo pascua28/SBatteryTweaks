@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 public class BatteryService extends Service {
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
     public static int refreshInterval = 2500, isBypassed;
+    public static float batteryPct;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
     static Handler mHandler = new Handler();
@@ -103,6 +104,8 @@ public class BatteryService extends Service {
             public void run() {
                 BatteryWorker.fetchUpdates(context);
                 BatteryWorker.updateStats(context, BatteryReceiver.isCharging());
+
+                batteryPct = ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100;
 
                 if (manualBypass)
                     return;

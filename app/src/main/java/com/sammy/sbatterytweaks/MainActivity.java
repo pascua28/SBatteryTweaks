@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             int currentNow = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
             settingsButton.startAnimation(rotateAnimation);
             String lvlText, battPercent;
-            battPercent = BatteryReceiver.mLevel + "%";
+            battPercent = String.format(Locale.getDefault(), "%.1f", BatteryService.batteryPct) + "%";
             lvlText = battPercent;
             chargingStatus.setText(BatteryWorker.chargingState);
             if (BatteryReceiver.isCharging())

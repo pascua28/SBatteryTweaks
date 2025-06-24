@@ -49,12 +49,11 @@ public class BatteryReceiver extends BroadcastReceiver {
         BatteryWorker.fetchUpdates(context);
         BatteryWorker.updateStats(context, isCharging());
 
-        if (drainMonitorEnabled) {
-            if (divisor <= 0)
-                divisor = getStableDivisor(context);
+        if (divisor <= 0)
+            divisor = getStableDivisor(context);
 
+        if (drainMonitorEnabled)
             DrainMonitor.handleBatteryChange(divisor, getCounter(context), isCharging());
-        }
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
