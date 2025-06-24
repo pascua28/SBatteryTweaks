@@ -12,12 +12,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 
-import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 public class BatteryService extends Service {
     public static final String fullCapFIle = "/sys/class/power_supply/battery/batt_full_capacity";
     public static int refreshInterval = 2500, isBypassed;
     public static float batteryPct;
+    public static boolean drainMonitorEnabled = false;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
     static Handler mHandler = new Handler();
@@ -109,6 +110,29 @@ public class BatteryService extends Service {
 
                 if (manualBypass)
                     return;
+
+                SharedPreferences sharedPref =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
+
+                if (drainMonitorEnabled && !BatteryReceiver.isCharging()) {
+                    DrainMonitor.handleBatteryChange(BatteryReceiver.divisor, BatteryReceiver.getCounter(context),
+                            BatteryReceiver.isCharging());
+
+                    String activeDrain = "", idleDrain = "";
+
+                    if (DrainMonitor.getScreenOnDrainRate() > 0.0f)
+                        activeDrain = context.getString(R.string.active_drain, DrainMonitor.getScreenOnDrainRate());
+
+                    if (DrainMonitor.getScreenOffDrainRate() > 0.0f)
+                        idleDrain = context.getString(R.string.idle_drain, DrainMonitor.getScreenOffDrainRate());
+
+                    updateNotif(context.getString(R.string.temperature_title) + BatteryReceiver.mTemp + " °C",
+                        activeDrain, idleDrain);
+
+                    mHandler.postDelayed(this, refreshInterval);
+                    return;
+                }
 
                 if (!isBypassed() && BatteryWorker.idleEnabled &&
                         BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {

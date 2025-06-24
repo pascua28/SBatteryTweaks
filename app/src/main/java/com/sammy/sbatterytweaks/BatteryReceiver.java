@@ -16,7 +16,6 @@ import java.io.File;
 public class BatteryReceiver extends BroadcastReceiver {
     public static int mLevel, mVolt, divisor = -1;
     public static float mTemp;
-    public static boolean drainMonitorEnabled = false;
     private static int mPlugged, mStatus;
     private final File statsFile = new File("/data/system/batterystats.bin");
 
@@ -36,10 +35,6 @@ public class BatteryReceiver extends BroadcastReceiver {
             return;
         }
 
-        SharedPreferences sharedPref =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
-
         mTemp = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10);
         mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
         mPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
@@ -52,8 +47,6 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (divisor <= 0)
             divisor = getStableDivisor(context);
 
-        if (drainMonitorEnabled)
-            DrainMonitor.handleBatteryChange(divisor, getCounter(context), isCharging());
 
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
@@ -74,7 +67,7 @@ public class BatteryReceiver extends BroadcastReceiver {
                 BatteryService.manualBypass = false;
             }
 
-            if (!MainActivity.isRunning) {
+            if (!MainActivity.isRunning && !BatteryService.drainMonitorEnabled) {
                 BatteryService.stopBackgroundTask();
             }
         }
@@ -83,7 +76,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             MainActivity.updateWaves(mLevel);
         }
 
-        if (isCharging() || !drainMonitorEnabled) {
+        if (isCharging() || !BatteryService.drainMonitorEnabled) {
             activeDrain = "";
             idleDrain = "";
         } else {
