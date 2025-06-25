@@ -93,7 +93,7 @@ class BatteryService : Service() {
     companion object {
         const val fullCapFIle: String = "/sys/class/power_supply/battery/batt_full_capacity"
         @JvmField
-        var refreshInterval: Int = 2500
+        var refreshInterval: Long = 2500
         @JvmField
         var isBypassed: Int = 0
         @JvmField
@@ -131,7 +131,7 @@ class BatteryService : Service() {
                             BatteryReceiver.isCharging()
                         )
 
-                        delay(refreshInterval.toLong())
+                        delay(refreshInterval)
                         continue
                     }
 
@@ -150,7 +150,7 @@ class BatteryService : Service() {
                         BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
                     }
 
-                    delay(refreshInterval.toLong())
+                    delay(refreshInterval)
                 }
             }
         }
