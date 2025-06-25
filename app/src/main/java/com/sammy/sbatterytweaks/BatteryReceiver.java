@@ -106,7 +106,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(true);
 
-            BatteryService.startBackgroundTask();
+            BatteryService.startBackgroundTask(context);
         } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
             if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
                 ContentResolver.setMasterSyncAutomatically(false);

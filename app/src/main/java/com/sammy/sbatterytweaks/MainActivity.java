@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
         multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
-        BatteryService.startBackgroundTask();
+        BatteryService.startBackgroundTask(this);
         updateUI(true);
     }
 
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
         MultiWaveHeader multiWaveHeader = findViewById(R.id.waveHeader);
         multiWaveHeader.setProgress(BatteryReceiver.mLevel / 100.0f);
         isRunning = true;
-        BatteryService.startBackgroundTask();
+        BatteryService.startBackgroundTask(this);
         updateUI(true);
     }
 

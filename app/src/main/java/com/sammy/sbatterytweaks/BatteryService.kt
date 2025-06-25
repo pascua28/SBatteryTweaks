@@ -12,6 +12,13 @@ import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class BatteryService : Service() {
     private lateinit var context: Context
@@ -57,61 +64,7 @@ class BatteryService : Service() {
             sharedPreferences.edit().putInt("PROTECT_ENABLED", -1).apply()
         }
 
-        runnable = object : Runnable {
-            override fun run() {
-                BatteryWorker.fetchUpdates(context)
-                BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
-
-                batteryPct =
-                    ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100
-
-                if (manualBypass) return
-
-                val sharedPref =
-                    PreferenceManager.getDefaultSharedPreferences(context)
-                drainMonitorEnabled =
-                    sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false)
-
-                if (drainMonitorEnabled && !BatteryReceiver.isCharging()) {
-                    DrainMonitor.handleBatteryChange(
-                        BatteryReceiver.divisor, BatteryReceiver.getCounter(context),
-                        BatteryReceiver.isCharging()
-                    )
-
-                    var activeDrain = ""
-                    var idleDrain = ""
-
-                    if (DrainMonitor.getScreenOnDrainRate() > 0.0f) activeDrain = context.getString(
-                        R.string.active_drain,
-                        DrainMonitor.getScreenOnDrainRate()
-                    )
-
-                    if (DrainMonitor.getScreenOffDrainRate() > 0.0f) idleDrain =
-                        context.getString(R.string.idle_drain, DrainMonitor.getScreenOffDrainRate())
-
-                    updateNotif(context.getString(R.string.temperature_title) + BatteryReceiver.mTemp + " °C",
-                        activeDrain, idleDrain
-                    )
-
-                    mHandler.postDelayed(this, refreshInterval.toLong())
-                    return
-                }
-
-                if (!isBypassed() && BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
-                    BatteryWorker.setBypass(context, 1)
-                } else if (!BatteryWorker.pauseMode && isBypassed() &&
-                    BatteryWorker.idleEnabled && BatteryReceiver.mLevel < BatteryWorker.idleLevel
-                ) {
-                    if (BatteryWorker.pausePdSupported) {
-                        Utils.changeSetting(context, Utils.Namespace.GLOBAL, "protect_battery", 0)
-                        BatteryWorker.setBypass(context, 0)
-                    } else BatteryWorker.setBypass(BatteryWorker.idleLevel)
-                } else BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
-
-                mHandler.postDelayed(this, refreshInterval.toLong())
-            }
-        }
-        startBackgroundTask()
+        startBackgroundTask(context)
     }
 
     override fun onDestroy() {
@@ -153,8 +106,8 @@ class BatteryService : Service() {
         var manualBypass: Boolean = false
         var notificationManager: NotificationManager? = null
         var notification: Notification.Builder? = null
-        var mHandler: Handler = Handler()
-        var runnable: Runnable? = null
+        private var backgroundJob: Job? = null
+        private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         @JvmStatic
         fun isBypassed(): Boolean {
             return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
@@ -163,18 +116,70 @@ class BatteryService : Service() {
         }
 
         @JvmStatic
-        fun startBackgroundTask() {
-            if (mHandler.hasMessages(0)) return
+        fun startBackgroundTask(context: Context) {
+            stopBackgroundTask()
 
-            mHandler.sendEmptyMessage(0)
-            mHandler.post(runnable!!)
+            backgroundJob = coroutineScope.launch {
+                while (isActive) {
+                    BatteryWorker.fetchUpdates(context)
+                    BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
+
+                    batteryPct = ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100
+
+                    if (manualBypass) return@launch
+
+                    val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+                    drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false)
+
+                    if (drainMonitorEnabled && !BatteryReceiver.isCharging()) {
+                        DrainMonitor.handleBatteryChange(
+                            BatteryReceiver.divisor,
+                            BatteryReceiver.getCounter(context),
+                            BatteryReceiver.isCharging()
+                        )
+
+                        val activeDrain = DrainMonitor.getScreenOnDrainRate().takeIf { it > 0.0f }?.let {
+                            context.getString(R.string.active_drain, it)
+                        } ?: ""
+
+                        val idleDrain = DrainMonitor.getScreenOffDrainRate().takeIf { it > 0.0f }?.let {
+                            context.getString(R.string.idle_drain, it)
+                        } ?: ""
+
+                        updateNotif(
+                            context.getString(R.string.temperature_title) + BatteryReceiver.mTemp + " °C",
+                            activeDrain,
+                            idleDrain
+                        )
+
+                        delay(refreshInterval.toLong())
+                        continue
+                    }
+
+                    if (!isBypassed() && BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
+                        BatteryWorker.setBypass(context, 1)
+                    } else if (!BatteryWorker.pauseMode && isBypassed()
+                        && BatteryWorker.idleEnabled && BatteryReceiver.mLevel < BatteryWorker.idleLevel
+                    ) {
+                        if (BatteryWorker.pausePdSupported) {
+                            Utils.changeSetting(context, Utils.Namespace.GLOBAL, "protect_battery", 0)
+                            BatteryWorker.setBypass(context, 0)
+                        } else {
+                            BatteryWorker.setBypass(BatteryWorker.idleLevel)
+                        }
+                    } else {
+                        BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
+                    }
+
+                    delay(refreshInterval.toLong())
+                }
+            }
         }
 
         @JvmStatic
         fun stopBackgroundTask() {
-            if (mHandler.hasMessages(0)) {
-                mHandler.removeCallbacksAndMessages(null)
-            }
+            backgroundJob?.cancel()
+            backgroundJob = null
         }
 
         @JvmStatic
