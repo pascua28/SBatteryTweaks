@@ -19,13 +19,12 @@ public class BatteryService extends Service {
     public static int refreshInterval = 2500, isBypassed;
     public static float batteryPct;
     public static boolean drainMonitorEnabled = false;
+    public static boolean manualBypass;
     static NotificationManager notificationManager;
     static Notification.Builder notification;
     static Handler mHandler = new Handler();
     static Runnable runnable;
     private Context context;
-
-    public static boolean manualBypass;
 
     public static boolean isBypassed() {
         return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
@@ -52,11 +51,11 @@ public class BatteryService extends Service {
             return;
 
         notification.setContentTitle(msg)
-                        .setStyle(
-                                new Notification.InboxStyle()
-                                        .addLine(msg2)
-                                        .addLine(msg3)
-                        );
+                .setStyle(
+                        new Notification.InboxStyle()
+                                .addLine(msg2)
+                                .addLine(msg3)
+                );
         notificationManager.notify(1002, notification.build());
     }
 
@@ -128,7 +127,7 @@ public class BatteryService extends Service {
                         idleDrain = context.getString(R.string.idle_drain, DrainMonitor.getScreenOffDrainRate());
 
                     updateNotif(context.getString(R.string.temperature_title) + BatteryReceiver.mTemp + " °C",
-                        activeDrain, idleDrain);
+                            activeDrain, idleDrain);
 
                     mHandler.postDelayed(this, refreshInterval);
                     return;

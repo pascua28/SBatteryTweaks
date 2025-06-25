@@ -3,8 +3,8 @@ package com.sammy.sbatterytweaks;
 import android.os.SystemClock;
 
 public class DrainMonitor {
-    private static float lastBatteryLevel = -1;
     public static float batteryPct;
+    private static float lastBatteryLevel = -1;
     private static long lastUpdateTime = 0;
     private static boolean screenOn = true;
     private static float screenOnDrainRate = 0;

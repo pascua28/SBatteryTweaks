@@ -4,10 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.BatteryManager;
-
-import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.ShellUtils;
 
@@ -27,6 +24,63 @@ public class BatteryReceiver extends BroadcastReceiver {
 
     public static boolean notCharging() {
         return mPlugged > 0 && mStatus == BatteryManager.BATTERY_STATUS_NOT_CHARGING;
+    }
+
+    public static int getCounter(Context context) {
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+    }
+
+    private static int getDivisor(Context context) {
+        int batteryLevel = BatteryReceiver.mLevel;
+        int counter = getCounter(context);
+
+        int lowerBound = counter / (batteryLevel + 1) / 10;
+        int upperBound = counter / batteryLevel / 10;
+
+        int bestDivisor = 0;
+        int lowestDigitCount = Integer.MAX_VALUE;
+
+        for (int testDivisor = lowerBound; testDivisor <= upperBound; testDivisor++) {
+            float testValue = counter / (testDivisor * 10.0f);
+            int digitCount = String.valueOf(testValue).length();
+
+            if (digitCount < lowestDigitCount) {
+                lowestDigitCount = digitCount;
+                bestDivisor = testDivisor;
+            }
+        }
+
+        return bestDivisor;
+    }
+
+    private static int getStableDivisor(Context context) {
+        int consecutiveMatches = 0;
+        int lastDivisor = -1;
+        int currentDivisor;
+        int maxIterations = 100;
+        int iterations = 0;
+
+        while (consecutiveMatches < 3 && iterations < maxIterations) {
+            iterations++;
+            currentDivisor = getDivisor(context);
+
+            if (currentDivisor == lastDivisor) {
+                consecutiveMatches++;
+            } else {
+                consecutiveMatches = 1;
+                lastDivisor = currentDivisor;
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        return lastDivisor;
     }
 
     @Override
@@ -88,67 +142,10 @@ public class BatteryReceiver extends BroadcastReceiver {
         }
 
         BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C",
-         activeDrain, idleDrain);
+                activeDrain, idleDrain);
     }
 
     private float getTemp() {
         return mTemp;
-    }
-
-    public static int getCounter(Context context) {
-        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
-    }
-
-    private static int getDivisor(Context context) {
-        int batteryLevel = BatteryReceiver.mLevel;
-        int counter = getCounter(context);
-
-        int lowerBound = counter / (batteryLevel + 1) / 10;
-        int upperBound = counter / batteryLevel / 10;
-
-        int bestDivisor = 0;
-        int lowestDigitCount = Integer.MAX_VALUE;
-
-        for (int testDivisor = lowerBound; testDivisor <= upperBound; testDivisor++) {
-            float testValue = counter / (testDivisor * 10.0f);
-            int digitCount = String.valueOf(testValue).length();
-
-            if (digitCount < lowestDigitCount) {
-                lowestDigitCount = digitCount;
-                bestDivisor = testDivisor;
-            }
-        }
-
-        return bestDivisor;
-    }
-
-    private static int getStableDivisor(Context context) {
-        int consecutiveMatches = 0;
-        int lastDivisor = -1;
-        int currentDivisor;
-        int maxIterations = 100;
-        int iterations = 0;
-
-        while (consecutiveMatches < 3 && iterations < maxIterations) {
-            iterations++;
-            currentDivisor = getDivisor(context);
-
-            if (currentDivisor == lastDivisor) {
-                consecutiveMatches++;
-            } else {
-                consecutiveMatches = 1;
-                lastDivisor = currentDivisor;
-            }
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-
-        return lastDivisor;
     }
 }

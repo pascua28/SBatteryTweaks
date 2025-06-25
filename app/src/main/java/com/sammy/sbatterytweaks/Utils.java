@@ -124,21 +124,6 @@ public class Utils {
         return false;
     }
 
-    public enum Namespace {
-        GLOBAL("global"),
-        SYSTEM("system");
-
-        private final String ns;
-
-        Namespace(String ns) {
-            this.ns = ns;
-        }
-
-        String getNs() {
-            return ns;
-        }
-    }
-
     public static int changeSetting(Context context, Namespace namespace, String setting, int value) {
         try {
             if (namespace == Namespace.SYSTEM) {
@@ -164,6 +149,21 @@ public class Utils {
                     return 0;
                 } else return -1;
             }
+        }
+    }
+
+    public enum Namespace {
+        GLOBAL("global"),
+        SYSTEM("system");
+
+        private final String ns;
+
+        Namespace(String ns) {
+            this.ns = ns;
+        }
+
+        String getNs() {
+            return ns;
         }
     }
 }
