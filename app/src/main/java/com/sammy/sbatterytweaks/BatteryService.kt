@@ -120,7 +120,8 @@ class BatteryService : Service() {
                     BatteryWorker.fetchUpdates(context)
                     BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
 
-                    batteryPct = ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100
+                    if (MainActivity.isRunning)
+                        batteryPct = ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100
 
                     if (manualBypass) return@launch
 
