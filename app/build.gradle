@@ -1,9 +1,10 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.sammy.sbatterytweaks"
@@ -28,6 +29,9 @@ android {
         viewBinding true
     }
     namespace 'com.sammy.sbatterytweaks'
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
@@ -39,6 +43,7 @@ dependencies {
     implementation 'com.github.pascua28:SeekBarPreference:7732d42cc2378e0c3d378ce36607b27a0c623a24'
     implementation 'com.github.topjohnwu.libsu:core:5.1.0'
     implementation 'nl.joery.timerangepicker:timerangepicker:1.0.0'
+    implementation 'androidx.core:core-ktx:1.16.0'
 
     def shizuku_version = "13.1.5"
     implementation "dev.rikka.shizuku:api:$shizuku_version"
