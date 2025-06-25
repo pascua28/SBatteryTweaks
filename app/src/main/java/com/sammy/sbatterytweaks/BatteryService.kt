@@ -7,11 +7,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Handler
 import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -101,8 +99,6 @@ class BatteryService : Service() {
         @JvmField
         var batteryPct: Float = 0f
         @JvmField
-        var drainMonitorEnabled: Boolean = false
-        @JvmField
         var manualBypass: Boolean = false
         var notificationManager: NotificationManager? = null
         var notification: Notification.Builder? = null
@@ -128,28 +124,11 @@ class BatteryService : Service() {
 
                     if (manualBypass) return@launch
 
-                    val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-                    drainMonitorEnabled = sharedPref.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false)
-
-                    if (drainMonitorEnabled && !BatteryReceiver.isCharging()) {
+                    if (BatteryReceiver.drainMonitorEnabled && !BatteryReceiver.isCharging()) {
                         DrainMonitor.handleBatteryChange(
                             BatteryReceiver.divisor,
                             BatteryReceiver.getCounter(context),
                             BatteryReceiver.isCharging()
-                        )
-
-                        val activeDrain = DrainMonitor.getScreenOnDrainRate().takeIf { it > 0.0f }?.let {
-                            context.getString(R.string.active_drain, it)
-                        } ?: ""
-
-                        val idleDrain = DrainMonitor.getScreenOffDrainRate().takeIf { it > 0.0f }?.let {
-                            context.getString(R.string.idle_drain, it)
-                        } ?: ""
-
-                        updateNotif(
-                            context.getString(R.string.temperature_title) + BatteryReceiver.mTemp + " °C",
-                            activeDrain,
-                            idleDrain
                         )
 
                         delay(refreshInterval.toLong())

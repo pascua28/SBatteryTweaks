@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         isRunning = false;
-        if (!BatteryReceiver.isCharging() && !BatteryService.drainMonitorEnabled)
+        if (!BatteryReceiver.isCharging() && !BatteryReceiver.drainMonitorEnabled)
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
         updateUI(false);
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         isRunning = false;
-        if (!BatteryReceiver.isCharging() && !BatteryService.drainMonitorEnabled)
+        if (!BatteryReceiver.isCharging() && !BatteryReceiver.drainMonitorEnabled)
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
         updateUI(false);
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         isRunning = false;
-        if (!BatteryReceiver.isCharging() && !BatteryService.drainMonitorEnabled)
+        if (!BatteryReceiver.isCharging() && !BatteryReceiver.drainMonitorEnabled)
             BatteryService.stopBackgroundTask();
         Shizuku.removeRequestPermissionResultListener(REQUEST_PERMISSION_RESULT_LISTENER);
         updateUI(false);

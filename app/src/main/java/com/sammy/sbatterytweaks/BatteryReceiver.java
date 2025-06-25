@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.BatteryManager;
+
+import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.ShellUtils;
 
@@ -17,6 +20,7 @@ public class BatteryReceiver extends BroadcastReceiver {
     private final File statsFile = new File("/data/system/batterystats.bin");
 
     private String activeDrain = "", idleDrain = "";
+    public static boolean drainMonitorEnabled = false;
 
     public static boolean isCharging() {
         return mPlugged > 0;
@@ -95,6 +99,9 @@ public class BatteryReceiver extends BroadcastReceiver {
         mStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        drainMonitorEnabled = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
+
         BatteryWorker.fetchUpdates(context);
         BatteryWorker.updateStats(context, isCharging());
 
@@ -121,7 +128,7 @@ public class BatteryReceiver extends BroadcastReceiver {
                 BatteryService.manualBypass = false;
             }
 
-            if (!MainActivity.isRunning && !BatteryService.drainMonitorEnabled) {
+            if (!MainActivity.isRunning && !drainMonitorEnabled) {
                 BatteryService.stopBackgroundTask();
             }
         }
@@ -130,7 +137,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             MainActivity.updateWaves(mLevel);
         }
 
-        if (isCharging() || !BatteryService.drainMonitorEnabled) {
+        if (isCharging() || !drainMonitorEnabled) {
             activeDrain = "";
             idleDrain = "";
         } else {
