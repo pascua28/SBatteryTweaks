@@ -1,36 +1,30 @@
 package com.sammy.sbatterytweaks;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrainMonitor {
     public static float batteryPct;
     private static float lastBatteryLevel = -1;
     private static long lastUpdateTime = 0;
     private static boolean screenOn = true;
-    private static float screenOnDrainRate = 0;
-    private static float screenOffDrainRate = 0;
-    private static int screenOnCount = 0;
-    private static int screenOffCount = 0;
-    private static float averageDrainRate = 0;
-    private static int averageCount = 0;
     private static boolean ignoreNextDrop = false;
     private static float lastValidLevel = -1;
     private static boolean initialDropHandled = false;
     private static boolean isCharging = false;
 
-    public static float getScreenOnDrainRate() {
-        return round(screenOnDrainRate);
-    }
+    private static final String PREF_NAME = "DrainStatsPrefs";
+    private static final String KEY_SCREEN_ON_DRAINS = "screen_on_drains";
+    private static final String KEY_SCREEN_OFF_DRAINS = "screen_off_drains";
 
-    public static float getScreenOffDrainRate() {
-        return round(screenOffDrainRate);
-    }
+    private static List<Float> screenOnDrains = new ArrayList<>();
+    private static List<Float> screenOffDrains = new ArrayList<>();
 
-    private static float round(float value) {
-        return (float) (Math.round(value * 100) / 100.0);
-    }
-
-    public static void handleBatteryChange(int divisor, int counter, boolean chargingStatus) {
+    public static void handleBatteryChange(Context context, int divisor, int counter, boolean chargingStatus) {
         if (divisor <= 0 || counter < 0) return;
 
         batteryPct = ((counter / 1000f) / divisor) * 100;
@@ -39,7 +33,7 @@ public class DrainMonitor {
 
         if (wasCharging != isCharging) {
             if (isCharging) {
-                resetStats();
+                resetStats(context);
             } else {
                 lastBatteryLevel = batteryPct;
                 lastValidLevel = batteryPct;
@@ -78,28 +72,13 @@ public class DrainMonitor {
                 float hoursElapsed = timeElapsed / (1000f * 60f * 60f);
                 float currentDrainRate = pctDropped / hoursElapsed;
 
-                if (averageCount == 0) {
-                    averageDrainRate = currentDrainRate;
-                } else {
-                    averageDrainRate = (averageDrainRate * averageCount + currentDrainRate) / (averageCount + 1);
-                }
-                averageCount++;
-
                 if (screenOn) {
-                    if (screenOnCount == 0) {
-                        screenOnDrainRate = currentDrainRate;
-                    } else {
-                        screenOnDrainRate = (screenOnDrainRate * screenOnCount + currentDrainRate) / (screenOnCount + 1);
-                    }
-                    screenOnCount++;
+                    screenOnDrains.add(currentDrainRate);
                 } else {
-                    if (screenOffCount == 0) {
-                        screenOffDrainRate = currentDrainRate;
-                    } else {
-                        screenOffDrainRate = (screenOffDrainRate * screenOffCount + currentDrainRate) / (screenOffCount + 1);
-                    }
-                    screenOffCount++;
+                    screenOffDrains.add(currentDrainRate);
                 }
+
+                persistStats(context);
             }
 
             lastBatteryLevel = batteryPct;
@@ -107,7 +86,7 @@ public class DrainMonitor {
             lastUpdateTime = now;
             initialDropHandled = true;
         } else if (batteryPct > lastBatteryLevel) {
-            resetStats();
+            resetStats(context);
             lastBatteryLevel = batteryPct;
             lastValidLevel = batteryPct;
             lastUpdateTime = SystemClock.elapsedRealtime();
@@ -124,17 +103,54 @@ public class DrainMonitor {
         }
     }
 
-    public static void resetStats() {
+    public static void resetStats(Context context) {
         lastBatteryLevel = -1;
         lastValidLevel = -1;
         lastUpdateTime = 0;
         initialDropHandled = false;
-        averageDrainRate = 0f;
-        screenOnDrainRate = 0f;
-        screenOffDrainRate = 0f;
-        averageCount = 0;
-        screenOnCount = 0;
-        screenOffCount = 0;
         ignoreNextDrop = false;
+        isCharging = false;
+
+        screenOnDrains.clear();
+        screenOffDrains.clear();
+
+        persistStats(context);
+    }
+
+    public static float getScreenOnDrainRate() {
+        return round(average(screenOnDrains));
+    }
+
+    public static float getScreenOffDrainRate() {
+        return round(average(screenOffDrains));
+    }
+
+    private static float average(List<Float> list) {
+        if (list.isEmpty()) return 0;
+        float sum = 0;
+        for (float val : list) sum += val;
+        return sum / list.size();
+    }
+
+    private static float round(float value) {
+        return (float) (Math.round(value * 100) / 100.0);
+    }
+
+    private static void saveFloatList(Context context, String key, List<Float> list) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        StringBuilder builder = new StringBuilder();
+        for (float value : list) {
+            builder.append(value).append(",");
+        }
+
+        editor.putString(key, builder.toString());
+        editor.apply();
+    }
+
+    private static void persistStats(Context context) {
+        saveFloatList(context, KEY_SCREEN_ON_DRAINS, screenOnDrains);
+        saveFloatList(context, KEY_SCREEN_OFF_DRAINS, screenOffDrains);
     }
 }

@@ -71,7 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
             SwitchPreferenceCompat drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
             if (!drainMonitorSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
-                    DrainMonitor.resetStats();
+                    DrainMonitor.resetStats(getContext());
                     return false;
                 });
             }

@@ -7,16 +7,21 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 class BatteryService : Service() {
     private lateinit var context: Context
@@ -126,7 +131,7 @@ class BatteryService : Service() {
                     if (manualBypass) return@launch
 
                     if (BatteryReceiver.drainMonitorEnabled && !BatteryReceiver.isCharging()) {
-                        DrainMonitor.handleBatteryChange(
+                        DrainMonitor.handleBatteryChange(context,
                             BatteryReceiver.divisor,
                             BatteryReceiver.getCounter(context),
                             BatteryReceiver.isCharging()
