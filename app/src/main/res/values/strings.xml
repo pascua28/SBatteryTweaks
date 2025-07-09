@@ -96,4 +96,8 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
 
+    <!-- Settings Database Provider installer -->
+    <string name="success">Installed settings database provider!</string>
+    <string name="failure">Settings database provider installation failed!</string>
+
 </resources>

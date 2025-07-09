@@ -11,14 +11,15 @@ import android.content.pm.PackageManager
 import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
+import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -173,6 +174,62 @@ class BatteryService : Service() {
                         .addLine(msg3)
                 )
             notificationManager!!.notify(1002, notification!!.build())
+        }
+
+        private fun providerInstalled(context: Context): Boolean {
+            try {
+                context.packageManager.getPackageGids("com.netvor.settings.database.provider")
+                return true
+            } catch (ignored: PackageManager.NameNotFoundException) {
+                return false
+            }
+        }
+
+        @Throws(IOException::class)
+        private fun installProvider(context: Context) {
+            val outFile =
+                File(context.getExternalFilesDir(null), "settings-database-provider-v1.1-cli.apk")
+
+            context.assets.open("settings-database-provider-v1.1-cli.apk").use { `is` ->
+                FileOutputStream(outFile).use { os ->
+                    val buffer = ByteArray(4096)
+                    var length: Int
+                    while ((`is`.read(buffer).also { length = it }) > 0) {
+                        os.write(buffer, 0, length)
+                    }
+                }
+            }
+            val apkSize = outFile.length()
+
+            val command =
+                "cat " + outFile.absolutePath + " | pm install -S " + apkSize + " --bypass-low-target-sdk-block"
+            Utils.runCmd(command)
+        }
+
+        @JvmStatic
+        fun installDatabaseProvider(context: Context) {
+            CoroutineScope(Dispatchers.IO).launch {
+                if (!providerInstalled(context)) {
+                    try {
+                        installProvider(context)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                R.string.success,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } catch (ignored: IOException) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                R.string.failure,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
         }
     }
 }

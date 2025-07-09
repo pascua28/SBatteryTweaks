@@ -226,6 +226,8 @@ public class MainActivity extends AppCompatActivity {
         if (!powerManager.isIgnoringBatteryOptimizations(getPackageName()))
             startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                     Uri.parse("package:" + getPackageName())));
+
+        BatteryService.installDatabaseProvider(this);
     }
 
     @Override
