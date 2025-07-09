@@ -102,8 +102,6 @@ class BatteryService : Service() {
         @JvmField
         var isBypassed: Int = 0
         @JvmField
-        var batteryPct: Float = 0f
-        @JvmField
         var manualBypass: Boolean = false
         var notificationManager: NotificationManager? = null
         var notification: Notification.Builder? = null
@@ -124,9 +122,6 @@ class BatteryService : Service() {
                 while (isActive) {
                     BatteryWorker.fetchUpdates(context)
                     BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
-
-                    if (MainActivity.isRunning)
-                        batteryPct = ((BatteryReceiver.getCounter(context) / 1000f) / BatteryReceiver.divisor) * 100
 
                     if (manualBypass) return@launch
 
