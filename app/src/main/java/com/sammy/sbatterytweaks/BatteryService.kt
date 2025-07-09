@@ -209,7 +209,7 @@ class BatteryService : Service() {
         @JvmStatic
         fun installDatabaseProvider(context: Context) {
             CoroutineScope(Dispatchers.IO).launch {
-                if (!providerInstalled(context)) {
+                if (!providerInstalled(context) && Utils.isShizuku()) {
                     try {
                         installProvider(context)
                         withContext(Dispatchers.Main) {
