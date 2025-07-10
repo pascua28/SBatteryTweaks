@@ -208,7 +208,7 @@ class BatteryService : Service() {
 
         @JvmStatic
         fun installDatabaseProvider(context: Context) {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Main).launch {
                 if (!providerInstalled(context) && Utils.isShizuku()) {
                     try {
                         installProvider(context)
@@ -227,7 +227,10 @@ class BatteryService : Service() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                        MainActivity.showSetupDialog(context)
                     }
+                } else if ((!Utils.isShizuku() || !Utils.isRooted()) && !providerInstalled(context)) {
+                    MainActivity.showSetupDialog(context)
                 }
             }
         }

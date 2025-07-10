@@ -100,4 +100,11 @@
     <string name="success">Installed settings database provider!</string>
     <string name="failure">Settings database provider installation failed!</string>
 
+    <!-- Setup Dialog -->
+    <string name="setup_dialog_title">App may not work correctly</string>
+    <string name="setup_dialog_message"><![CDATA[Setup not complete.<br><br>
+    Please grant root or install Shizuku <a href="https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api">from here</a> or follow the adb setup <a href="https://github.com/pascua28/SBatteryTweaks?tab=readme-ov-file#setting-up-for-oneui-60-no-root">here</a>.<br><br>
+    Both are one-time setup only (you may uninstall Shizuku afterwards).]]></string>
+    <string name="setup_dialog_dismiss">Got it</string>
+
 </resources>

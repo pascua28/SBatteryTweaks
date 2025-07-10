@@ -14,6 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -26,8 +29,10 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.scwang.wave.MultiWaveHeader;
 
 import java.util.Locale;
@@ -229,6 +234,31 @@ public class MainActivity extends AppCompatActivity {
 
         BatteryService.installDatabaseProvider(this);
     }
+
+    public static void showSetupDialog(Context context) {
+        TextView msg = new TextView(context);
+        Spanned spanned = HtmlCompat.fromHtml(
+                context.getString(R.string.setup_dialog_message),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
+
+        msg.setText(spanned);
+        msg.setMovementMethod(LinkMovementMethod.getInstance());
+        msg.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        int padding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, context.getResources().getDisplayMetrics()
+        );
+        msg.setPadding(padding, padding, padding, 0);
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.setup_dialog_title)
+                .setCancelable(true)
+                .setView(msg)
+                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> {
+                    dialog.dismiss();
+                }).show();
+    }
+
 
     @Override
     protected void onResume() {
