@@ -21,6 +21,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
     private String activeDrain = "", idleDrain = "";
     public static boolean drainMonitorEnabled = false;
+    public static boolean isUsbCharging, isWirelessCharging;
 
     public static boolean isCharging() {
         return mPlugged > 0;
@@ -98,6 +99,8 @@ public class BatteryReceiver extends BroadcastReceiver {
         mPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         mStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         mVolt = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
+        isUsbCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_USB;
+        isWirelessCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         drainMonitorEnabled = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);

@@ -36,8 +36,12 @@ public class BatteryWorker {
     private static long cooldown;
 
     public static void fetchUpdates(Context context) {
+        String fastChargeSetting;
+        if (BatteryReceiver.isWirelessCharging)
+            fastChargeSetting = "wireless_fast_charging";
+        else fastChargeSetting = "adaptive_fast_charging";
         try {
-            fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), "adaptive_fast_charging");
+            fastChargeEnabled = Settings.System.getInt(context.getContentResolver(), fastChargeSetting);
             if (fastChargeEnabled == 1) fastChargeStatus = context.getString(R.string.enabled);
             else fastChargeStatus = context.getString(R.string.disabled);
         } catch (Settings.SettingNotFoundException e) {
@@ -105,11 +109,14 @@ public class BatteryWorker {
 
     public static void setBypass(Context context, int bypass) {
         if (pausePdSupported) {
+            if (BatteryReceiver.isUsbCharging)
+                return;
+
             if (bypass == 1) {
                 enableFastCharge(context, 1);
 
                 try {
-                    Thread.sleep(1000L);
+                    Thread.sleep(500L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -165,14 +172,19 @@ public class BatteryWorker {
     }
 
     private static void enableFastCharge(Context context, int enabled) {
+        String fastChargeSetting;
+        if (BatteryReceiver.isWirelessCharging)
+            fastChargeSetting = "wireless_fast_charging";
+        else
+            fastChargeSetting = "adaptive_fast_charging";
         try {
             String adaptiveFast =
-                    Settings.System.getString(context.getContentResolver(), "adaptive_fast_charging");
+                    Settings.System.getString(context.getContentResolver(), fastChargeSetting);
 
             if (adaptiveFast == null)
                 throw new Settings.SettingNotFoundException("Not found");
 
-            if (Utils.changeSetting(context, Utils.Namespace.SYSTEM, "adaptive_fast_charging", enabled) < 0) {
+            if (Utils.changeSetting(context, Utils.Namespace.SYSTEM, fastChargeSetting, enabled) < 0) {
                 fastChargeStatus = fastChargeStatus + " (" + context.getString(R.string.toggle_failed) + ")";
             }
         } catch (Settings.SettingNotFoundException ignored) {
@@ -249,9 +261,17 @@ public class BatteryWorker {
 
         if (BatteryService.isBypassed())
             chargingState = context.getString(R.string.idle);
-        else if (isCharging)
-            chargingState = context.getString(R.string.charging);
-        else
+        else if (isCharging) {
+            chargingState = context.getString(
+                    R.string.charging_pattern,
+                    context.getString(R.string.charging),
+                    (BatteryReceiver.isUsbCharging ? context.getString(R.string.usb) :
+                            (BatteryReceiver.isWirelessCharging ? context.getString(R.string.wireless) :
+                                    context.getString(R.string.ac)
+                            )
+                    )
+            );
+        } else
             chargingState = context.getString(R.string.discharging);
     }
 

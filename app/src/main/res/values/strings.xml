@@ -27,7 +27,11 @@
     <string name="not_supported">Not supported</string>
     <!-- Charging status -->
     <string name="idle">Idle</string>
+    <string name="charging_pattern"><bidi dir="auto">%1$s (%2$s)</bidi></string>
     <string name="charging">Charging</string>
+    <string name="usb">USB</string>
+    <string name="ac">AC</string>
+    <string name="wireless">Wireless</string>
     <string name="discharging">Discharging</string>
 
     <!-- Notification -->

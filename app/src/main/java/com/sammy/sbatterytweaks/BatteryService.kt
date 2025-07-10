@@ -140,8 +140,7 @@ class BatteryService : Service() {
                     if (!isBypassed() && BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
                         BatteryWorker.setBypass(context, 1)
                     } else if (!BatteryWorker.pauseMode && isBypassed()
-                        && BatteryWorker.idleEnabled && BatteryReceiver.mLevel < BatteryWorker.idleLevel
-                    ) {
+                        && BatteryWorker.idleEnabled && BatteryReceiver.mLevel < BatteryWorker.idleLevel) {
                         if (BatteryWorker.pausePdSupported) {
                             Utils.changeSetting(context, Utils.Namespace.GLOBAL, "protect_battery", 0)
                             BatteryWorker.setBypass(context, 0)
