@@ -176,9 +176,10 @@ class BatteryService : Service() {
             notificationManager!!.notify(1002, notification!!.build())
         }
 
+        private const val providerName = "com.netvor.settings.database.provider"
         private fun providerInstalled(context: Context): Boolean {
             try {
-                context.packageManager.getPackageGids("com.netvor.settings.database.provider")
+                context.packageManager.getPackageGids(providerName)
                 return true
             } catch (ignored: PackageManager.NameNotFoundException) {
                 return false
@@ -187,10 +188,11 @@ class BatteryService : Service() {
 
         @Throws(IOException::class)
         private fun installProvider(context: Context) {
+            val fileName = "settings-database-provider-v1.1-cli.apk"
             val outFile =
-                File(context.getExternalFilesDir(null), "settings-database-provider-v1.1-cli.apk")
+                File(context.getExternalFilesDir(null), fileName)
 
-            context.assets.open("settings-database-provider-v1.1-cli.apk").use { `is` ->
+            context.assets.open(fileName).use { `is` ->
                 FileOutputStream(outFile).use { os ->
                     val buffer = ByteArray(4096)
                     var length: Int
@@ -210,6 +212,13 @@ class BatteryService : Service() {
         fun installDatabaseProvider(context: Context) {
             CoroutineScope(Dispatchers.Main).launch {
                 if (!providerInstalled(context) && Utils.isShizuku()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            R.string.in_progress,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     try {
                         installProvider(context)
                         withContext(Dispatchers.Main) {
@@ -219,6 +228,7 @@ class BatteryService : Service() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                        MainActivity.forceStop(context)
                     } catch (ignored: IOException) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
