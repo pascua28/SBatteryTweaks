@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -233,9 +235,15 @@ public class BatteryWorker {
     }
 
     private static void toast(Context context, int resId) {
-        if (enableToast) {
-            Toast.makeText(context, context.getString(resId), Toast.LENGTH_SHORT).show();
-        }
+        if (!enableToast) return;
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() ->
+                Toast.makeText(context.getApplicationContext(),
+                        context.getString(resId),
+                        Toast.LENGTH_SHORT
+                ).show()
+        );
     }
 
     private static void battWorker(Context context) {
