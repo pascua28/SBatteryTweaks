@@ -69,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
                 lvlText = "⚡" + battPercent;
 
             levelText.setText(lvlText);
+
+            if (Math.abs(currentNow) > 10000)
+                currentNow = currentNow / 1000;
+
             currentText.setText(String.format(Locale.getDefault(), "%d mA", currentNow));
             voltText.setText(String.format(Locale.getDefault(), "%d mV", BatteryReceiver.mVolt));
             battTemperature.setText(BatteryWorker.battTemp);
