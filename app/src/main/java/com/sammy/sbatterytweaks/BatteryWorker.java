@@ -111,9 +111,6 @@ public class BatteryWorker {
 
     public static void setBypass(Context context, int bypass) {
         if (pausePdSupported) {
-            if (BatteryReceiver.isUsbCharging)
-                return;
-
             if (bypass == 1) {
                 enableFastCharge(context, 1);
 
