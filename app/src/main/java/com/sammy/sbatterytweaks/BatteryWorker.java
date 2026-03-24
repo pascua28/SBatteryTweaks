@@ -28,12 +28,12 @@ public class BatteryWorker {
     static SimpleDateFormat sdf;
     static Date currTime, start;
     private static boolean serviceEnabled, timerEnabled, shouldCoolDown,
-            lvlSwitch, enableToast, isSchedEnabled;
+            slowThresholdSwitch, fastThresholdSwitch, enableToast, isSchedEnabled;
     private static float cdSeconds;
     private static int fastChargeEnabled;
     private static int startHour;
     private static int startMinute;
-    private static int lvlThreshold;
+    private static int slowThreshold, fastThreshold;
     private static int duration;
     private static long cooldown;
 
@@ -73,8 +73,10 @@ public class BatteryWorker {
         isSchedEnabled = sharedPref.getBoolean(SettingsActivity.PREF_SCHED_ENABLED, false);
         idleEnabled = sharedPref.getBoolean(SettingsActivity.PREF_IDLE_SWITCH, false);
         idleLevel = sharedPref.getInt(SettingsActivity.PREF_IDLE_LEVEL, 75);
-        lvlSwitch = sharedPref.getBoolean(SettingsActivity.PREF_BATT_LVL_SWITCH, false);
-        lvlThreshold = sharedPref.getInt(SettingsActivity.PREF_BATT_LVL_THRESHOLD, 60);
+        slowThresholdSwitch = sharedPref.getBoolean(SettingsActivity.PREF_SLOW_CHARGE_THRESHOLD_SWITCH, false);
+        slowThreshold = sharedPref.getInt(SettingsActivity.PREF_SLOW_CHARGE_THRESHOLD, 60);
+        fastThresholdSwitch = sharedPref.getBoolean(SettingsActivity.PREF_FAST_CHARGE_THRESHOLD_SWITCH, false);
+        fastThreshold = sharedPref.getInt(SettingsActivity.PREF_FAST_CHARGE_THRESHOLD, 40);
         disableSync = sharedPref.getBoolean(SettingsActivity.PREF_DISABLE_SYNC, false);
         autoReset = sharedPref.getBoolean(SettingsActivity.PREF_RESET_STATS, false);
         enableToast = sharedPref.getBoolean(SettingsActivity.PREF_TOAST_NOTIF, false);
@@ -194,12 +196,13 @@ public class BatteryWorker {
     }
 
     private static boolean shouldStopFastCharge() {
-        return (lvlSwitch && BatteryReceiver.mLevel >= lvlThreshold) ||
+        return (slowThresholdSwitch && BatteryReceiver.mLevel >= slowThreshold) ||
                 (isSchedEnabled && isLazyTime());
     }
 
     private static boolean shouldStartFastCharge() {
-        return BatteryReceiver.mTemp <= (thresholdTemp - tempDelta) ||
+        return (fastThresholdSwitch && BatteryReceiver.mLevel <= fastThreshold) ||
+                BatteryReceiver.mTemp <= (thresholdTemp - tempDelta) ||
                 (isOngoing && !shouldCoolDown);
     }
 

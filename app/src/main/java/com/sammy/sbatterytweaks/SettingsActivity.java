@@ -9,6 +9,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
@@ -28,8 +29,10 @@ public class SettingsActivity extends AppCompatActivity {
             PREF_IDLE_LEVEL = "idleLevel",
             PREF_DISABLE_SYNC = "disablesync",
             PREF_RESET_STATS = "resetstats",
-            PREF_BATT_LVL_SWITCH = "lvlThresholdSwitch",
-            PREF_BATT_LVL_THRESHOLD = "lvlThreshold",
+            PREF_SLOW_CHARGE_THRESHOLD_SWITCH = "slowChargeThresholdSwitch",
+            PREF_SLOW_CHARGE_THRESHOLD = "slowChargeThreshold",
+            PREF_FAST_CHARGE_THRESHOLD_SWITCH = "fastChargeThresholdSwitch",
+            PREF_FAST_CHARGE_THRESHOLD = "fastChargeThreshold",
             PREF_TOAST_NOTIF = "enabletoast";
 
     private Switch idleToggle;
@@ -76,7 +79,6 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-
             if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
                 pauseModeSwitch.setEnabled(true);
 
@@ -104,6 +106,41 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 });
             }
+
+            SwitchPreferenceCompat slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
+            SwitchPreferenceCompat fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
+            SeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
+            SeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
+
+            slowChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
+                int slow = (int) newValue;
+                int fast = fastChargeThreshold.getValue();
+
+                if (fastChargeThresholdSwitch.isEnabled()) {
+                    if (slow <= fast) {
+                        slow = fast + 1;
+                        slowChargeThreshold.setValue(slow);
+                        return false;
+                    }
+                }
+
+                return true;
+            }));
+
+            fastChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
+                int fast = (int) newValue;
+                int slow = slowChargeThreshold.getValue();
+
+                if (slowChargeThresholdSwitch.isEnabled()) {
+                    if (fast >= slow) {
+                        fast = slow - 1;
+                        fastChargeThreshold.setValue(fast);
+                        return false;
+                    }
+                }
+
+                return true;
+            }));
         }
 
         @Override

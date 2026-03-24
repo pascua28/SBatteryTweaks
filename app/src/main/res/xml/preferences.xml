@@ -62,20 +62,37 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/battery_level_threshold_pref">
+    <PreferenceCategory app:title="@string/slow_charge_threshold_pref">
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="lvlThresholdSwitch"
+            app:key="slowChargeThresholdSwitch"
             app:singleLineTitle="false"
-            app:summary="@string/battery_level_threshold_summary"
-            app:title="@string/battery_level_threshold_title" />
+            app:summary="@string/slow_charge_threshold_summary"
+            app:title="@string/slow_charge_threshold_title" />
 
         <SeekBarPreference
             android:defaultValue="60"
-            android:dependency="lvlThresholdSwitch"
-            android:key="lvlThreshold"
-            app:maxValue="95"
+            android:dependency="slowChargeThresholdSwitch"
+            android:key="slowChargeThreshold"
+            app:maxValue="100"
             app:minValue="30"
+            app:showSeekBarValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/fast_charge_threshold_pref">
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="fastChargeThresholdSwitch"
+            app:singleLineTitle="false"
+            app:summary="@string/fast_charge_threshold_summary"
+            app:title="@string/fast_charge_threshold_title" />
+
+        <SeekBarPreference
+            android:defaultValue="40"
+            android:dependency="fastChargeThresholdSwitch"
+            android:key="fastChargeThreshold"
+            app:maxValue="70"
+            app:minValue="5"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 

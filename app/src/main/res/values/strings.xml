@@ -69,10 +69,14 @@
     <string name="threshold_temperature_summary">If battery temperature reaches this threshold, fastcharging will be disabled or charging will be suspended</string>
     <string name="cooldown_temperature_title">Cooldown temperature</string>
     <string name="cooldown_temperature_summary">The amount of temperature needed to go down before re-enabling fastcharge or resuming charge</string>
-    <!-- Battery level threshold -->
-    <string name="battery_level_threshold_pref">Battery level threshold</string>
-    <string name="battery_level_threshold_title">Battery level threshold</string>
-    <string name="battery_level_threshold_summary">Disable fast charging mode when battery level reaches this percentage</string>
+    <!-- Slow charging battery level threshold -->
+    <string name="slow_charge_threshold_pref">Slow charging battery level threshold</string>
+    <string name="slow_charge_threshold_title">Slow charging battery level threshold</string>
+    <string name="slow_charge_threshold_summary">Forces slow charging when battery level is above/equal to this percentage</string>
+    <!-- Fast charging battery level threshold -->
+    <string name="fast_charge_threshold_pref">Fast charging battery level threshold</string>
+    <string name="fast_charge_threshold_title">Fast charging battery level threshold</string>
+    <string name="fast_charge_threshold_summary">Forces fast charging when battery level is below/equal to this percentage</string>
     <!-- Timer-based cooldown -->
     <string name="timer_cooldown_pref">Timer-based temperature cooldown</string>
     <string name="enable_cooldown_timer">Enable timer-based temperature cooldown</string>
