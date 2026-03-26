@@ -1,3 +1,5 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="widget_corner_radius_small">8</dimen>
+    <dimen name="widget_corner_radius_large">14</dimen>
 </resources>

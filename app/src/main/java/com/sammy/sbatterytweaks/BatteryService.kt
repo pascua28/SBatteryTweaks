@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import android.widget.Toast
+import com.sammy.sbatterytweaks.BatteryStatusWidgetProvider.Companion.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -164,6 +165,8 @@ class BatteryService : Service() {
                     } else {
                         BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
                     }
+
+                    updateAllWidgets(context)
 
                     delay(refreshInterval)
                 }

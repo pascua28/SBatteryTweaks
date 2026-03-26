@@ -102,6 +102,10 @@ public class BatteryReceiver extends BroadcastReceiver {
         isUsbCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_USB;
         isWirelessCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
 
+        updateStatusPref(context, mLevel, isCharging(), BatteryService.isBypassed());
+
+        BatteryStatusWidgetProvider.Companion.updateAllWidgets(context);
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         drainMonitorEnabled = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_DRAIN_MONITOR, false);
 
@@ -153,6 +157,15 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C",
                 activeDrain, idleDrain);
+    }
+
+    private void updateStatusPref(Context context, int level, Boolean charging, Boolean idle) {
+        SharedPreferences prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putInt("battery_level", level)
+                .putBoolean("charging", charging)
+                .putBoolean("idle", idle)
+                .commit();
     }
 
     private float getTemp() {

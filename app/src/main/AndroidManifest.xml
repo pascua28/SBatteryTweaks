@@ -61,6 +61,19 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".BatteryStatusWidgetProvider"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sbt_widget_info" />
+        </receiver>
+
         <service android:name=".BatteryService" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="This is required by the BroadcastReceiver to handle power connected and disconnected events, which start and stop background tasks that limit charging speed to reduce overhead.

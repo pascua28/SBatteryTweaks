@@ -1,0 +1,18 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="146dp"
+    android:minHeight="73dp"
+
+    android:minResizeWidth="146dp"
+    android:minResizeHeight="73dp"
+
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+
+    android:maxResizeWidth="146dp"
+    android:maxResizeHeight="73dp"
+
+    android:previewImage="@mipmap/ic_launcher"
+    android:widgetCategory="home_screen"
+
+    android:initialLayout="@layout/widget_battery_status">
+</appwidget-provider>

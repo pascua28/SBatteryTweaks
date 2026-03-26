@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_charging"
+    android:padding="0dp">
+
+    <LinearLayout
+        android:id="@+id/top_left_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center">
+
+        <FrameLayout
+            android:id="@+id/icon_bg"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/widget_icon_circle">
+
+            <ImageView
+                android:id="@+id/status_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_bolt"
+                android:contentDescription="@null" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text=""
+            android:textColor="@color/widget_primary"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/battery_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="14dp"
+        android:layout_marginBottom="10dp"
+        android:text=""
+        android:textColor="@color/widget_secondary"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+</FrameLayout>
