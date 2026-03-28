@@ -105,18 +105,18 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         defaultValueInternal = clampAndSnap(def)
 
         value = if (shouldPersist() && sharedPreferences?.contains(key) == true) {
-            clampAndSnap(getPersistedFloatCompat(defaultValueInternal))
+            clampAndSnap(getPersistedValue(defaultValueInternal))
         } else {
             defaultValueInternal
         }
 
-        persistFloatCompat(value)
+        persistValue(value)
         updateSummary()
         updateSeekBarProgress()
     }
 
     override fun onClick() {
-        // Inline slider only. Row click intentionally does nothing.
+        // Inline slider only.
     }
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
@@ -175,20 +175,32 @@ class FloatSeekBarPreference @JvmOverloads constructor(
     fun setValue(newValue: Float, notify: Boolean = true) {
         val snapped = clampAndSnap(newValue)
 
-        if (snapped == value) {
+        val finalValue = if (decimals == 0) {
+            snapped.roundToInt().toFloat()
+        } else {
+            snapped
+        }
+
+        val listenerValue: Any = if (decimals == 0) {
+            finalValue.roundToInt()
+        } else {
+            finalValue
+        }
+
+        if (finalValue == value) {
             updateSeekBarProgress()
             updateSummary()
             return
         }
 
-        if (!callChangeListener(snapped)) {
+        if (!callChangeListener(listenerValue)) {
             updateSeekBarProgress()
             updateSummary()
             return
         }
 
-        value = snapped
-        persistFloatCompat(value)
+        value = finalValue
+        persistValue(value)
         updateSummary()
         updateSeekBarProgress()
 
@@ -339,31 +351,44 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         dialog.show()
     }
 
-    private fun persistFloatCompat(v: Float): Boolean {
-        return persistFloat(v)
+    private fun persistValue(v: Float): Boolean {
+        if (!shouldPersist()) return false
+
+        val editor = sharedPreferences?.edit() ?: return false
+
+        if (decimals == 0) {
+            editor.putInt(key, v.roundToInt())
+        } else {
+            editor.putFloat(key, v)
+        }
+
+        editor.apply()
+        return true
     }
 
-    private fun getPersistedFloatCompat(defaultValue: Float): Float {
+    private fun getPersistedValue(defaultValue: Float): Float {
         if (!shouldPersist()) return defaultValue
 
+        val prefs = sharedPreferences ?: return defaultValue
+        val keyName = key ?: return defaultValue
+
+        if (!prefs.contains(keyName)) return defaultValue
+
         return try {
-            getPersistedFloat(defaultValue)
+            if (decimals == 0) {
+                prefs.getInt(keyName, defaultValue.roundToInt()).toFloat()
+            } else {
+                prefs.getFloat(keyName, defaultValue)
+            }
         } catch (_: ClassCastException) {
-            val prefs = sharedPreferences ?: return defaultValue
-            val keyName = key ?: return defaultValue
-            if (!prefs.contains(keyName)) return defaultValue
-
-            val migrated = when (val raw = prefs.all[keyName]) {
-                is Float -> raw
-                is Double -> raw.toFloat()
+            // migration safety (old types)
+            when (val raw = prefs.all[keyName]) {
                 is Int -> raw.toFloat()
-                is Long -> raw.toFloat()
-                is String -> raw.toFloatOrNull()
-                else -> null
-            } ?: defaultValue
-
-            prefs.edit().putFloat(keyName, migrated).apply()
-            migrated
+                is Float -> raw
+                is String -> raw.toFloatOrNull() ?: defaultValue
+                is Double -> raw.toFloat()
+                else -> defaultValue
+            }
         }
     }
 
