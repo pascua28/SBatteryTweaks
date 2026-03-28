@@ -29,6 +29,12 @@ import java.io.IOException
 class BatteryService : Service() {
     private lateinit var context: Context
 
+    enum class BypassMode {
+        AUTO,
+        FORCE_ON,
+        FORCE_OFF
+    }
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -118,8 +124,6 @@ class BatteryService : Service() {
         var refreshInterval: Long = 2500
         @JvmField
         var isBypassed: Int = 0
-        @JvmField
-        var manualBypass: Boolean = false
         var notificationManager: NotificationManager? = null
         var notification: Notification.Builder? = null
         private var backgroundJob: Job? = null
@@ -140,6 +144,17 @@ class BatteryService : Service() {
                     BatteryWorker.pausePdEnabled)
         }
 
+        @Volatile
+        private var currentBypassMode: BypassMode = BypassMode.AUTO
+
+        @JvmStatic
+        fun setBypassMode(mode: BypassMode) {
+            currentBypassMode = mode
+        }
+
+        @JvmStatic
+        fun getBypassMode(): BypassMode = currentBypassMode
+
         @JvmStatic
         fun startBackgroundTask(context: Context) {
             stopBackgroundTask()
@@ -149,36 +164,63 @@ class BatteryService : Service() {
                     BatteryWorker.fetchUpdates(context)
                     BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
 
-                    if (manualBypass) return@launch
-
-                    if (BatteryReceiver.drainMonitorEnabled && !BatteryReceiver.isCharging()) {
-                        DrainMonitor.handleBatteryChange(context,
-                            BatteryReceiver.divisor,
-                            BatteryReceiver.getCounter(context),
-                            BatteryReceiver.isCharging()
-                        )
-
-                        delay(refreshInterval)
-                        continue
-                    }
-
-                    if (!isBypassed() && BatteryWorker.idleEnabled && BatteryReceiver.mLevel >= BatteryWorker.idleLevel) {
-                        BatteryWorker.setBypass(context, 1)
-                    } else if (!BatteryWorker.pauseMode && isBypassed()
-                        && BatteryWorker.idleEnabled && BatteryReceiver.mLevel < BatteryWorker.idleLevel) {
-                        if (BatteryWorker.pausePdSupported) {
-                            Utils.changeSetting(context, Utils.Namespace.GLOBAL, "protect_battery", 0)
-                            BatteryWorker.setBypass(context, 0)
-                        } else {
-                            BatteryWorker.setBypass(BatteryWorker.idleLevel)
+                    when (getBypassMode()) {
+                        BypassMode.FORCE_ON -> {
+                            if (!isBypassed()) {
+                                BatteryWorker.setBypass(context, 1)
+                            }
                         }
-                    } else {
-                        BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
+
+                        BypassMode.FORCE_OFF -> {
+                            if (isBypassed()) {
+                                BatteryWorker.setBypass(context, 0)
+                            }
+                        }
+
+                        BypassMode.AUTO -> {
+                            if (BatteryReceiver.drainMonitorEnabled && !BatteryReceiver.isCharging()) {
+                                DrainMonitor.handleBatteryChange(
+                                    context,
+                                    BatteryReceiver.divisor,
+                                    BatteryReceiver.getCounter(context),
+                                    BatteryReceiver.isCharging()
+                                )
+
+                                updateStatusPref(context)
+                                updateAllWidgets(context)
+                                delay(refreshInterval)
+                                continue
+                            }
+
+                            if (!isBypassed()
+                                && BatteryWorker.idleEnabled
+                                && BatteryReceiver.mLevel >= BatteryWorker.idleLevel
+                            ) {
+                                BatteryWorker.setBypass(context, 1)
+                            } else if (!BatteryWorker.pauseMode
+                                && isBypassed()
+                                && BatteryWorker.idleEnabled
+                                && BatteryReceiver.mLevel < BatteryWorker.idleLevel
+                            ) {
+                                if (BatteryWorker.pausePdSupported) {
+                                    Utils.changeSetting(
+                                        context,
+                                        Utils.Namespace.GLOBAL,
+                                        "protect_battery",
+                                        0
+                                    )
+                                    BatteryWorker.setBypass(context, 0)
+                                } else {
+                                    BatteryWorker.setBypass(BatteryWorker.idleLevel)
+                                }
+                            } else {
+                                BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
+                            }
+                        }
                     }
 
                     updateStatusPref(context)
                     updateAllWidgets(context)
-
                     delay(refreshInterval)
                 }
             }

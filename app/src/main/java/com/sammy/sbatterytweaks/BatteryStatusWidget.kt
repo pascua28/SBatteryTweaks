@@ -17,8 +17,13 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
                 val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
                 val isBypassed = prefs.getBoolean("idle", false)
 
-                BatteryService.manualBypass = if (isBypassed) false else true
-                BatteryWorker.setBypass(context, if (isBypassed) 0 else 1)
+                val target = if (isBypassed) 0 else 1
+
+                BatteryService.setBypassMode(
+                    if (target == 1) BatteryService.BypassMode.FORCE_ON else BatteryService.BypassMode.FORCE_OFF
+                )
+
+                BatteryWorker.setBypass(context, target)
                 updateAllWidgets(context)
             }
         }

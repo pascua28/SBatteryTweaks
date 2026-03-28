@@ -132,7 +132,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 
             if (BatteryService.isBypassed == 1) {
                 BatteryWorker.setBypass(context, 0);
-                BatteryService.manualBypass = false;
+                BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
             }
 
             if (!MainActivity.isRunning && !drainMonitorEnabled) {

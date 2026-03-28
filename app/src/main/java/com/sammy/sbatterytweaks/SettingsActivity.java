@@ -87,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (pauseModeSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
+                    BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
                     BatteryWorker.setBypass(getContext(), 0);
                     return false;
                 });
@@ -155,8 +156,8 @@ public class SettingsActivity extends AppCompatActivity {
                     BatteryWorker.isOngoing = false;
 
                 if (key.equals(PREF_IDLE_LEVEL) || key.equals(PREF_IDLE_SWITCH)) {
-                    if (!BatteryService.manualBypass)
-                        BatteryWorker.setBypass(getContext(), 0);
+                    BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
+                    BatteryWorker.setBypass(getContext(), 0);
                 }
             };
         }
