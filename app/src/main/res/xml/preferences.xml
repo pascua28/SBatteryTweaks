@@ -36,29 +36,31 @@
 
     <PreferenceCategory app:title="@string/temperature_threshold">
 
-        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
-            android:defaultValue="36.5"
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:dependency="enableservice"
             android:key="thresholdUp"
             android:singleLineTitle="false"
             android:summary="@string/threshold_temperature_summary"
             android:title="@string/threshold_temperature_title"
-            app:maxValueFloat="45.0"
-            app:minValueFloat="30.0"
-            app:stepSize="0.1"
-            app:units="°C" />
+            android:defaultValue="36.5"
+            app:maxFloat="45.0"
+            app:minFloat="30.0"
+            app:stepFloat="0.1"
+            app:decimals="1"
+            app:unit="°C" />
 
-        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
-            android:defaultValue="0.5"
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:dependency="enableservice"
             android:key="tempDelta"
             android:singleLineTitle="false"
             android:summary="@string/cooldown_temperature_summary"
             android:title="@string/cooldown_temperature_title"
-            app:maxValueFloat="5.0"
-            app:minValueFloat="0.1"
-            app:stepSize="0.1"
-            app:units="°C" />
+            android:defaultValue="0.5"
+            app:maxFloat="5.0"
+            app:minFloat="0.1"
+            app:stepFloat="0.1"
+            app:decimals="1"
+            app:unit="°C" />
 
     </PreferenceCategory>
 
@@ -74,8 +76,8 @@
             android:defaultValue="60"
             android:dependency="slowChargeThresholdSwitch"
             android:key="slowChargeThreshold"
-            app:maxValue="100"
-            app:minValue="30"
+            android:max="100"
+            app:min="30"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 
@@ -91,8 +93,8 @@
             android:defaultValue="40"
             android:dependency="fastChargeThresholdSwitch"
             android:key="fastChargeThreshold"
-            app:maxValue="70"
-            app:minValue="5"
+            android:max="70"
+            app:min="5"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 
@@ -104,17 +106,18 @@
             app:singleLineTitle="false"
             app:title="@string/enable_cooldown_timer" />
 
-        <tk.zwander.seekbarpreference.SeekBarPreferenceNew
-            android:defaultValue="30"
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:dependency="timerSwitch"
             android:key="cdSeconds"
             android:singleLineTitle="false"
             android:summary="@string/cooldown_time_summary"
             android:title="@string/cooldown_time_title"
-            app:maxValueFloat="600"
-            app:minValueFloat="30"
-            app:stepSize="10"
-            app:units="s" />
+            android:defaultValue="30"
+            app:maxFloat="600"
+            app:minFloat="30"
+            app:stepFloat="10"
+            app:decimals="1"
+            app:unit="s" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/scheduled_charge_control_pref">
         <SwitchPreferenceCompat
@@ -168,8 +171,8 @@
             android:defaultValue="75"
             android:dependency="idleSwitch"
             android:key="idleLevel"
-            app:maxValue="95"
-            app:minValue="30"
+            android:max="95"
+            app:min="30"
             app:showSeekBarValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FloatSeekBarPreference">
+        <attr name="minFloat" format="float" />
+        <attr name="maxFloat" format="float" />
+        <attr name="stepFloat" format="float" />
+        <attr name="showReset" format="boolean" />
+        <attr name="decimals" format="integer" />
+        <attr name="dialogTitleText" format="string" />
+        <attr name="unit" format="string" />
+    </declare-styleable>
+</resources>

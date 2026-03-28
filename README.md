@@ -19,7 +19,6 @@ adb install --bypass-low-target-sdk-block settings-database-provider-v1.1-cli.ap
 # External Libraries:
 
  - Root utilities - https://github.com/topjohnwu/libsu
- - Custom seekbar - https://github.com/zacharee/SeekBarPreference, https://github.com/pascua28/SeekBarPreference
  - Time range picker - https://github.com/Droppers/TimeRangePicker
  - Multi waves - https://github.com/scwang90/MultiWaveHeader
     
