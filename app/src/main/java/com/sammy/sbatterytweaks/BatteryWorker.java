@@ -107,6 +107,13 @@ public class BatteryWorker {
         } else return 100;
     }
 
+    private static void updateIdlePref(Context context, boolean idle) {
+        SharedPreferences prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putBoolean("idle", idle)
+                .commit();
+    }
+
     public static void setBypass(int level) {
         Utils.runCmd("echo " + level + " > " + BatteryService.fullCapFIle);
     }
@@ -126,6 +133,7 @@ public class BatteryWorker {
             Utils.changeSetting(context, Utils.Namespace.SYSTEM, "pass_through", bypass);
 
             BatteryService.isBypassed = bypass;
+            updateIdlePref(context, bypass == 1);
             return;
         }
 

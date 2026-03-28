@@ -9,6 +9,20 @@ import android.content.Intent
 import android.widget.RemoteViews
 
 class BatteryStatusWidgetProvider : AppWidgetProvider() {
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+
+        when (intent.action) {
+            ACTION_TOGGLE_BYPASS -> {
+                val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
+                val isBypassed = prefs.getBoolean("idle", false)
+
+                BatteryService.manualBypass = if (isBypassed) false else true
+                BatteryWorker.setBypass(context, if (isBypassed) 0 else 1)
+                updateAllWidgets(context)
+            }
+        }
+    }
 
     override fun onUpdate(
         context: Context,
@@ -26,6 +40,7 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
+        private const val ACTION_TOGGLE_BYPASS = "com.sammy.sbatterytweaks.action.TOGGLE_BYPASS"
         private const val PREFS_NAME = "battery_widget"
         private const val KEY_IDLE = "idle"
         private const val KEY_CHARGING = "charging"
@@ -66,7 +81,10 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
                 setTextViewText(R.id.status_text, statusText)
                 setInt(R.id.widget_root, "setBackgroundResource", status.backgroundRes)
                 setImageViewResource(R.id.status_icon, status.iconRes)
-                setOnClickPendingIntent(R.id.widget_root, buildLaunchPendingIntent(context))
+                setOnClickPendingIntent(
+                    R.id.widget_root,
+                    buildLaunchPendingIntent(context, appWidgetId)
+                )
             }
 
             if (fullUpdate) {
@@ -76,10 +94,40 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
             }
         }
 
-        private fun buildLaunchPendingIntent(context: Context): PendingIntent {
-            val launchIntent = Intent(context, MainActivity::class.java)
-            val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            return PendingIntent.getActivity(context, 0, launchIntent, flags)
+        private fun buildLaunchPendingIntent(
+            context: Context,
+            appWidgetId: Int
+        ): PendingIntent {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            val bypassSupported = prefs.getBoolean("bypass_supported", false)
+            val pausepdSupported = prefs.getBoolean("pausepd_supported", false)
+            val isCharging = prefs.getBoolean("charging", false)
+            val isBypassed = prefs.getBoolean("idle", false)
+
+            return if (isCharging && (bypassSupported || pausepdSupported)) {
+                val targetValue = if (isBypassed) 0 else 1
+
+                val intent = Intent(context, BatteryStatusWidgetProvider::class.java).apply {
+                    action = ACTION_TOGGLE_BYPASS
+                }
+
+                PendingIntent.getBroadcast(
+                    context,
+                    appWidgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            } else {
+                val launchIntent = Intent(context, MainActivity::class.java)
+
+                PendingIntent.getActivity(
+                    context,
+                    10000 + appWidgetId,
+                    launchIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            }
         }
     }
 }

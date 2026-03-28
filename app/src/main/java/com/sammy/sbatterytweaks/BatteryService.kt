@@ -45,6 +45,7 @@ class BatteryService : Service() {
             BatteryWorker.pausePdSupported = false
             e.printStackTrace()
         }
+        updateStatusPref(context)
         buildNotif()
 
         val batteryReceiver = BatteryReceiver()
@@ -123,6 +124,15 @@ class BatteryService : Service() {
         var notification: Notification.Builder? = null
         private var backgroundJob: Job? = null
         private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+        private fun updateStatusPref(context: Context) {
+            val prefs = context.getSharedPreferences("battery_widget", MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("bypass_supported", BatteryWorker.bypassSupported)
+                .putBoolean("pausepd_supported", BatteryWorker.pausePdSupported)
+                .commit()
+        }
+
         @JvmStatic
         fun isBypassed(): Boolean {
             return BatteryReceiver.notCharging() || (BatteryReceiver.isCharging() &&
@@ -166,6 +176,7 @@ class BatteryService : Service() {
                         BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
                     }
 
+                    updateStatusPref(context)
                     updateAllWidgets(context)
 
                     delay(refreshInterval)
