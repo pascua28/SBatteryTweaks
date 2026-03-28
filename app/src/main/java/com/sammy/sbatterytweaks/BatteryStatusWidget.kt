@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import android.widget.Toast
 
 class BatteryStatusWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -16,6 +17,8 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
             ACTION_TOGGLE_BYPASS -> {
                 val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
                 val isBypassed = prefs.getBoolean("idle", false)
+
+                Toast.makeText(context, R.string.widget_bypass_progress, android.widget.Toast.LENGTH_SHORT).show()
 
                 val target = if (isBypassed) 0 else 1
 
