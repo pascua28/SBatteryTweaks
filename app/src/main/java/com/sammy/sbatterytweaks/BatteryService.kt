@@ -164,29 +164,45 @@ class BatteryService : Service() {
             backgroundJob = coroutineScope.launch {
                 while (isActive) {
                     BatteryWorker.fetchUpdates(context)
-                    BatteryWorker.updateStats(context, BatteryReceiver.isCharging())
+
+                    val charging = BatteryReceiver.isCharging()
+                    val bypassed = isBypassed()
+
+                    BatteryWorker.updateStats(context, charging)
 
                     when (getBypassMode()) {
                         BypassMode.FORCE_ON -> {
-                            if (!isBypassed()) {
-                                BatteryWorker.setBypass(context, 1)
+                            if (charging) {
+                                if (!bypassed) {
+                                    BatteryWorker.setBypass(context, 1)
+                                }
+                            } else {
+                                if (bypassed) {
+                                    BatteryWorker.setBypass(context, 0)
+                                }
                             }
                         }
 
                         BypassMode.FORCE_OFF -> {
-                            if (isBypassed()) {
+                            if (bypassed) {
                                 BatteryWorker.setBypass(context, 0)
                             }
                         }
 
                         BypassMode.AUTO -> {
-                            if (BatteryReceiver.drainMonitorEnabled && !BatteryReceiver.isCharging()) {
-                                DrainMonitor.handleBatteryChange(
-                                    context,
-                                    BatteryReceiver.divisor,
-                                    BatteryReceiver.getCounter(context),
-                                    BatteryReceiver.isCharging()
-                                )
+                            if (!charging) {
+                                if (bypassed) {
+                                    BatteryWorker.setBypass(context, 0)
+                                }
+
+                                if (BatteryReceiver.drainMonitorEnabled) {
+                                    DrainMonitor.handleBatteryChange(
+                                        context,
+                                        BatteryReceiver.divisor,
+                                        BatteryReceiver.getCounter(context),
+                                        false
+                                    )
+                                }
 
                                 updateStatusPref(context)
                                 updateAllWidgets(context)
@@ -216,7 +232,7 @@ class BatteryService : Service() {
                                     BatteryWorker.setBypass(BatteryWorker.idleLevel)
                                 }
                             } else {
-                                BatteryWorker.batteryWorker(context, BatteryReceiver.isCharging())
+                                BatteryWorker.batteryWorker(context, true)
                             }
                         }
                     }
