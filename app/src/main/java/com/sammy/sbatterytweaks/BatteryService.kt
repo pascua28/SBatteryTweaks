@@ -120,8 +120,10 @@ class BatteryService : Service() {
 
     companion object {
         const val fullCapFIle: String = "/sys/class/power_supply/battery/batt_full_capacity"
+
         @JvmField
         var refreshInterval: Long = 2500
+
         @JvmField
         var isBypassed: Int = 0
         var notificationManager: NotificationManager? = null

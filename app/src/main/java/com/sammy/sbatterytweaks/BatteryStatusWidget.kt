@@ -18,7 +18,11 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
                 val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
                 val isBypassed = prefs.getBoolean("idle", false)
 
-                Toast.makeText(context, R.string.widget_bypass_progress, android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    R.string.widget_bypass_progress,
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
 
                 val target = if (isBypassed) 0 else 1
 
@@ -50,9 +54,6 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
     companion object {
         private const val ACTION_TOGGLE_BYPASS = "com.sammy.sbatterytweaks.action.TOGGLE_BYPASS"
         private const val PREFS_NAME = "battery_widget"
-        private const val KEY_IDLE = "idle"
-        private const val KEY_CHARGING = "charging"
-        private const val KEY_BATTERY_LEVEL = "battery_level"
 
         private fun prefs(context: Context) =
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

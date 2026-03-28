@@ -13,8 +13,8 @@
         android:layout_gravity="top|start"
         android:layout_marginStart="12dp"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <FrameLayout
             android:id="@+id/icon_bg"
@@ -27,8 +27,8 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_bolt"
-                android:contentDescription="@null" />
+                android:contentDescription="@null"
+                android:src="@drawable/ic_bolt" />
         </FrameLayout>
 
         <TextView

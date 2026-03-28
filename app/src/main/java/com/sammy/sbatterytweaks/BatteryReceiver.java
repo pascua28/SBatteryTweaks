@@ -16,12 +16,11 @@ import java.io.File;
 public class BatteryReceiver extends BroadcastReceiver {
     public static int mLevel, mVolt, divisor = -1;
     public static float mTemp;
-    private static int mPlugged, mStatus;
-    private final File statsFile = new File("/data/system/batterystats.bin");
-
-    private String activeDrain = "", idleDrain = "";
     public static boolean drainMonitorEnabled = false;
     public static boolean isUsbCharging, isWirelessCharging;
+    private static int mPlugged, mStatus;
+    private final File statsFile = new File("/data/system/batterystats.bin");
+    private String activeDrain = "", idleDrain = "";
 
     public static boolean isCharging() {
         return mPlugged > 0;

@@ -99,6 +99,30 @@ public class MainActivity extends AppCompatActivity {
         Utils.runCmd("am force-stop " + packageName);
     }
 
+    public static void showSetupDialog(Context context) {
+        TextView msg = new TextView(context);
+        Spanned spanned = HtmlCompat.fromHtml(
+                context.getString(R.string.setup_dialog_message),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
+
+        msg.setText(spanned);
+        msg.setMovementMethod(LinkMovementMethod.getInstance());
+        msg.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        int padding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, context.getResources().getDisplayMetrics()
+        );
+        msg.setPadding(padding, padding, padding, 0);
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.setup_dialog_title)
+                .setCancelable(true)
+                .setView(msg)
+                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> {
+                    dialog.dismiss();
+                }).show();
+    }
+
     private void updateUI(Boolean shouldUpdate) {
         if (shouldUpdate) {
             handler.post(runnable);
@@ -242,31 +266,6 @@ public class MainActivity extends AppCompatActivity {
 
         BatteryService.installDatabaseProvider(this);
     }
-
-    public static void showSetupDialog(Context context) {
-        TextView msg = new TextView(context);
-        Spanned spanned = HtmlCompat.fromHtml(
-                context.getString(R.string.setup_dialog_message),
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-        );
-
-        msg.setText(spanned);
-        msg.setMovementMethod(LinkMovementMethod.getInstance());
-        msg.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        int padding = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 24, context.getResources().getDisplayMetrics()
-        );
-        msg.setPadding(padding, padding, padding, 0);
-
-        new MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.setup_dialog_title)
-                .setCancelable(true)
-                .setView(msg)
-                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> {
-                    dialog.dismiss();
-                }).show();
-    }
-
 
     @Override
     protected void onResume() {
