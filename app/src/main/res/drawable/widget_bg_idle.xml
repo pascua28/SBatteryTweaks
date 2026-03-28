@@ -3,8 +3,8 @@
 
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#15A78BFA"/>
-            <corners android:radius="24dp"/>
+            <solid android:color="@color/widget_bg_idle_accent" />
+            <corners android:radius="@dimen/widget_bg_outer_radius" />
         </shape>
     </item>
 
@@ -12,12 +12,7 @@
         android:left="2dp"
         android:top="2dp"
         android:right="2dp"
-        android:bottom="2dp">
-
-        <shape android:shape="rectangle">
-            <solid android:color="#D4141418"/>
-            <corners android:radius="22dp"/>
-        </shape>
-    </item>
+        android:bottom="2dp"
+        android:drawable="@drawable/widget_bg_inner" />
 
 </layer-list>

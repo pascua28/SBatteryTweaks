@@ -16,103 +16,112 @@ class BatteryStatusWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         appWidgetIds.forEach { appWidgetId ->
-            updateWidget(context, appWidgetManager, appWidgetId)
-        }
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-
-        when (intent.action) {
-            Intent.ACTION_POWER_CONNECTED,
-            Intent.ACTION_POWER_DISCONNECTED,
-            Intent.ACTION_BATTERY_CHANGED,
-            AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
-                updateAllWidgets(context)
-            }
+            renderWidget(
+                context = context,
+                appWidgetManager = appWidgetManager,
+                appWidgetId = appWidgetId,
+                fullUpdate = true
+            )
         }
     }
 
     companion object {
+        private const val PREFS_NAME = "battery_widget"
+        private const val KEY_IDLE = "idle"
+        private const val KEY_CHARGING = "charging"
+        private const val KEY_BATTERY_LEVEL = "battery_level"
+
+        private fun prefs(context: Context) =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         fun updateAllWidgets(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val component = ComponentName(context, BatteryStatusWidgetProvider::class.java)
             val ids = manager.getAppWidgetIds(component)
-            ids.forEach { id ->
-                updateWidget(context, manager, id)
+
+            ids.forEach { appWidgetId ->
+                renderWidget(
+                    context = context,
+                    appWidgetManager = manager,
+                    appWidgetId = appWidgetId,
+                    fullUpdate = false
+                )
             }
         }
 
-        private fun updateWidget(
+        private fun renderWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetId: Int
+            appWidgetId: Int,
+            fullUpdate: Boolean
         ) {
-            val (status, _) = getBatteryStatus(context)
-            val battPercent = getBatteryPercentage(context)
+            val batteryPercent = getBatteryPercentage(context)
+            if (batteryPercent <= 0) return
 
-            val views = RemoteViews(context.packageName, R.layout.widget_battery_status)
+            val status = getBatteryStatus(context)
+            val statusText = context.getString(status.labelRes)
 
-            views.setTextViewText(R.id.battery_percent, "${battPercent}%")
-            views.setTextViewText(R.id.status_text, status)
-
-            when (status) {
-                "Charging" -> {
-                    views.setInt(
-                        R.id.widget_root,
-                        "setBackgroundResource",
-                        R.drawable.widget_bg_charging
-                    )
-                    views.setImageViewResource(R.id.status_icon, R.drawable.ic_bolt)
-                }
-
-                "Idle" -> {
-                    views.setInt(
-                        R.id.widget_root,
-                        "setBackgroundResource",
-                        R.drawable.widget_bg_idle
-                    )
-                    views.setImageViewResource(R.id.status_icon, R.drawable.ic_shield)
-                }
-
-                else -> {
-                    views.setInt(
-                        R.id.widget_root,
-                        "setBackgroundResource",
-                        R.drawable.widget_bg_discharging
-                    )
-                    views.setImageViewResource(R.id.status_icon, R.drawable.ic_battery)
-                }
+            val views = RemoteViews(context.packageName, R.layout.widget_battery_status).apply {
+                setTextViewText(R.id.battery_percent, "$batteryPercent%")
+                setTextViewText(R.id.status_text, statusText)
+                setInt(R.id.widget_root, "setBackgroundResource", status.backgroundRes)
+                setImageViewResource(R.id.status_icon, status.iconRes)
+                setOnClickPendingIntent(R.id.widget_root, buildLaunchPendingIntent(context))
             }
 
+            if (fullUpdate) {
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            } else {
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
+            }
+        }
+
+        private fun buildLaunchPendingIntent(context: Context): PendingIntent {
             val launchIntent = Intent(context, MainActivity::class.java)
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            val pendingIntent = PendingIntent.getActivity(context, 0, launchIntent, flags)
-            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
-
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            return PendingIntent.getActivity(context, 0, launchIntent, flags)
         }
     }
 }
 
-private fun getBatteryStatus(context: Context): Pair<String, Boolean> {
+private data class WidgetStatus(
+    val key: String,
+    val labelRes: Int,
+    val backgroundRes: Int,
+    val iconRes: Int
+)
+
+private fun getBatteryStatus(context: Context): WidgetStatus {
     val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
 
     val isBypassed = prefs.getBoolean("idle", false)
     val isCharging = prefs.getBoolean("charging", false)
 
     return when {
-        isBypassed -> "Idle" to false
-        isCharging -> "Charging" to true
-        else -> "Discharging" to false
+        isBypassed -> WidgetStatus(
+            key = "idle",
+            labelRes = R.string.idle,
+            backgroundRes = R.drawable.widget_bg_idle,
+            iconRes = R.drawable.ic_shield
+        )
+
+        isCharging -> WidgetStatus(
+            key = "charging",
+            labelRes = R.string.charging,
+            backgroundRes = R.drawable.widget_bg_charging,
+            iconRes = R.drawable.ic_bolt
+        )
+
+        else -> WidgetStatus(
+            key = "discharging",
+            labelRes = R.string.discharging,
+            backgroundRes = R.drawable.widget_bg_discharging,
+            iconRes = R.drawable.ic_battery
+        )
     }
 }
 
 private fun getBatteryPercentage(context: Context): Int {
     val prefs = context.getSharedPreferences("battery_widget", Context.MODE_PRIVATE)
-
-    val percent = prefs.getInt("battery_level", -1)
-
-    return percent
+    return prefs.getInt("battery_level", -1)
 }

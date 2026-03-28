@@ -2,4 +2,13 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="widget_corner_radius_small">8</dimen>
     <dimen name="widget_corner_radius_large">14</dimen>
+
+    <dimen name="widget_bg_outer_radius">24dp</dimen>
+    <dimen name="widget_bg_inner_radius">22dp</dimen>
+    <dimen name="widget_bg_inset">2dp</dimen>
+
+    <dimen name="widget_padding_start">12dp</dimen>
+    <dimen name="widget_padding_top">10dp</dimen>
+    <dimen name="widget_percent_margin_start">14dp</dimen>
+    <dimen name="widget_percent_margin_bottom">10dp</dimen>
 </resources>
