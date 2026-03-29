@@ -12,6 +12,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
+import com.sammy.sbatterytweaks.preference.FloatSeekBarPreference;
+
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -110,17 +112,17 @@ public class SettingsActivity extends AppCompatActivity {
 
             SwitchPreferenceCompat slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
             SwitchPreferenceCompat fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
-            SeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
-            SeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
+            FloatSeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
+            FloatSeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
 
             slowChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
                 int slow = (int) newValue;
-                int fast = fastChargeThreshold.getValue();
+                int fast = (int) fastChargeThreshold.getValue();
 
                 if (fastChargeThresholdSwitch.isEnabled()) {
                     if (slow <= fast) {
                         slow = fast + 1;
-                        slowChargeThreshold.setValue(slow);
+                        slowChargeThreshold.setValue((float) slow, true);
                         return false;
                     }
                 }
@@ -130,12 +132,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             fastChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
                 int fast = (int) newValue;
-                int slow = slowChargeThreshold.getValue();
+                int slow = (int) slowChargeThreshold.getValue();
 
                 if (slowChargeThresholdSwitch.isEnabled()) {
                     if (fast >= slow) {
                         fast = slow - 1;
-                        fastChargeThreshold.setValue(fast);
+                        fastChargeThreshold.setValue((float)fast, true);
                         return false;
                     }
                 }

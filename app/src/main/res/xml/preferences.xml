@@ -72,13 +72,15 @@
             app:summary="@string/slow_charge_threshold_summary"
             app:title="@string/slow_charge_threshold_title" />
 
-        <SeekBarPreference
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:defaultValue="60"
             android:dependency="slowChargeThresholdSwitch"
             android:key="slowChargeThreshold"
-            android:max="100"
-            app:min="30"
-            app:showSeekBarValue="true" />
+            app:maxValue="100"
+            app:minValue="30"
+            app:stepSize="1"
+            app:decimals="0"
+            app:unit="%" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/fast_charge_threshold_pref">
@@ -89,13 +91,15 @@
             app:summary="@string/fast_charge_threshold_summary"
             app:title="@string/fast_charge_threshold_title" />
 
-        <SeekBarPreference
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:defaultValue="40"
             android:dependency="fastChargeThresholdSwitch"
             android:key="fastChargeThreshold"
-            android:max="70"
-            app:min="5"
-            app:showSeekBarValue="true" />
+            app:maxValue="70"
+            app:minValue="5"
+            app:stepSize="1"
+            app:decimals="0"
+            app:unit="%" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/timer_cooldown_pref">
@@ -167,12 +171,14 @@
             android:title="@string/pass_through_level_title"
             app:defaultValue="false" />
 
-        <SeekBarPreference
+        <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:defaultValue="75"
             android:dependency="idleSwitch"
             android:key="idleLevel"
-            android:max="95"
-            app:min="30"
-            app:showSeekBarValue="true" />
+            app:maxValue="95"
+            app:minValue="30"
+            app:stepSize="1"
+            app:decimals="0"
+            app:unit="%" />
     </PreferenceCategory>
 </PreferenceScreen>
