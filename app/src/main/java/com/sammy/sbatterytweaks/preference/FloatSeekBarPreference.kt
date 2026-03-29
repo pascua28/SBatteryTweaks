@@ -29,10 +29,6 @@ class FloatSeekBarPreference @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : Preference(context, attrs, defStyleAttr, defStyleRes) {
 
-    private companion object {
-        private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
-    }
-
     var minValue = 0f
         private set
     var maxValue = 100f
@@ -80,18 +76,11 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         if (stepSize <= 0f) stepSize = 1f
         if (maxValue < minValue) maxValue = minValue
 
-        val xmlDefault = attrs
-            ?.getAttributeValue(ANDROID_NS, "defaultValue")
-            ?.toFloatOrNull()
-
-        defaultValueInternal = clampAndSnap(xmlDefault ?: minValue)
-        value = defaultValueInternal
-
         summaryText = summary
     }
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
-        defaultValueInternal = a.getFloat(index, 0f)
+        defaultValueInternal = a.getFloat(index, minValue)
         return defaultValueInternal
     }
 
