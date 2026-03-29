@@ -91,6 +91,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
     }
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+        defaultValueInternal = a.getFloat(index, 0f)
         return defaultValueInternal
     }
 
