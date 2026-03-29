@@ -130,7 +130,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         resetButton = btnReset
         seekBarView = seekBar
 
-        txtValue?.paintFlags = (txtValue?.paintFlags ?: 0) or Paint.UNDERLINE_TEXT_FLAG
+        txtValue?.paintFlags = (txtValue?.paintFlags ?: 0)
         txtValue?.text = formatDisplayValue(value)
         txtValue?.setOnClickListener {
             showInputDialog()
@@ -234,7 +234,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         return if (suffix.isEmpty()) {
             formatValue(v)
         } else {
-            "${formatValue(v)} $suffix"
+            "${formatValue(v)}$suffix"
         }
     }
 
@@ -289,7 +289,6 @@ class FloatSeekBarPreference @JvmOverloads constructor(
             textSize = 24f
             setText(formatValue(value))
             setSelectAllOnFocus(true)
-            paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
         }
 
         val rightOp = TextView(context).apply {
