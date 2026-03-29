@@ -43,9 +43,9 @@
             android:summary="@string/threshold_temperature_summary"
             android:title="@string/threshold_temperature_title"
             android:defaultValue="36.5"
-            app:maxFloat="45.0"
-            app:minFloat="30.0"
-            app:stepFloat="0.1"
+            app:maxValue="45.0"
+            app:minValue="30.0"
+            app:stepSize="0.1"
             app:decimals="1"
             app:unit="°C" />
 
@@ -56,9 +56,9 @@
             android:summary="@string/cooldown_temperature_summary"
             android:title="@string/cooldown_temperature_title"
             android:defaultValue="0.5"
-            app:maxFloat="5.0"
-            app:minFloat="0.1"
-            app:stepFloat="0.1"
+            app:maxValue="5.0"
+            app:minValue="0.1"
+            app:stepSize="0.1"
             app:decimals="1"
             app:unit="°C" />
 
@@ -113,9 +113,9 @@
             android:summary="@string/cooldown_time_summary"
             android:title="@string/cooldown_time_title"
             android:defaultValue="30"
-            app:maxFloat="600"
-            app:minFloat="30"
-            app:stepFloat="10"
+            app:maxValue="600"
+            app:minValue="30"
+            app:stepSize="10"
             app:decimals="1"
             app:unit="s" />
     </PreferenceCategory>

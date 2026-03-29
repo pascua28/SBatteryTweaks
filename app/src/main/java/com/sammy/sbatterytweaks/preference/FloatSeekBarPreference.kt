@@ -33,11 +33,11 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
     }
 
-    var minFloat = 0f
+    var minValue = 0f
         private set
-    var maxFloat = 100f
+    var maxValue = 100f
         private set
-    var stepFloat = 1f
+    var stepSize = 1f
         private set
     var decimals = 2
         private set
@@ -68,23 +68,23 @@ class FloatSeekBarPreference @JvmOverloads constructor(
             defStyleAttr,
             defStyleRes
         ).use {
-            minFloat = it.getFloat(R.styleable.FloatSeekBarPreference_minFloat, 0f)
-            maxFloat = it.getFloat(R.styleable.FloatSeekBarPreference_maxFloat, 100f)
-            stepFloat = it.getFloat(R.styleable.FloatSeekBarPreference_stepFloat, 1f)
+            minValue = it.getFloat(R.styleable.FloatSeekBarPreference_minValue, 0f)
+            maxValue = it.getFloat(R.styleable.FloatSeekBarPreference_maxValue, 100f)
+            stepSize = it.getFloat(R.styleable.FloatSeekBarPreference_stepSize, 1f)
             decimals = it.getInt(R.styleable.FloatSeekBarPreference_decimals, 2)
             showReset = it.getBoolean(R.styleable.FloatSeekBarPreference_showReset, true)
             dialogTitleText = it.getString(R.styleable.FloatSeekBarPreference_dialogTitleText)
             unit = it.getString(R.styleable.FloatSeekBarPreference_unit)
         }
 
-        if (stepFloat <= 0f) stepFloat = 1f
-        if (maxFloat < minFloat) maxFloat = minFloat
+        if (stepSize <= 0f) stepSize = 1f
+        if (maxValue < minValue) maxValue = minValue
 
         val xmlDefault = attrs
             ?.getAttributeValue(ANDROID_NS, "defaultValue")
             ?.toFloatOrNull()
 
-        defaultValueInternal = clampAndSnap(xmlDefault ?: minFloat)
+        defaultValueInternal = clampAndSnap(xmlDefault ?: minValue)
         value = defaultValueInternal
 
         summaryText = summary
@@ -141,7 +141,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
             setValue(defaultValueInternal, true)
         }
 
-        val totalSteps = toStepIndex(maxFloat)
+        val totalSteps = toStepIndex(maxValue)
         seekBar?.max = totalSteps
         seekBar?.progress = toStepIndex(value)
 
@@ -239,18 +239,18 @@ class FloatSeekBarPreference @JvmOverloads constructor(
     }
 
     private fun clampAndSnap(v: Float): Float {
-        val clamped = v.coerceIn(minFloat, maxFloat)
-        val steps = ((clamped - minFloat) / stepFloat).roundToInt()
-        val snapped = minFloat + (steps * stepFloat)
-        return snapped.coerceIn(minFloat, maxFloat)
+        val clamped = v.coerceIn(minValue, maxValue)
+        val steps = ((clamped - minValue) / stepSize).roundToInt()
+        val snapped = minValue + (steps * stepSize)
+        return snapped.coerceIn(minValue, maxValue)
     }
 
     private fun toStepIndex(v: Float): Int {
-        return (((clampAndSnap(v) - minFloat) / stepFloat) + 0.5f).toInt()
+        return (((clampAndSnap(v) - minValue) / stepSize) + 0.5f).toInt()
     }
 
     private fun progressToValue(progress: Int): Float {
-        return clampAndSnap(minFloat + (progress * stepFloat))
+        return clampAndSnap(minValue + (progress * stepSize))
     }
 
     private fun showInputDialog() {
@@ -261,7 +261,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         }
 
         val minView = TextView(context).apply {
-            text = formatValue(minFloat)
+            text = formatValue(minValue)
             textSize = 22f
         }
 
@@ -299,7 +299,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         }
 
         val maxView = TextView(context).apply {
-            text = formatValue(maxFloat)
+            text = formatValue(maxValue)
             textSize = 22f
         }
 
@@ -327,11 +327,11 @@ class FloatSeekBarPreference @JvmOverloads constructor(
                         inputLayout.error = context.getString(R.string.invalid_number)
                     }
 
-                    entered < minFloat || entered > maxFloat -> {
+                    entered < minValue || entered > maxValue -> {
                         inputLayout.error = context.getString(
                             R.string.value_must_be_between,
-                            formatValue(minFloat),
-                            formatValue(maxFloat)
+                            formatValue(minValue),
+                            formatValue(maxValue)
                         )
                     }
 
