@@ -10,12 +10,40 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
 }
 
+String githubUsername = System.getenv("GITHUB_USERNAME")
+String githubAccessToken = System.getenv("GITHUB_PASSWORD")
+
+if (githubUsername == null || githubAccessToken == null) {
+    throw new GradleException("GITHUB_USERNAME and GITHUB_PASSWORD environment variables must be set")
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        maven {
+            url = uri("https://maven.pkg.github.com/tribalfs/sesl-androidx")
+            credentials {
+                username = githubUsername
+                password = githubAccessToken
+            }
+        }
+        maven {
+            url = uri("https://maven.pkg.github.com/tribalfs/sesl-material-components-android")
+            credentials {
+                username = githubUsername
+                password = githubAccessToken
+            }
+        }
+        maven {
+            url = uri("https://maven.pkg.github.com/tribalfs/oneui-design")
+            credentials {
+                username = githubUsername
+                password = githubAccessToken
+            }
+        }
     }
 }
 rootProject.name = "Charge Rate Automator"

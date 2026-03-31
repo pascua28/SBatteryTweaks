@@ -33,17 +33,36 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation "sesl.androidx.appcompat:appcompat:1.7.1+1.0.21-sesl8+rev8"
+    implementation "sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'sesl.androidx.preference:preference:1.2.1+1.0.0-sesl8+rev1'
     implementation 'com.github.topjohnwu.libsu:core:6.0.0'
     implementation 'nl.joery.timerangepicker:timerangepicker:1.0.0'
-    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'sesl.androidx.core:core-ktx:1.17.0+1.0.0-sesl8+rev0'
 
     def shizuku_version = "13.1.5"
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
 
     implementation 'io.github.sgpublic:MultiWaveHeader:1.0.2'
+    implementation 'io.github.tribalfs:oneui-design:0.9.6+oneui8'
+    implementation "io.github.oneuiproject:icons:1.1.0"
+}
+
+configurations.implementation {
+    exclude(group: "androidx.core", module: "core")
+    exclude(group: "androidx.core", module: "core-ktx")
+    exclude(group: "androidx.customview", module: "customview")
+    exclude(group: "androidx.coordinatorlayout", module: "coordinatorlayout")
+    exclude(group: "androidx.drawerlayout", module: "drawerlayout")
+    exclude(group: "androidx.viewpager2", module: "viewpager2")
+    exclude(group: "androidx.viewpager", module: "viewpager")
+    exclude(group: "androidx.appcompat", module: "appcompat")
+    exclude(group: "androidx.fragment", module: "fragment")
+    exclude(group: "androidx.preference", module: "preference")
+    exclude(group: "androidx.recyclerview", module: "recyclerview")
+    exclude(group: "androidx.slidingpanelayout", module: "slidingpanelayout")
+    exclude(group: "androidx.swiperefreshlayout", module: "swiperefreshlayout")
+    exclude(group: "com.google.android.material", module: "material")
 }

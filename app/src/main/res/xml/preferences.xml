@@ -3,8 +3,7 @@
     android:id="@+id/settings">
 
     <PreferenceCategory app:title="@string/monitor_service_pref">
-
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             app:defaultValue="true"
             app:key="enableservice"
             app:singleLineTitle="false"
@@ -15,7 +14,7 @@
 
     <PreferenceCategory app:title="@string/drain_monitor_service_pref">
 
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             app:defaultValue="false"
             app:key="drainmonitor"
             app:singleLineTitle="false"
@@ -25,7 +24,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cooldown_method_pref">
-    <SwitchPreferenceCompat
+    <SeslSwitchPreferenceScreen
         android:dependency="enableservice"
         app:defaultValue="false"
         app:key="pauseMode"
@@ -35,7 +34,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/temperature_threshold">
-
         <com.sammy.sbatterytweaks.preference.FloatSeekBarPreference
             android:dependency="enableservice"
             android:key="thresholdUp"
@@ -65,7 +63,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/slow_charge_threshold_pref">
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             app:defaultValue="false"
             app:key="slowChargeThresholdSwitch"
             app:singleLineTitle="false"
@@ -84,7 +82,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/fast_charge_threshold_pref">
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             app:defaultValue="false"
             app:key="fastChargeThresholdSwitch"
             app:singleLineTitle="false"
@@ -103,7 +101,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/timer_cooldown_pref">
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             app:defaultValue="false"
             app:key="timerSwitch"
@@ -124,7 +122,7 @@
             app:unit="s" />
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/scheduled_charge_control_pref">
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             app:defaultValue="false"
             app:key="schedSwitch"
@@ -140,7 +138,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/misc_pref">
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             android:summary="@string/toast_notifications_summary"
             app:defaultValue="false"
@@ -148,7 +146,7 @@
             app:singleLineTitle="false"
             app:title="@string/toast_notifications_title" />
 
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             android:summary="@string/autosync_summary"
             app:defaultValue="false"
@@ -156,7 +154,7 @@
             app:singleLineTitle="false"
             app:title="@string/autosync_title" />
 
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             android:summary="@string/reset_stats_summary"
             app:defaultValue="false"
@@ -164,7 +162,7 @@
             app:singleLineTitle="false"
             app:title="@string/reset_stats_title" />
 
-        <SwitchPreferenceCompat
+        <SeslSwitchPreferenceScreen
             android:key="idleSwitch"
             android:singleLineTitle="false"
             android:summary="@string/pass_through_level_summary"

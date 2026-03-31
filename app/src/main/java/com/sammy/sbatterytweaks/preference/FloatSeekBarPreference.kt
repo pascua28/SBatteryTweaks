@@ -5,6 +5,7 @@ import android.content.res.TypedArray
 import android.graphics.Paint
 import android.text.InputType
 import android.util.AttributeSet
+import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
@@ -120,7 +121,6 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         resetButton = btnReset
         seekBarView = seekBar
 
-        txtValue?.paintFlags = (txtValue?.paintFlags ?: 0)
         txtValue?.text = formatDisplayValue(value)
         txtValue?.setOnClickListener {
             showInputDialog()
@@ -299,7 +299,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         container.addView(rightOp)
         container.addView(maxView)
 
-        val dialog = MaterialAlertDialogBuilder(context)
+        val dialog = AlertDialog.Builder(context)
             .setView(container)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.ok, null)

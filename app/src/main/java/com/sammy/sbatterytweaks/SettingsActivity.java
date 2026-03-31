@@ -9,9 +9,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SeekBarPreference;
-import androidx.preference.SwitchPreferenceCompat;
+import androidx.preference.SeslSwitchPreferenceScreen;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.sammy.sbatterytweaks.preference.FloatSeekBarPreference;
 
 import java.util.Objects;
@@ -40,11 +40,13 @@ public class SettingsActivity extends AppCompatActivity {
     private Switch idleToggle;
 
     @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
-            setTheme(R.style.Theme_ChargeRateAutomator_Settings);
-        else
-            setTheme(R.style.Theme_ChargeRateAutomator);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
         if (savedInstanceState == null) {
@@ -53,9 +55,11 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        MaterialToolbar toolbar = findViewById(R.id.settings_toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -65,15 +69,15 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
-            SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
+            SeslSwitchPreferenceScreen pauseModeSwitch = findPreference("pauseMode");
             assert pauseModeSwitch != null;
             pauseModeSwitch.setEnabled(false);
-            SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
+            SeslSwitchPreferenceScreen idleSwitch = findPreference(PREF_IDLE_SWITCH);
             assert idleSwitch != null;
             idleSwitch.setEnabled(false);
-            SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
+            SeslSwitchPreferenceScreen resetSwitch = findPreference(PREF_RESET_STATS);
 
-            SwitchPreferenceCompat drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
+            SeslSwitchPreferenceScreen drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
             if (!drainMonitorSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
                     DrainMonitor.resetStats(getContext());
@@ -110,8 +114,8 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            SwitchPreferenceCompat slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
-            SwitchPreferenceCompat fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
+            SeslSwitchPreferenceScreen slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
+            SeslSwitchPreferenceScreen fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
             FloatSeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
             FloatSeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
 

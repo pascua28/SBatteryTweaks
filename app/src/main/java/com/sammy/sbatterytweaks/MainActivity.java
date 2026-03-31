@@ -26,6 +26,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -37,6 +38,7 @@ import com.scwang.wave.MultiWaveHeader;
 
 import java.util.Locale;
 
+import dev.oneuiproject.oneui.widget.RoundedLinearLayout;
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends AppCompatActivity {
@@ -153,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
         else
             setTheme(R.style.Theme_ChargeRateAutomator_NoActionBar);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -160,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
         int fullcapnom = -1;
         float battHealth;
 
-        CardView idleCard = findViewById(R.id.idleCardView);
-        CardView capacityCard = findViewById(R.id.capacityView);
+        RoundedLinearLayout idleCard = findViewById(R.id.idleCardView);
+        RoundedLinearLayout capacityCard = findViewById(R.id.capacityView);
         idleCard.setVisibility(View.GONE);
 
         isRunning = true;

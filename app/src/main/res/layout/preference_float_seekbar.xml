@@ -12,7 +12,7 @@
         android:id="@+id/textContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
+        android:layout_marginStart="5dp"
         android:orientation="vertical">
 
         <TextView
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
     <LinearLayout
@@ -60,15 +60,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxHeight="28dp"
-            android:minHeight="28dp" />
+            style="@style/OneUI.SeekBarPreferencePro" />
 
         <TextView
             android:id="@+id/txtValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical|end"
@@ -77,7 +75,7 @@
             android:paddingTop="6dp"
             android:paddingEnd="8dp"
             android:paddingBottom="6dp"
-            android:textAppearance="?attr/textAppearanceBodyLarge" />
+            android:textAppearance="@style/OneUI.SeekBarProValueTextAppearance" />
     </LinearLayout>
 
 </LinearLayout>
