@@ -42,12 +42,7 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
         cancelBtn = findViewById(R.id.cancelBtn);
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        cancelBtn.setOnClickListener(v -> dismiss());
 
         TextView start_Time = findViewById(R.id.start_time);
         TextView end_Time = findViewById(R.id.end_time);

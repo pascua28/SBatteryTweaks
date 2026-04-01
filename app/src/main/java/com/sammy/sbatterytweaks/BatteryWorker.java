@@ -87,7 +87,7 @@ public class BatteryWorker {
         duration = timePref.getInt(TimePicker.PREF_DURATION, 480);
 
         if (bypassSupported)
-            battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.fullCapFIle));
+            battFullCap = Integer.parseInt(Utils.runCmd("cat " + BatteryService.FULLCAPFILE));
     }
 
     public static void batteryWorker(Context context, Boolean isCharging) {
@@ -115,7 +115,7 @@ public class BatteryWorker {
     }
 
     public static void setBypass(int level) {
-        Utils.runCmd("echo " + level + " > " + BatteryService.fullCapFIle);
+        Utils.runCmd("echo " + level + " > " + BatteryService.FULLCAPFILE);
     }
 
     public static void setBypass(Context context, int bypass) {

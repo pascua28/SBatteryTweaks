@@ -12,6 +12,7 @@ import androidx.preference.PreferenceManager;
 import com.topjohnwu.superuser.ShellUtils;
 
 import java.io.File;
+import java.util.Objects;
 
 public class BatteryReceiver extends BroadcastReceiver {
     public static int mLevel, mVolt, divisor = -1;
@@ -114,7 +115,7 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (divisor <= 0)
             divisor = getStableDivisor(context);
 
-        if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
+        if (Objects.equals(intent.getAction(), Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically()) {
                 ContentResolver.setMasterSyncAutomatically(true);
             }
@@ -124,7 +125,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             if (drainMonitorEnabled) {
                 DrainMonitor.resetStats(context);
             }
-        } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
+        } else if (Objects.equals(intent.getAction(), Intent.ACTION_POWER_DISCONNECTED)) {
             if (drainMonitorEnabled) {
                 DrainMonitor.resetStats(context);
             }

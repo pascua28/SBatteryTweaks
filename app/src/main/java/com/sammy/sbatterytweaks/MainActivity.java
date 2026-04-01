@@ -26,8 +26,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
@@ -54,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView voltText;
     private TextView battTemperature;
     private TextView fastChgStatus;
-    private TextView bypassText;
     private AppCompatImageButton settingsButton;
     private Animation rotateAnimation;
     private final Runnable runnable = new Runnable() {
@@ -120,9 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle(R.string.setup_dialog_title)
                 .setCancelable(true)
                 .setView(msg)
-                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> {
-                    dialog.dismiss();
-                }).show();
+                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> dialog.dismiss()).show();
     }
 
     private void updateUI(Boolean shouldUpdate) {
@@ -160,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         int actualCapacity = Utils.getActualCapacity(this);
-        int fullcapnom = -1;
+        int fullcapnom;
         float battHealth;
 
         RoundedLinearLayout idleCard = findViewById(R.id.idleCardView);
@@ -176,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
         AppCompatImageButton donateButton = findViewById(R.id.supportBtn);
 
-        bypassText = findViewById(R.id.bypassText);
+        TextView bypassText = findViewById(R.id.bypassText);
         chargingStatus = findViewById(R.id.chargingText);
         levelText = findViewById(R.id.levelText);
         currentText = findViewById(R.id.currentText);

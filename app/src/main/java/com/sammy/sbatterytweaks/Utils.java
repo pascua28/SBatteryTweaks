@@ -92,7 +92,7 @@ public class Utils {
         int mCapacity;
         try {
             Class<?> powerProfile = Class.forName("com.android.internal.os.PowerProfile");
-            Constructor constructor = powerProfile.getDeclaredConstructor(Context.class);
+            Constructor<?> constructor = powerProfile.getDeclaredConstructor(Context.class);
             Object powerProInstance = constructor.newInstance(context);
             Method batteryCap = powerProfile.getMethod("getBatteryCapacity");
             mCapacity = Math.round((long) (double) batteryCap.invoke(powerProInstance));

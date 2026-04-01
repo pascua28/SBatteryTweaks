@@ -2,10 +2,8 @@ package com.sammy.sbatterytweaks;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Switch;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -37,11 +35,9 @@ public class SettingsActivity extends AppCompatActivity {
             PREF_FAST_CHARGE_THRESHOLD = "fastChargeThreshold",
             PREF_TOAST_NOTIF = "enabletoast";
 
-    private Switch idleToggle;
-
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
 
@@ -78,7 +74,8 @@ public class SettingsActivity extends AppCompatActivity {
             SeslSwitchPreferenceScreen resetSwitch = findPreference(PREF_RESET_STATS);
 
             SeslSwitchPreferenceScreen drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
-            if (!drainMonitorSwitch.isEnabled()) {
+            if (drainMonitorSwitch != null &&
+                    !drainMonitorSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
                     DrainMonitor.resetStats(getContext());
                     return false;
@@ -119,35 +116,40 @@ public class SettingsActivity extends AppCompatActivity {
             FloatSeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
             FloatSeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
 
-            slowChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
-                int slow = (int) newValue;
-                int fast = (int) fastChargeThreshold.getValue();
+            if (slowChargeThresholdSwitch != null &&
+                    slowChargeThreshold != null &&
+                    fastChargeThresholdSwitch != null &&
+                    fastChargeThreshold != null) {
+                slowChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
+                    int slow = (int) newValue;
+                    int fast = (int) fastChargeThreshold.getValue();
 
-                if (fastChargeThresholdSwitch.isEnabled()) {
-                    if (slow <= fast) {
-                        slow = fast + 1;
-                        slowChargeThreshold.setValue((float) slow, true);
-                        return false;
+                    if (fastChargeThresholdSwitch.isEnabled()) {
+                        if (slow <= fast) {
+                            slow = fast + 1;
+                            slowChargeThreshold.setValue((float) slow, true);
+                            return false;
+                        }
                     }
-                }
 
-                return true;
-            }));
+                    return true;
+                }));
 
-            fastChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
-                int fast = (int) newValue;
-                int slow = (int) slowChargeThreshold.getValue();
+                fastChargeThreshold.setOnPreferenceChangeListener(((preference, newValue) -> {
+                    int fast = (int) newValue;
+                    int slow = (int) slowChargeThreshold.getValue();
 
-                if (slowChargeThresholdSwitch.isEnabled()) {
-                    if (fast >= slow) {
-                        fast = slow - 1;
-                        fastChargeThreshold.setValue((float)fast, true);
-                        return false;
+                    if (slowChargeThresholdSwitch.isEnabled()) {
+                        if (fast >= slow) {
+                            fast = slow - 1;
+                            fastChargeThreshold.setValue((float) fast, true);
+                            return false;
+                        }
                     }
-                }
 
-                return true;
-            }));
+                    return true;
+                }));
+            }
         }
 
         @Override

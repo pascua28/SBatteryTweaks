@@ -2,10 +2,8 @@ package com.sammy.sbatterytweaks.preference
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.graphics.Paint
 import android.text.InputType
 import android.util.AttributeSet
-import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
@@ -16,7 +14,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.sammy.sbatterytweaks.R

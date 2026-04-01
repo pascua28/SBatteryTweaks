@@ -43,7 +43,7 @@ class BatteryService : Service() {
         super.onCreate()
         context = this
         BatteryWorker.bypassSupported = (Utils.isPrivileged() &&
-                Utils.runCmd("ls " + fullCapFIle).contains(fullCapFIle))
+                Utils.runCmd("ls $FULLCAPFILE").contains(FULLCAPFILE))
         try {
             Settings.System.getInt(contentResolver, "pass_through")
             BatteryWorker.pausePdSupported = true
@@ -57,11 +57,11 @@ class BatteryService : Service() {
         val batteryReceiver = BatteryReceiver()
         val ifilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         registerReceiver(batteryReceiver, ifilter)
-        val ACTION_POWER_CONNECTED = IntentFilter("android.intent.action.ACTION_POWER_CONNECTED")
-        val ACTION_POWER_DISCONNECTED =
+        val powerConnected = IntentFilter("android.intent.action.ACTION_POWER_CONNECTED")
+        val powerDisconnected =
             IntentFilter("android.intent.action.ACTION_POWER_DISCONNECTED")
-        registerReceiver(BatteryReceiver(), ACTION_POWER_CONNECTED)
-        registerReceiver(BatteryReceiver(), ACTION_POWER_DISCONNECTED)
+        registerReceiver(BatteryReceiver(), powerConnected)
+        registerReceiver(BatteryReceiver(), powerDisconnected)
 
         val screenReceiver = ScreenReceiver()
         registerReceiver(screenReceiver, IntentFilter(Intent.ACTION_SCREEN_ON))
@@ -71,9 +71,9 @@ class BatteryService : Service() {
         try {
             sharedPreferences.edit().putInt(
                 "PROTECT_ENABLED",
-                Settings.Global.getInt(context.getContentResolver(), "protect_battery")
+                Settings.Global.getInt(context.contentResolver, "protect_battery")
             ).apply()
-        } catch (ignored: SettingNotFoundException) {
+        } catch (_: SettingNotFoundException) {
             sharedPreferences.edit().putInt("PROTECT_ENABLED", -1).apply()
         }
 
@@ -86,10 +86,10 @@ class BatteryService : Service() {
     }
 
     private fun buildNotif() {
-        val CHANNELID = "Batt"
+        val channelID = "Batt"
         val channel = NotificationChannel(
-            CHANNELID,
-            CHANNELID,
+            channelID,
+            channelID,
             NotificationManager.IMPORTANCE_NONE
         )
 
@@ -108,7 +108,7 @@ class BatteryService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        notification = Notification.Builder(this, CHANNELID)
+        notification = Notification.Builder(this, channelID)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_launcher_monochrome)
             .setCategory(Notification.CATEGORY_SERVICE)
@@ -119,7 +119,7 @@ class BatteryService : Service() {
     }
 
     companion object {
-        const val fullCapFIle: String = "/sys/class/power_supply/battery/batt_full_capacity"
+        const val FULLCAPFILE: String = "/sys/class/power_supply/battery/batt_full_capacity"
 
         @JvmField
         var refreshInterval: Long = 2500
@@ -249,21 +249,18 @@ class BatteryService : Service() {
         fun updateNotif(msg: String?, msg2: String?, msg3: String?) {
             if (notificationManager == null) return
 
-            notification!!.setContentTitle(msg)
-                .setStyle(
-                    Notification.InboxStyle()
-                        .addLine(msg2)
-                        .addLine(msg3)
-                )
+            notification!!.setContentTitle(msg).style = Notification.InboxStyle()
+                .addLine(msg2)
+                .addLine(msg3)
             notificationManager!!.notify(1002, notification!!.build())
         }
 
-        private const val providerName = "com.netvor.settings.database.provider"
+        private const val PROVIDER_PACKAGE = "com.netvor.settings.database.provider"
         private fun providerInstalled(context: Context): Boolean {
             try {
-                context.packageManager.getPackageGids(providerName)
+                context.packageManager.getPackageGids(PROVIDER_PACKAGE)
                 return true
-            } catch (ignored: PackageManager.NameNotFoundException) {
+            } catch (_: PackageManager.NameNotFoundException) {
                 return false
             }
         }
@@ -311,7 +308,7 @@ class BatteryService : Service() {
                             ).show()
                         }
                         MainActivity.forceStop(context)
-                    } catch (ignored: IOException) {
+                    } catch (_: IOException) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
