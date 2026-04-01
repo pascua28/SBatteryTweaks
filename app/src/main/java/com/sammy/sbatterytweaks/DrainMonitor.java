@@ -8,108 +8,77 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DrainMonitor {
-    public static float batteryPct;
-    private static float lastBatteryLevel = -1;
-    private static long lastUpdateTime = 0;
-    private static boolean screenOn = true;
-    private static boolean ignoreNextDrop = false;
-    private static float lastValidLevel = -1;
-    private static boolean initialDropHandled = false;
-    private static boolean isCharging = false;
-
     private static final String PREF_NAME = "DrainStatsPrefs";
-    private static final String KEY_SCREEN_ON_DRAINS = "screen_on_drains";
-    private static final String KEY_SCREEN_OFF_DRAINS = "screen_off_drains";
+    private static final String KEY_SCREEN_ON = "screen_on_drains";
+    private static final String KEY_SCREEN_OFF = "screen_off_drains";
+    // Store %/h samples
+    private static final List<Float> screenOnDrains = new ArrayList<>();
+    private static final List<Float> screenOffDrains = new ArrayList<>();
+    private static int lastChargeCounter = Integer.MIN_VALUE;
+    private static long lastSampleTime = 0L;
+    private static boolean screenOn = true;
+    private static boolean ignoreNextSample = false;
 
-    private static List<Float> screenOnDrains = new ArrayList<>();
-    private static List<Float> screenOffDrains = new ArrayList<>();
+    public static void handleChargeCounterChange(Context context, int chargeCounterUah) {
+        if (chargeCounterUah <= 0) return;
 
-    public static void handleBatteryChange(Context context, int divisor, int counter, boolean chargingStatus) {
-        if (divisor <= 0 || counter < 0) return;
+        long now = SystemClock.elapsedRealtime();
 
-        batteryPct = ((counter / 1000f) / divisor) * 100;
-        boolean wasCharging = isCharging;
-        isCharging = chargingStatus;
-
-        if (wasCharging != isCharging) {
-            if (isCharging) {
-                resetStats(context);
-            } else {
-                lastBatteryLevel = batteryPct;
-                lastValidLevel = batteryPct;
-                lastUpdateTime = SystemClock.elapsedRealtime();
-                initialDropHandled = false;
-                ignoreNextDrop = true;
-            }
+        if (lastChargeCounter == Integer.MIN_VALUE) {
+            lastChargeCounter = chargeCounterUah;
+            lastSampleTime = now;
             return;
         }
 
-        if (isCharging) return;
-
-        if (lastBatteryLevel == -1) {
-            lastBatteryLevel = batteryPct;
-            lastValidLevel = batteryPct;
-            lastUpdateTime = SystemClock.elapsedRealtime();
+        if (ignoreNextSample) {
+            lastChargeCounter = chargeCounterUah;
+            lastSampleTime = now;
+            ignoreNextSample = false;
             return;
         }
 
-        float pctDropped = lastBatteryLevel - batteryPct;
+        int deltaUah = lastChargeCounter - chargeCounterUah;
+        long elapsedMs = now - lastSampleTime;
 
-        if (pctDropped > 0) {
-            if (ignoreNextDrop) {
-                lastBatteryLevel = batteryPct;
-                lastValidLevel = batteryPct;
-                lastUpdateTime = SystemClock.elapsedRealtime();
-                ignoreNextDrop = false;
-                initialDropHandled = true;
-                return;
-            }
+        lastChargeCounter = chargeCounterUah;
+        lastSampleTime = now;
 
-            long now = SystemClock.elapsedRealtime();
-            long timeElapsed = now - lastUpdateTime;
+        if (elapsedMs <= 0 || deltaUah <= 0) return;
 
-            if (timeElapsed > 0 && initialDropHandled) {
-                float hoursElapsed = timeElapsed / (1000f * 60f * 60f);
-                float currentDrainRate = pctDropped / hoursElapsed;
+        // Noise filter
+        if (deltaUah < 1000) return;
 
-                if (screenOn) {
-                    screenOnDrains.add(currentDrainRate);
-                } else {
-                    screenOffDrains.add(currentDrainRate);
-                }
+        float elapsedHours = elapsedMs / 3600000f;
 
-                persistStats(context);
-            }
+        float drainUahPerHour = deltaUah / elapsedHours;
 
-            lastBatteryLevel = batteryPct;
-            lastValidLevel = batteryPct;
-            lastUpdateTime = now;
-            initialDropHandled = true;
-        } else if (batteryPct > lastBatteryLevel) {
-            resetStats(context);
-            lastBatteryLevel = batteryPct;
-            lastValidLevel = batteryPct;
-            lastUpdateTime = SystemClock.elapsedRealtime();
+        int divisor = BatteryReceiver.divisor;
+        if (divisor <= 0) return;
+
+        float drainPctPerHour = (drainUahPerHour / divisor) / 10f;
+
+        if (drainPctPerHour <= 0f) return;
+
+        if (screenOn) {
+            screenOnDrains.add(drainPctPerHour);
+        } else {
+            screenOffDrains.add(drainPctPerHour);
         }
+
+        persistStats(context);
     }
 
     public static void handleScreenChange(boolean newScreenOn) {
         if (screenOn != newScreenOn) {
             screenOn = newScreenOn;
-            ignoreNextDrop = true;
-            initialDropHandled = false;
-            lastBatteryLevel = lastValidLevel;
-            lastUpdateTime = SystemClock.elapsedRealtime();
+            ignoreNextSample = true;
         }
     }
 
     public static void resetStats(Context context) {
-        lastBatteryLevel = -1;
-        lastValidLevel = -1;
-        lastUpdateTime = 0;
-        initialDropHandled = false;
-        ignoreNextDrop = false;
-        isCharging = false;
+        lastChargeCounter = Integer.MIN_VALUE;
+        lastSampleTime = 0L;
+        ignoreNextSample = false;
 
         screenOnDrains.clear();
         screenOffDrains.clear();
@@ -126,9 +95,12 @@ public class DrainMonitor {
     }
 
     private static float average(List<Float> list) {
-        if (list.isEmpty()) return 0;
-        float sum = 0;
-        for (float val : list) sum += val;
+        if (list.isEmpty()) return 0f;
+
+        float sum = 0f;
+        for (float value : list) {
+            sum += value;
+        }
         return sum / list.size();
     }
 
@@ -150,7 +122,7 @@ public class DrainMonitor {
     }
 
     private static void persistStats(Context context) {
-        saveFloatList(context, KEY_SCREEN_ON_DRAINS, screenOnDrains);
-        saveFloatList(context, KEY_SCREEN_OFF_DRAINS, screenOffDrains);
+        saveFloatList(context, KEY_SCREEN_ON, screenOnDrains);
+        saveFloatList(context, KEY_SCREEN_OFF, screenOffDrains);
     }
 }

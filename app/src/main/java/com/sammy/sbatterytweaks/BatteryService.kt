@@ -195,15 +195,6 @@ class BatteryService : Service() {
                                     BatteryWorker.setBypass(context, 0)
                                 }
 
-                                if (BatteryReceiver.drainMonitorEnabled) {
-                                    DrainMonitor.handleBatteryChange(
-                                        context,
-                                        BatteryReceiver.divisor,
-                                        BatteryReceiver.getCounter(context),
-                                        false
-                                    )
-                                }
-
                                 updateStatusPref(context)
                                 updateAllWidgets(context)
                                 delay(refreshInterval)
@@ -235,6 +226,10 @@ class BatteryService : Service() {
                                 BatteryWorker.batteryWorker(context, true)
                             }
                         }
+                    }
+
+                    if (BatteryReceiver.drainMonitorEnabled) {
+                        DrainMonitor.handleChargeCounterChange(context, BatteryReceiver.getCounter(context))
                     }
 
                     updateStatusPref(context)

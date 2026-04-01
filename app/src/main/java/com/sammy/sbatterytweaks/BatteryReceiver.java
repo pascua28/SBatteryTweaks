@@ -114,19 +114,29 @@ public class BatteryReceiver extends BroadcastReceiver {
         if (divisor <= 0)
             divisor = getStableDivisor(context);
 
-
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
-            if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically())
+            if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically()) {
                 ContentResolver.setMasterSyncAutomatically(true);
+            }
 
             BatteryService.startBackgroundTask(context);
+
+            if (drainMonitorEnabled) {
+                DrainMonitor.resetStats(context);
+            }
         } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
-            if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically())
+            if (drainMonitorEnabled) {
+                DrainMonitor.resetStats(context);
+            }
+
+            if (BatteryWorker.disableSync && ContentResolver.getMasterSyncAutomatically()) {
                 ContentResolver.setMasterSyncAutomatically(false);
+            }
 
             if (BatteryWorker.autoReset) {
-                if (statsFile.exists())
+                if (statsFile.exists()) {
                     ShellUtils.fastCmd("rm " + statsFile);
+                }
             }
 
             if (BatteryService.isBypassed == 1) {
@@ -143,19 +153,29 @@ public class BatteryReceiver extends BroadcastReceiver {
             MainActivity.updateWaves(mLevel);
         }
 
+        if (drainMonitorEnabled && !isCharging()) {
+            int counter = getCounter(context);
+            DrainMonitor.handleChargeCounterChange(context, counter);
+        }
+
         if (isCharging() || !drainMonitorEnabled) {
             activeDrain = "";
             idleDrain = "";
         } else {
-            if (DrainMonitor.getScreenOnDrainRate() > 0.0f)
+            if (DrainMonitor.getScreenOnDrainRate() > 0.0f) {
                 activeDrain = context.getString(R.string.active_drain, DrainMonitor.getScreenOnDrainRate());
+            }
 
-            if (DrainMonitor.getScreenOffDrainRate() > 0.0f)
+            if (DrainMonitor.getScreenOffDrainRate() > 0.0f) {
                 idleDrain = context.getString(R.string.idle_drain, DrainMonitor.getScreenOffDrainRate());
+            }
         }
 
-        BatteryService.updateNotif(context.getString(R.string.temperature_title) + getTemp() + " °C",
-                activeDrain, idleDrain);
+        BatteryService.updateNotif(
+                context.getString(R.string.temperature_title) + getTemp() + " °C",
+                activeDrain,
+                idleDrain
+        );
     }
 
     private void updateStatusPref(Context context, int level, Boolean charging, Boolean idle) {
