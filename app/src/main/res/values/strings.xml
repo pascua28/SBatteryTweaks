@@ -36,8 +36,17 @@
 
     <!-- Notification -->
     <string name="temperature_title">"Temperature: "</string>
-    <string name="active_drain">Active drain: %1$.2f%%/hr</string>
-    <string name="idle_drain">Idle drain: %1$.2f%%/hr</string>
+    <string name="active_drain">📱 %1$.2f%%/hr</string>
+    <string name="idle_drain">🌙 %1$.2f%%/hr</string>
+    <string name="charging_rate">⚡ %1$.2f%%/hr</string>
+
+    <string name="drain_detail">(%1$s%2$.1f%%, %3$s)</string>
+    <string name="drain_sign_negative">-</string>
+    <string name="drain_sign_positive">+</string>
+
+    <string name="active_drain_full">%1$s %2$s</string>
+    <string name="idle_drain_full">%1$s %2$s</string>
+    <string name="charging_rate_full">%1$s %2$s</string>
 
     <!-- Toast notifications -->
     <string name="restart_granted">Please restart the app.</string>
@@ -56,9 +65,9 @@
     <string name="monitor_service_title">Enable Service</string>
     <string name="monitor_service_summary">If enabled, the app will automatically switch fast charging mode or pause charging (root mode) based on threshold temperatures</string>
     <!-- Battery drain monitor service -->
-    <string name="drain_monitor_service_pref">Battery Drain Monitor (Experimental)</string>
-    <string name="drain_monitor_service_title">Enable Battery Drain Monitoring</string>
-    <string name="drain_monitor_service_summary">Show a notification of active and idle drain in percentage per hour.</string>
+    <string name="drain_monitor_service_pref">Battery Rate Monitor</string>
+    <string name="drain_monitor_service_title">Enable Battery Percentage Rate Monitoring</string>
+    <string name="drain_monitor_service_summary">Show a detailed notification of charging or discharging rate in percentage per hour.</string>
     <!-- Cooldown method -->
     <string name="cooldown_method_pref">Cooldown method</string>
     <string name="bypass_charging_title">Bypass charging mode</string>

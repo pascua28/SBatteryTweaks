@@ -21,7 +21,6 @@ public class BatteryReceiver extends BroadcastReceiver {
     public static boolean isUsbCharging, isWirelessCharging;
     private static int mPlugged, mStatus;
     private final File statsFile = new File("/data/system/batterystats.bin");
-    private String activeDrain = "", idleDrain = "";
 
     public static boolean isCharging() {
         return mPlugged > 0;
@@ -86,6 +85,10 @@ public class BatteryReceiver extends BroadcastReceiver {
         }
 
         return lastDivisor;
+    }
+
+    public static float getTemp() {
+        return mTemp;
     }
 
     @Override
@@ -154,29 +157,7 @@ public class BatteryReceiver extends BroadcastReceiver {
             MainActivity.updateWaves(mLevel);
         }
 
-        if (drainMonitorEnabled && !isCharging()) {
-            int counter = getCounter(context);
-            DrainMonitor.handleChargeCounterChange(context, counter);
-        }
-
-        if (isCharging() || !drainMonitorEnabled) {
-            activeDrain = "";
-            idleDrain = "";
-        } else {
-            if (DrainMonitor.getScreenOnDrainRate() > 0.0f) {
-                activeDrain = context.getString(R.string.active_drain, DrainMonitor.getScreenOnDrainRate());
-            }
-
-            if (DrainMonitor.getScreenOffDrainRate() > 0.0f) {
-                idleDrain = context.getString(R.string.idle_drain, DrainMonitor.getScreenOffDrainRate());
-            }
-        }
-
-        BatteryService.updateNotif(
-                context.getString(R.string.temperature_title) + getTemp() + " °C",
-                activeDrain,
-                idleDrain
-        );
+        BatteryService.updateNotif(context);
     }
 
     private void updateStatusPref(Context context, int level, Boolean charging, Boolean idle) {
@@ -186,9 +167,5 @@ public class BatteryReceiver extends BroadcastReceiver {
                 .putBoolean("charging", charging)
                 .putBoolean("idle", idle)
                 .commit();
-    }
-
-    private float getTemp() {
-        return mTemp;
     }
 }

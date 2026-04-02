@@ -170,6 +170,14 @@ class BatteryService : Service() {
 
                     BatteryWorker.updateStats(context, charging)
 
+                    if (BatteryReceiver.drainMonitorEnabled) {
+                        DrainMonitor.handleChargeCounterChange(
+                            context,
+                            BatteryReceiver.getCounter(context)
+                        )
+                        updateNotif(context)
+                    }
+
                     when (getBypassMode()) {
                         BypassMode.FORCE_ON -> {
                             if (charging) {
@@ -228,10 +236,6 @@ class BatteryService : Service() {
                         }
                     }
 
-                    if (BatteryReceiver.drainMonitorEnabled) {
-                        DrainMonitor.handleChargeCounterChange(context, BatteryReceiver.getCounter(context))
-                    }
-
                     updateStatusPref(context)
                     updateAllWidgets(context)
                     delay(refreshInterval)
@@ -246,8 +250,52 @@ class BatteryService : Service() {
         }
 
         @JvmStatic
-        fun updateNotif(msg: String?, msg2: String?, msg3: String?) {
+        fun updateNotif(context: Context) {
             if (notificationManager == null) return
+
+            val msg =
+                context.getString(R.string.temperature_title) + BatteryReceiver.getTemp() + " °C"
+            var msg2 = ""
+            var msg3 = ""
+
+            if (BatteryReceiver.drainMonitorEnabled) {
+                if (BatteryReceiver.isCharging()) {
+                    if (!isBypassed()) {
+                        val rate = DrainMonitor.getChargingRate()
+                        if (rate > 0f) {
+                            val base = context.getString(R.string.charging_rate, rate)
+                            val detail = DrainMonitor.getChargingDetail(context)
+                            msg2 = if (detail.isNotEmpty()) {
+                                context.getString(R.string.charging_rate_full, base, detail)
+                            } else {
+                                base
+                            }
+                        }
+                    }
+                } else {
+                    val activeRate = DrainMonitor.getScreenOnDrainRate()
+                    if (activeRate > 0f) {
+                        val base = context.getString(R.string.active_drain, activeRate)
+                        val detail = DrainMonitor.getScreenOnDetail(context)
+                        msg2 = if (detail.isNotEmpty()) {
+                            context.getString(R.string.active_drain_full, base, detail)
+                        } else {
+                            base
+                        }
+                    }
+
+                    val idleRate = DrainMonitor.getScreenOffDrainRate()
+                    if (idleRate > 0f) {
+                        val base = context.getString(R.string.idle_drain, idleRate)
+                        val detail = DrainMonitor.getScreenOffDetail(context)
+                        msg3 = if (detail.isNotEmpty()) {
+                            context.getString(R.string.idle_drain_full, base, detail)
+                        } else {
+                            base
+                        }
+                    }
+                }
+            }
 
             notification!!.setContentTitle(msg).style = Notification.InboxStyle()
                 .addLine(msg2)
