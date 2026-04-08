@@ -4,25 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class DrainMonitor {
     private static final String PREF_NAME = "DrainStatsPrefs";
-    private static final String KEY_SCREEN_ON = "screen_on_drains";
-    private static final String KEY_SCREEN_OFF = "screen_off_drains";
-    private static final String KEY_CHARGE_RATE = "charging_rate";
-
-    private static final List<Float> screenOnDrains = new ArrayList<>();
-    private static final List<Float> screenOffDrains = new ArrayList<>();
-    private static final List<Float> chargingRates = new ArrayList<>();
 
     private static int lastChargeCounter = Integer.MIN_VALUE;
     private static long lastSampleTime = 0L;
     private static long pendingElapsedMs = 0L;
     private static boolean screenOn = true;
-    private static boolean ignoreNextSample = false;
+    private static boolean ignoreNextSample = true;
 
     private static float totalScreenOnDeltaPct = 0f;
     private static long totalScreenOnElapsedMs = 0L;
@@ -70,27 +61,19 @@ public class DrainMonitor {
 
         if (totalElapsedMs <= 0) return;
 
-        float elapsedHours = totalElapsedMs / 3600000f;
-        float drainUahPerHour = deltaUah / elapsedHours;
-
         int divisor = BatteryReceiver.divisor;
         if (divisor <= 0) return;
 
         float deltaPct = deltaUah / (divisor * 10f);
-        float drainPctPerHour = (drainUahPerHour / divisor) / 10f;
-
-        if (drainPctPerHour <= 0f) return;
+        if (deltaPct <= 0f) return;
 
         if (BatteryReceiver.isCharging()) {
-            chargingRates.add(drainPctPerHour);
             totalChargingDeltaPct += deltaPct;
             totalChargingElapsedMs += totalElapsedMs;
         } else if (screenOn) {
-            screenOnDrains.add(drainPctPerHour);
             totalScreenOnDeltaPct += deltaPct;
             totalScreenOnElapsedMs += totalElapsedMs;
         } else {
-            screenOffDrains.add(drainPctPerHour);
             totalScreenOffDeltaPct += deltaPct;
             totalScreenOffElapsedMs += totalElapsedMs;
         }
@@ -110,7 +93,7 @@ public class DrainMonitor {
         lastChargeCounter = Integer.MIN_VALUE;
         lastSampleTime = 0L;
         pendingElapsedMs = 0L;
-        ignoreNextSample = false;
+        ignoreNextSample = true;
 
         totalScreenOnDeltaPct = 0f;
         totalScreenOnElapsedMs = 0L;
@@ -119,23 +102,19 @@ public class DrainMonitor {
         totalChargingDeltaPct = 0f;
         totalChargingElapsedMs = 0L;
 
-        screenOnDrains.clear();
-        screenOffDrains.clear();
-        chargingRates.clear();
-
         persistStats(context);
     }
 
     public static float getChargingRate() {
-        return round(average(chargingRates));
+        return computeRate(totalChargingDeltaPct, totalChargingElapsedMs);
     }
 
     public static float getScreenOnDrainRate() {
-        return round(average(screenOnDrains));
+        return computeRate(totalScreenOnDeltaPct, totalScreenOnElapsedMs);
     }
 
     public static float getScreenOffDrainRate() {
-        return round(average(screenOffDrains));
+        return computeRate(totalScreenOffDeltaPct, totalScreenOffElapsedMs);
     }
 
     public static String getChargingDetail(Context context) {
@@ -150,12 +129,21 @@ public class DrainMonitor {
         return buildDetail(context, false, totalScreenOffDeltaPct, totalScreenOffElapsedMs);
     }
 
+    private static float computeRate(float deltaPct, long elapsedMs) {
+        if (elapsedMs <= 0L) return 0f;
+
+        float elapsedHours = elapsedMs / 3600000f;
+        if (elapsedHours <= 0f) return 0f;
+
+        return (deltaPct / elapsedHours);
+    }
+
     private static String buildDetail(Context context, boolean charging, float deltaPct, long elapsedMs) {
         if (elapsedMs < 1000L) {
             return "";
         }
 
-        if (deltaPct < 0.99f) {
+        if (deltaPct < 0.25f) {
             return "";
         }
 
@@ -181,36 +169,15 @@ public class DrainMonitor {
         return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    private static float average(List<Float> list) {
-        if (list.isEmpty()) return 0f;
-
-        float sum = 0f;
-        for (float value : list) {
-            sum += value;
-        }
-        return sum / list.size();
-    }
-
-    private static float round(float value) {
-        return (float) (Math.round(value * 100) / 100.0);
-    }
-
-    private static void saveFloatList(Context context, String key, List<Float> list) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        StringBuilder builder = new StringBuilder();
-        for (float value : list) {
-            builder.append(value).append(",");
-        }
-
-        editor.putString(key, builder.toString());
-        editor.apply();
-    }
-
     private static void persistStats(Context context) {
-        saveFloatList(context, KEY_SCREEN_ON, screenOnDrains);
-        saveFloatList(context, KEY_SCREEN_OFF, screenOffDrains);
-        saveFloatList(context, KEY_CHARGE_RATE, chargingRates);
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit()
+                .putFloat("total_screen_on_delta_pct", totalScreenOnDeltaPct)
+                .putLong("total_screen_on_elapsed_ms", totalScreenOnElapsedMs)
+                .putFloat("total_screen_off_delta_pct", totalScreenOffDeltaPct)
+                .putLong("total_screen_off_elapsed_ms", totalScreenOffElapsedMs)
+                .putFloat("total_charging_delta_pct", totalChargingDeltaPct)
+                .putLong("total_charging_elapsed_ms", totalChargingElapsedMs)
+                .apply();
     }
 }
