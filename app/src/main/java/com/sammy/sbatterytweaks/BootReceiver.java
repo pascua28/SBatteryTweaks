@@ -14,6 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
             Intent bootIntent = new Intent(context, BatteryService.class);
 
             context.startForegroundService(bootIntent);
+            DrainMonitor.resetStats(context);
         }
     }
 }
