@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="com.netvor.settings.tables.provider.permission.SETTINGS_TABLES_PROVIDER" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <queries>
         <provider android:authorities="com.netvor.provider.SettingsDatabaseProvider" />
     </queries>

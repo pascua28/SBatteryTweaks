@@ -57,7 +57,7 @@
     <!-- Settings Database Provider installer -->
     <string name="in_progress">Installing settings database provider app…</string>
     <string name="success">Installed settings database provider!</string>
-    <string name="failure">Settings database provider installation failed!</string>
+    <string name="failure">Settings database provider installation failed! Grant Shizuku or installation permission and re-open the app.</string>
 
     <!-- Preferences -->
     <!-- Battery monitor service -->

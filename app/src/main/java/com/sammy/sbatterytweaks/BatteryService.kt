@@ -1,5 +1,6 @@
 package com.sammy.sbatterytweaks
 
+import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,11 +9,15 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import com.sammy.sbatterytweaks.BatteryStatusWidgetProvider.Companion.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +28,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -120,6 +126,9 @@ class BatteryService : Service() {
 
     companion object {
         const val FULLCAPFILE: String = "/sys/class/power_supply/battery/batt_full_capacity"
+        const val INSTALL_ACTION = "com.sammy.sbatterytweaks.PROVIDER_INSTALL_STATUS"
+        private const val PROVIDER_PACKAGE = "com.netvor.settings.database.provider"
+        private const val PROVIDER_APK_ASSET = "settings-database-provider-v1.1-cli.apk"
 
         @JvmField
         var refreshInterval: Long = 2500
@@ -130,6 +139,9 @@ class BatteryService : Service() {
         var notification: Notification.Builder? = null
         private var backgroundJob: Job? = null
         private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+        @Volatile
+        private var pendingInstallAfterUnknownSources = false
 
         private fun updateStatusPref(context: Context) {
             val prefs = context.getSharedPreferences("battery_widget", MODE_PRIVATE)
@@ -303,71 +315,204 @@ class BatteryService : Service() {
             notificationManager!!.notify(1002, notification!!.build())
         }
 
-        private const val PROVIDER_PACKAGE = "com.netvor.settings.database.provider"
         private fun providerInstalled(context: Context): Boolean {
-            try {
-                context.packageManager.getPackageGids(PROVIDER_PACKAGE)
-                return true
+            return try {
+                context.packageManager.getPackageInfo(PROVIDER_PACKAGE, 0)
+                true
             } catch (_: PackageManager.NameNotFoundException) {
-                return false
+                false
             }
         }
 
         @Throws(IOException::class)
-        private fun installProvider(context: Context) {
-            val fileName = "settings-database-provider-v1.1-cli.apk"
-            val outFile =
-                File(context.getExternalFilesDir(null), fileName)
+        private fun copyProviderApk(context: Context): File {
+            val outFile = File(context.getExternalFilesDir(null), PROVIDER_APK_ASSET)
 
-            context.assets.open(fileName).use { `is` ->
+            context.assets.open(PROVIDER_APK_ASSET).use { input ->
                 FileOutputStream(outFile).use { os ->
-                    val buffer = ByteArray(4096)
+                    val buffer = ByteArray(8192)
                     var length: Int
-                    while ((`is`.read(buffer).also { length = it }) > 0) {
+                    while (input.read(buffer).also { length = it } > 0) {
                         os.write(buffer, 0, length)
                     }
                 }
             }
+
+            return outFile
+        }
+
+        @Throws(IOException::class)
+        private fun installProviderPrivileged(context: Context) {
+            val outFile = copyProviderApk(context)
             val apkSize = outFile.length()
 
             val command =
-                "cat " + outFile.absolutePath + " | pm install -S " + apkSize + " --bypass-low-target-sdk-block"
+                "cat \"${outFile.absolutePath}\" | pm install -S $apkSize --bypass-low-target-sdk-block"
+
             Utils.runCmd(command)
         }
 
-        @JvmStatic
-        fun installDatabaseProvider(context: Context) {
+        private fun startDirectInstall(
+            activity: Activity,
+            userActionLauncher: ActivityResultLauncher<Intent>,
+            unknownSourcesLauncher: ActivityResultLauncher<Intent>
+        ) {
+            if (!activity.packageManager.canRequestPackageInstalls()) {
+                pendingInstallAfterUnknownSources = true
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                    Uri.parse("package:${activity.packageName}")
+                )
+                unknownSourcesLauncher.launch(intent)
+                return
+            }
+
             CoroutineScope(Dispatchers.Main).launch {
-                if (!providerInstalled(context) && Utils.isShizuku()) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            R.string.in_progress,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                try {
+                    val apkFile = withContext(Dispatchers.IO) {
+                        copyProviderApk(activity)
                     }
-                    try {
-                        installProvider(context)
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                R.string.success,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        MainActivity.forceStop(context)
-                    } catch (_: IOException) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                R.string.failure,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        MainActivity.showSetupDialog(context)
+
+                    val packageInstaller = activity.packageManager.packageInstaller
+                    val params = PackageInstaller.SessionParams(
+                        PackageInstaller.SessionParams.MODE_FULL_INSTALL
+                    ).apply {
+                        setAppPackageName(PROVIDER_PACKAGE)
                     }
-                } else if ((!Utils.isShizuku() || !Utils.isRooted()) && !providerInstalled(context)) {
-                    MainActivity.showSetupDialog(context)
+
+                    val sessionId = packageInstaller.createSession(params)
+                    val session = packageInstaller.openSession(sessionId)
+
+                    session.use { s ->
+                        FileInputStream(apkFile).use { input ->
+                            s.openWrite("base.apk", 0, apkFile.length()).use { output ->
+                                val buffer = ByteArray(8192)
+                                var count: Int
+                                while (input.read(buffer).also { count = it } != -1) {
+                                    output.write(buffer, 0, count)
+                                }
+                                s.fsync(output)
+                            }
+                        }
+
+                        val callbackIntent = Intent(INSTALL_ACTION).setPackage(activity.packageName)
+                        val pendingIntent = PendingIntent.getBroadcast(
+                            activity,
+                            sessionId,
+                            callbackIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                        )
+
+                        s.commit(pendingIntent.intentSender)
+                    }
+                } catch (_: Exception) {
+                    Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                    MainActivity.showSetupDialog(activity)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun onUnknownSourcesResult(
+            activity: Activity,
+            userActionLauncher: ActivityResultLauncher<Intent>,
+            unknownSourcesLauncher: ActivityResultLauncher<Intent>
+        ) {
+            if (!pendingInstallAfterUnknownSources) return
+            pendingInstallAfterUnknownSources = false
+
+            if (activity.packageManager.canRequestPackageInstalls()) {
+                startDirectInstall(activity, userActionLauncher, unknownSourcesLauncher)
+            } else {
+                Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                MainActivity.showSetupDialog(activity)
+            }
+        }
+
+        @JvmStatic
+        fun handleInstallStatusIntent(
+            activity: Activity,
+            intent: Intent,
+            userActionLauncher: ActivityResultLauncher<Intent>
+        ) {
+            val status = intent.getIntExtra(
+                PackageInstaller.EXTRA_STATUS,
+                PackageInstaller.STATUS_FAILURE
+            )
+            intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE).orEmpty()
+
+            when (status) {
+                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                    val confirmIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(Intent.EXTRA_INTENT)
+                    }
+
+                    if (confirmIntent != null) {
+                        userActionLauncher.launch(confirmIntent)
+                    } else {
+                        Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                        MainActivity.showSetupDialog(activity)
+                    }
+                }
+
+                PackageInstaller.STATUS_SUCCESS -> {
+                    if (providerInstalled(activity)) {
+                        Toast.makeText(activity, R.string.success, Toast.LENGTH_SHORT).show()
+                        MainActivity.forceStop(activity)
+                    } else {
+                        Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                        MainActivity.showSetupDialog(activity)
+                    }
+                }
+
+                else -> {
+                    Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                    MainActivity.showSetupDialog(activity)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun installDatabaseProvider(
+            activity: Activity,
+            userActionLauncher: ActivityResultLauncher<Intent>,
+            unknownSourcesLauncher: ActivityResultLauncher<Intent>
+        ) {
+            CoroutineScope(Dispatchers.Main).launch {
+                if (providerInstalled(activity)) {
+                    return@launch
+                }
+
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        if (Utils.isShizuku() || Utils.isRooted()) {
+                            Toast.makeText(activity, R.string.in_progress, Toast.LENGTH_SHORT)
+                                .show()
+                            withContext(Dispatchers.IO) {
+                                installProviderPrivileged(activity)
+                            }
+
+                            if (providerInstalled(activity)) {
+                                Toast.makeText(activity, R.string.success, Toast.LENGTH_SHORT)
+                                    .show()
+                                MainActivity.forceStop(activity)
+                            } else {
+                                Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT)
+                                    .show()
+                                MainActivity.showSetupDialog(activity)
+                            }
+                        } else {
+                            MainActivity.showSetupDialog(activity)
+                        }
+                    } else {
+                        startDirectInstall(activity, userActionLauncher, unknownSourcesLauncher)
+                    }
+                } catch (_: Exception) {
+                    Toast.makeText(activity, R.string.failure, Toast.LENGTH_SHORT).show()
+                    MainActivity.showSetupDialog(activity)
                 }
             }
         }

@@ -3,8 +3,10 @@ package com.sammy.sbatterytweaks;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,6 +25,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
@@ -87,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(this, BatteryService.refreshInterval);
         }
     };
+    private ActivityResultLauncher<Intent> providerInstallUserActionLauncher;
+    private ActivityResultLauncher<Intent> unknownSourcesLauncher;
+    private BroadcastReceiver providerInstallReceiver;
 
     public static void updateWaves(int percentage) {
         multiWaveHeader.setProgress(percentage / 100.0f);
@@ -153,6 +160,45 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        providerInstallUserActionLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                });
+
+        unknownSourcesLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
+                        BatteryService.onUnknownSourcesResult(
+                                this,
+                                providerInstallUserActionLauncher,
+                                unknownSourcesLauncher
+                        )
+                );
+
+        providerInstallReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (BatteryService.INSTALL_ACTION.equals(intent.getAction())) {
+                    BatteryService.handleInstallStatusIntent(
+                            MainActivity.this,
+                            intent,
+                            providerInstallUserActionLauncher
+                    );
+                }
+            }
+        };
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                    providerInstallReceiver,
+                    new IntentFilter(BatteryService.INSTALL_ACTION),
+                    RECEIVER_NOT_EXPORTED
+            );
+        } else {
+            registerReceiver(
+                    providerInstallReceiver,
+                    new IntentFilter(BatteryService.INSTALL_ACTION)
+            );
+        }
 
         int actualCapacity = Utils.getActualCapacity(this);
         int fullcapnom;
@@ -262,7 +308,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                     Uri.parse("package:" + getPackageName())));
 
-        BatteryService.installDatabaseProvider(this);
+        BatteryService.installDatabaseProvider(
+                this,
+                providerInstallUserActionLauncher,
+                unknownSourcesLauncher
+        );
     }
 
     @Override
@@ -307,6 +357,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (providerInstallReceiver != null) {
+            try {
+                unregisterReceiver(providerInstallReceiver);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
         super.onDestroy();
         isRunning = false;
         if (!BatteryReceiver.isCharging() && !BatteryReceiver.drainMonitorEnabled)
