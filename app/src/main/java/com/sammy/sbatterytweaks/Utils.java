@@ -125,31 +125,44 @@ public class Utils {
     }
 
     public static int changeSetting(Context context, Namespace namespace, String setting, int value) {
+        ContentResolver cr = context.getContentResolver();
+        String ns = namespace.getNs();
+
         try {
             if (namespace == Namespace.SYSTEM) {
-                Settings.System.putInt(context.getContentResolver(), setting, value);
+                Settings.System.putInt(cr, setting, value);
             } else if (namespace == Namespace.GLOBAL) {
-                Settings.Global.putInt(context.getContentResolver(), setting, value);
+                Settings.Global.putInt(cr, setting, value);
             }
             return 0;
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                ContentResolver cr = context.getContentResolver();
+        }
 
+        if (BatteryService.providerInstalled(context)) {
+            try {
                 ContentValues cv = new ContentValues(2);
                 cv.put("name", setting);
                 cv.put("value", value);
-                cr.insert(Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/" + namespace.getNs()), cv);
+
+                Uri uri = Uri.parse("content://com.netvor.provider.SettingsDatabaseProvider/" + ns);
+                cr.insert(uri, cv);
+
                 return 0;
-            } catch (Exception f) {
-                f.printStackTrace();
-                if (isPrivileged() || isShizuku()) {
-                    runCmd("settings put " + namespace.getNs() + " " + setting + " " + value);
-                    return 0;
-                } else return -1;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+
+        if (isPrivileged() || isShizuku()) {
+            try {
+                runCmd("settings put " + ns + " " + setting + " " + value);
+                return 0;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
     }
 
     public enum Namespace {

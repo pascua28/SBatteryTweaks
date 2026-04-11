@@ -315,7 +315,8 @@ class BatteryService : Service() {
             notificationManager!!.notify(1002, notification!!.build())
         }
 
-        private fun providerInstalled(context: Context): Boolean {
+        @JvmStatic
+        public fun providerInstalled(context: Context): Boolean {
             return try {
                 context.packageManager.getPackageInfo(PROVIDER_PACKAGE, 0)
                 true
