@@ -21,6 +21,10 @@ adb install --bypass-low-target-sdk-block settings-database-provider-v1.1-cli.ap
  - Root utilities - https://github.com/topjohnwu/libsu
  - Time range picker - https://github.com/Droppers/TimeRangePicker
  - Multi waves - https://github.com/scwang90/MultiWaveHeader
+ - OneUI design library - https://github.com/tribalfs/oneui-design
+ - SESL Jetpack modules - https://github.com/tribalfs/sesl-androidx
+ - SESL Material components - https://github.com/tribalfs/sesl-material-components-android
+ - OneUI icons - https://github.com/OneUIProject/oneui-icons
     
 # Did you like my work?
 ## Any donation is much appreciated!
