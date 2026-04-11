@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         );
         msg.setPadding(padding, padding, padding, 0);
 
-        new MaterialAlertDialogBuilder(context)
+        new MaterialAlertDialogBuilder(context, com.google.android.material.R.style.Theme_MaterialComponents_Dialog)
                 .setTitle(R.string.setup_dialog_title)
                 .setCancelable(true)
                 .setView(msg)
