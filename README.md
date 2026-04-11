@@ -4,8 +4,13 @@
 # S Battery Tweaker
 A simple app to prolong battery longevity by limiting charge rate/suspending charge based on temperature.
 
+<img width="1080" height="2340" alt="Screenshot" src="https://github.com/user-attachments/assets/ec6836aa-27a2-4854-b473-d9ffc7de8958" />
+
 # Requirements
 Root access or Shizuku. If none of these are possible, see setup instruction below.
+
+# Setting up for OneUI 5 and below
+Grant all the permissions and install the provider app when prompted.
 
 # Setting up for OneUI 6.0+ (No root)
 If you have Shizuku, the app will automatically install the settings database provider. This is only done once.
