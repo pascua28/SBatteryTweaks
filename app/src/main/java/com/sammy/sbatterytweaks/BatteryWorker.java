@@ -197,7 +197,7 @@ public class BatteryWorker {
                 throw new Settings.SettingNotFoundException("Not found");
 
             if (Utils.changeSetting(context, Utils.Namespace.SYSTEM, fastChargeSetting, enabled) < 0) {
-                fastChargeStatus = fastChargeStatus + " (" + context.getString(R.string.toggle_failed) + ")";
+                fastChargeStatus = context.getString(R.string.toggle_failed);
             }
         } catch (Settings.SettingNotFoundException ignored) {
             if (Utils.isPrivileged() && Utils.runCmd("ls " + afcDisableFile).contains(afcDisableFile)) {

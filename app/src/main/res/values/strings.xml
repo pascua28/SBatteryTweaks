@@ -23,7 +23,7 @@
     <!-- Fast charge status -->
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
-    <string name="toggle_failed">failed to toggle</string>
+    <string name="toggle_failed">Switch failed</string>
     <string name="not_supported">Not supported</string>
     <!-- Charging status -->
     <string name="idle">Idle</string>
