@@ -95,6 +95,29 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> unknownSourcesLauncher;
     private BroadcastReceiver providerInstallReceiver;
 
+    private int getThemeColor(int attr) {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(attr, value, true);
+        return value.data;
+    }
+
+    private void applyColors(MultiWaveHeader waveHeader) {
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            toolbar.setBackgroundColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
+            waveHeader.setStartColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
+            waveHeader.setCloseColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary70));
+        } else {
+            int primary = getThemeColor(com.google.android.material.R.attr.colorPrimary);
+            int primaryContainer = getThemeColor(com.google.android.material.R.attr.colorPrimaryContainer);
+
+            toolbar.setBackgroundColor(primary);
+            waveHeader.setStartColor(primary);
+            waveHeader.setCloseColor(primaryContainer);
+        }
+    }
+
     public static void updateWaves(int percentage) {
         multiWaveHeader.setProgress(percentage / 100.0f);
     }
@@ -258,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
         bypassToggle = findViewById(R.id.bypassToggle);
         bypassText.setText(R.string.idle_charging_text);
         multiWaveHeader = findViewById(R.id.waveHeader);
+        applyColors(multiWaveHeader);
         updateWaves(BatteryReceiver.mLevel);
 
         if (BatteryWorker.bypassSupported || BatteryWorker.pausePdSupported) {
