@@ -56,7 +56,10 @@ public class BatteryWorker {
                     fastChargeStatus = context.getString(R.string.disabled);
                     fastChargeEnabled = 0;
                 }
-            } else fastChargeStatus = context.getString(R.string.not_supported);
+            } else {
+                fastChargeStatus = context.getString(R.string.not_supported);
+                fastChargeEnabled = -1;
+            }
         }
 
         if (pausePdSupported)
