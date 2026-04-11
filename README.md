@@ -25,6 +25,11 @@ adb install --bypass-low-target-sdk-block settings-database-provider-v1.1-cli.ap
  - SESL Jetpack modules - https://github.com/tribalfs/sesl-androidx
  - SESL Material components - https://github.com/tribalfs/sesl-material-components-android
  - OneUI icons - https://github.com/OneUIProject/oneui-icons
+
+# Build Requirements:
+
+ - Android Studio
+ - Github personal access token with `read:package` permission (put your `GITHUB_USERNAME` and `GITHUB_PASSWORD` (personal access token) to Environment Variables (Windows) or PATH (Linux))
     
 # Did you like my work?
 ## Any donation is much appreciated!
