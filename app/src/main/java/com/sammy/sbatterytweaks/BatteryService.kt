@@ -82,7 +82,7 @@ class BatteryService : Service() {
         } catch (_: SettingNotFoundException) {
             sharedPreferences.edit().putInt("PROTECT_ENABLED", -1).apply()
         }
-
+        DrainMonitor.init(context)
         startBackgroundTask(context)
     }
 
