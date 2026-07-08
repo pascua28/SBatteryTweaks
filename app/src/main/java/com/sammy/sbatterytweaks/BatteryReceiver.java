@@ -123,6 +123,8 @@ public class BatteryReceiver extends BroadcastReceiver {
                 ContentResolver.setMasterSyncAutomatically(true);
             }
 
+            BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
+
             BatteryService.startBackgroundTask(context);
 
             if (drainMonitorEnabled) {
@@ -143,10 +145,10 @@ public class BatteryReceiver extends BroadcastReceiver {
                 }
             }
 
-            if (BatteryService.isBypassed == 1) {
+            if (BatteryService.isBypassed == 1)
                 BatteryWorker.setBypass(context, 0);
-                BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
-            }
+
+            BatteryService.setBypassMode(BatteryService.BypassMode.AUTO);
 
             if (!MainActivity.isRunning && !drainMonitorEnabled) {
                 BatteryService.stopBackgroundTask();
