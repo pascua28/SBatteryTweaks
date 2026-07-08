@@ -1,10 +1,9 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    compileSdk 36
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.sammy.sbatterytweaks"
@@ -35,7 +34,7 @@ dependencies {
 
     implementation "sesl.androidx.appcompat:appcompat:1.7.1+1.0.21-sesl8+rev8"
     implementation "sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3"
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     implementation 'sesl.androidx.preference:preference:1.2.1+1.0.0-sesl8+rev1'
     implementation 'com.github.topjohnwu.libsu:core:6.0.0'
     implementation 'nl.joery.timerangepicker:timerangepicker:1.0.0'
