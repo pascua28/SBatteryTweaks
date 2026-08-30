@@ -15,11 +15,12 @@ import java.io.File;
 import java.util.Objects;
 
 public class BatteryReceiver extends BroadcastReceiver {
-    public static int mLevel, mVolt, divisor = -1;
+    public static int mLevel, mVolt = -1;
     public static float mTemp;
     public static boolean drainMonitorEnabled = false;
     public static boolean isUsbCharging, isWirelessCharging;
     private static int mPlugged, mStatus;
+    private static int lastReportedLevel = -1;
     private final File statsFile = new File("/data/system/batterystats.bin");
 
     public static boolean isCharging() {
@@ -33,58 +34,6 @@ public class BatteryReceiver extends BroadcastReceiver {
     public static int getCounter(Context context) {
         BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
         return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
-    }
-
-    private static int getDivisor(Context context) {
-        int batteryLevel = BatteryReceiver.mLevel;
-        int counter = getCounter(context);
-
-        int lowerBound = counter / (batteryLevel + 1) / 10;
-        int upperBound = counter / batteryLevel / 10;
-
-        int bestDivisor = 0;
-        int lowestDigitCount = Integer.MAX_VALUE;
-
-        for (int testDivisor = lowerBound; testDivisor <= upperBound; testDivisor++) {
-            float testValue = counter / (testDivisor * 10.0f);
-            int digitCount = String.valueOf(testValue).length();
-
-            if (digitCount < lowestDigitCount) {
-                lowestDigitCount = digitCount;
-                bestDivisor = testDivisor;
-            }
-        }
-
-        return bestDivisor;
-    }
-
-    private static int getStableDivisor(Context context) {
-        int consecutiveMatches = 0;
-        int lastDivisor = -1;
-        int currentDivisor;
-        int maxIterations = 100;
-        int iterations = 0;
-
-        while (consecutiveMatches < 3 && iterations < maxIterations) {
-            iterations++;
-            currentDivisor = getDivisor(context);
-
-            if (currentDivisor == lastDivisor) {
-                consecutiveMatches++;
-            } else {
-                consecutiveMatches = 1;
-                lastDivisor = currentDivisor;
-            }
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-
-        return lastDivisor;
     }
 
     public static float getTemp() {
@@ -105,6 +54,14 @@ public class BatteryReceiver extends BroadcastReceiver {
         isUsbCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_USB;
         isWirelessCharging = mPlugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
 
+        if (drainMonitorEnabled && mLevel != lastReportedLevel) {
+            lastReportedLevel = mLevel;
+            int counter = getCounter(context);
+            if (counter > 0) {
+                DrainMonitor.recordRegressionSample(context, mLevel, counter, isCharging());
+            }
+        }
+
         updateStatusPref(context, mLevel, isCharging(), BatteryService.isBypassed());
 
         BatteryStatusWidgetProvider.Companion.updateAllWidgets(context);
@@ -114,9 +71,6 @@ public class BatteryReceiver extends BroadcastReceiver {
 
         BatteryWorker.fetchUpdates(context);
         BatteryWorker.updateStats(context, isCharging());
-
-        if (divisor <= 0)
-            divisor = getStableDivisor(context);
 
         if (Objects.equals(intent.getAction(), Intent.ACTION_POWER_CONNECTED)) {
             if (BatteryWorker.disableSync && !ContentResolver.getMasterSyncAutomatically()) {

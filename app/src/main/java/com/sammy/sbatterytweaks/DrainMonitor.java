@@ -5,135 +5,131 @@ import android.content.SharedPreferences;
 import android.os.SystemClock;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class DrainMonitor {
     private static final String PREF_NAME = "DrainStatsPrefs";
 
-    // ---------------------------------------------------------------------
-    // Preferences
-    // ---------------------------------------------------------------------
-
-    private static final String KEY_SCREEN_ON_DELTA_UAH =
-            "total_screen_on_delta_uah";
-    private static final String KEY_SCREEN_ON_ELAPSED_MS =
-            "total_screen_on_elapsed_ms";
-
-    private static final String KEY_SCREEN_OFF_DELTA_UAH =
-            "total_screen_off_delta_uah";
-    private static final String KEY_SCREEN_OFF_ELAPSED_MS =
-            "total_screen_off_elapsed_ms";
-
-    private static final String KEY_CHARGING_DELTA_UAH =
-            "total_charging_delta_uah";
-    private static final String KEY_CHARGING_ELAPSED_MS =
-            "total_charging_elapsed_ms";
+    private static final Object LOCK = new Object();
 
     // ---------------------------------------------------------------------
-    // Constants
+    // Sampling
     // ---------------------------------------------------------------------
 
     private static final long MIN_SAMPLE_INTERVAL_MS = 1_000L;
-
-    /*
-     * Initial reporting thresholds:
-     *
-     * Screen-on drain : 1.0%
-     * Screen-off drain: 0.4%
-     * Charging        : 1.0%
-     *
-     * Values are expressed in tenths of a percent:
-     *
-     * 4  = 0.4%
-     * 10 = 1.0%
-     */
-    private static final int SCREEN_ON_INITIAL_REPORT_TENTHS_PCT = 10;
-    private static final int SCREEN_OFF_INITIAL_REPORT_TENTHS_PCT = 4;
-    private static final int CHARGING_INITIAL_REPORT_TENTHS_PCT = 10;
-
-    /*
-     * After the first report, update after every additional 0.1%.
-     */
-    private static final int REPORT_INTERVAL_TENTHS_PCT = 1;
     private static final long MIN_VALID_ELAPSED_MS = 20_000L;
 
-    private static final long MS_PER_HOUR = 3_600_000L;
-
     // ---------------------------------------------------------------------
-    // Capacity estimation
+    // Reporting thresholds
     // ---------------------------------------------------------------------
 
-    /*
-     * Keep multiple capacity estimates because batteryLevel is an integer
-     * and therefore:
-     *
-     *     chargeCounter / batteryLevel
-     *
-     * can fluctuate considerably between samples.
-     */
-    private static final int MAX_CAPACITY_ESTIMATES = 20;
+    private static final int SCREEN_ON_INITIAL_TENTHS = 10;
+    private static final int SCREEN_OFF_INITIAL_TENTHS = 4;
+    private static final int CHARGING_INITIAL_TENTHS = 10;
+
+    private static final int REPORT_INTERVAL_TENTHS = 1;
+
+    // ---------------------------------------------------------------------
+    // Capacity regression
+    // ---------------------------------------------------------------------
+    private static final int MAX_REGRESSION_SAMPLES = 100;
+    private static final int MIN_REGRESSION_SAMPLES = 2;
 
     private static final int MIN_BATTERY_LEVEL = 1;
     private static final int MAX_BATTERY_LEVEL = 100;
 
     /*
-     * Sanity limits:
-     *
-     * 500 mAh - 20,000 mAh.
+     * Sanity limits for the calculated battery capacity.
      */
     private static final long MIN_CAPACITY_UAH = 500_000L;
     private static final long MAX_CAPACITY_UAH = 20_000_000L;
 
     // ---------------------------------------------------------------------
-    // Synchronization / context
+    // SharedPreferences keys
     // ---------------------------------------------------------------------
 
-    private static final Object LOCK = new Object();
-    private static final Deque<Long> capacityEstimates =
-            new ArrayDeque<>();
+    private static final String KEY_SCREEN_ON_DELTA =
+            "total_screen_on_delta_pct";
+
+    private static final String KEY_SCREEN_ON_ELAPSED =
+            "total_screen_on_elapsed_ms";
+
+    private static final String KEY_SCREEN_OFF_DELTA =
+            "total_screen_off_delta_pct";
+
+    private static final String KEY_SCREEN_OFF_ELAPSED =
+            "total_screen_off_elapsed_ms";
+
+    private static final String KEY_CHARGING_DELTA =
+            "total_charging_delta_pct";
+
+    private static final String KEY_CHARGING_ELAPSED =
+            "total_charging_elapsed_ms";
+
+    private static final String KEY_CHARGING_SAMPLES =
+            "charging_regression_samples";
+
+    private static final String KEY_DISCHARGING_SAMPLES =
+            "discharging_regression_samples";
 
     // ---------------------------------------------------------------------
-    // Battery baseline
+    // Context
     // ---------------------------------------------------------------------
+
     private static Context appContext;
+
+    // ---------------------------------------------------------------------
+    // Runtime baseline
+    // ---------------------------------------------------------------------
+
     private static int lastChargeCounter;
     private static long lastSampleTime;
     private static long pendingElapsedMs;
+
     private static boolean hasBaseline;
+
     private static boolean baselineScreenOn = true;
     private static boolean baselineCharging;
+
+    private static boolean screenOn = true;
 
     // ---------------------------------------------------------------------
     // Accumulated statistics
     // ---------------------------------------------------------------------
-    private static boolean screenOn = true;
-    private static long totalScreenOnDeltaUah;
+
+    private static float totalScreenOnDeltaPct;
     private static long totalScreenOnElapsedMs;
-    private static long totalScreenOffDeltaUah;
+
+    private static float totalScreenOffDeltaPct;
     private static long totalScreenOffElapsedMs;
-    private static long totalChargingDeltaUah;
 
-    // ---------------------------------------------------------------------
-    // Last reported statistics
-    // ---------------------------------------------------------------------
+    private static float totalChargingDeltaPct;
     private static long totalChargingElapsedMs;
-    private static float reportedScreenOnRate;
-    private static float reportedScreenOffRate;
-    private static float reportedChargingRate;
 
-    private static int screenOnLastReportedTenthsPct;
-    private static int screenOffLastReportedTenthsPct;
+    private static float screenOnRate;
+    private static float screenOffRate;
+    private static float chargingRate;
+
+    private static int screenOnLastReportedTenths;
+    private static int screenOffLastReportedTenths;
+    private static int chargingLastReportedTenths;
 
     // ---------------------------------------------------------------------
-    // Capacity estimation
+    // Regression windows
     // ---------------------------------------------------------------------
-    private static int chargingLastReportedTenthsPct;
-    private static long estimatedCapacityUah;
+
+    private static final ArrayDeque<CapacitySample> chargingSamples =
+            new ArrayDeque<>(MAX_REGRESSION_SAMPLES);
+
+    private static final ArrayDeque<CapacitySample> dischargingSamples =
+            new ArrayDeque<>(MAX_REGRESSION_SAMPLES);
+
+    private static long chargingCapacityUah;
+    private static long dischargingCapacityUah;
+
+    // ---------------------------------------------------------------------
+    // Initialization
+    // ---------------------------------------------------------------------
 
     public static void init(Context context) {
         if (context == null) {
@@ -146,12 +142,12 @@ public class DrainMonitor {
             }
 
             appContext = context.getApplicationContext();
-            loadStatsLocked(appContext);
+            loadStatsLocked();
         }
     }
 
     // ---------------------------------------------------------------------
-    // Battery counter updates
+    // Battery counter update
     // ---------------------------------------------------------------------
 
     public static void handleChargeCounterChange(
@@ -165,16 +161,8 @@ public class DrainMonitor {
         synchronized (LOCK) {
             ensureContextLocked(context);
 
-            final long now =
-                    SystemClock.elapsedRealtime();
-
-            final boolean charging =
-                    BatteryReceiver.isCharging();
-
-            updateCapacityEstimateLocked(
-                    chargeCounterUah,
-                    BatteryReceiver.mLevel
-            );
+            final long now = SystemClock.elapsedRealtime();
+            final boolean charging = BatteryReceiver.isCharging();
 
             if (!hasBaseline) {
                 setBaselineLocked(
@@ -186,12 +174,8 @@ public class DrainMonitor {
                 return;
             }
 
-            final long elapsedMs =
-                    now - lastSampleTime;
+            final long elapsedMs = now - lastSampleTime;
 
-            /*
-             * Ignore excessively frequent samples.
-             */
             if (elapsedMs < MIN_SAMPLE_INTERVAL_MS) {
                 return;
             }
@@ -213,8 +197,7 @@ public class DrainMonitor {
             }
 
             final long deltaUah = Math.abs(
-                    (long) lastChargeCounter
-                            - chargeCounterUah
+                    (long) lastChargeCounter - chargeCounterUah
             );
 
             lastChargeCounter = chargeCounterUah;
@@ -234,10 +217,24 @@ public class DrainMonitor {
                 return;
             }
 
+            final long capacityUah =
+                    charging ? chargingCapacityUah : dischargingCapacityUah;
+
+            if (capacityUah <= 0L) {
+                return;
+            }
+
+            final float deltaPct =
+                    deltaUah * 100f / capacityUah;
+
+            if (deltaPct <= 0f) {
+                return;
+            }
+
             addAccumulatorLocked(
                     charging,
                     screenOn,
-                    deltaUah,
+                    deltaPct,
                     totalElapsedMs
             );
 
@@ -289,97 +286,130 @@ public class DrainMonitor {
             baselineCharging = false;
             screenOn = true;
 
-            totalScreenOnDeltaUah = 0L;
+            totalScreenOnDeltaPct = 0f;
             totalScreenOnElapsedMs = 0L;
 
-            totalScreenOffDeltaUah = 0L;
+            totalScreenOffDeltaPct = 0f;
             totalScreenOffElapsedMs = 0L;
 
-            totalChargingDeltaUah = 0L;
+            totalChargingDeltaPct = 0f;
             totalChargingElapsedMs = 0L;
 
-            reportedScreenOnRate = 0f;
-            reportedScreenOffRate = 0f;
-            reportedChargingRate = 0f;
+            screenOnRate = 0f;
+            screenOffRate = 0f;
+            chargingRate = 0f;
 
-            screenOnLastReportedTenthsPct = 0;
-            screenOffLastReportedTenthsPct = 0;
-            chargingLastReportedTenthsPct = 0;
-
-            capacityEstimates.clear();
-            estimatedCapacityUah = 0L;
+            screenOnLastReportedTenths = 0;
+            screenOffLastReportedTenths = 0;
+            chargingLastReportedTenths = 0;
 
             ensureContextLocked(context);
             persistStatsLocked();
         }
     }
 
+    public static void recordRegressionSample(Context context, int batteryLevel, int chargeCounterUah, boolean charging) {
+        if (context == null || batteryLevel < MIN_BATTERY_LEVEL || batteryLevel > MAX_BATTERY_LEVEL || chargeCounterUah <= 0) {
+            return;
+        }
+
+        synchronized (LOCK) {
+            ensureContextLocked(context);
+
+            final ArrayDeque<CapacitySample> samples = charging ? chargingSamples : dischargingSamples;
+
+            if (!samples.isEmpty()) {
+                final CapacitySample last = samples.peekLast();
+                if (charging && batteryLevel < last.level) {
+                    return;
+                }
+                if (!charging && batteryLevel > last.level) {
+                    return;
+                }
+            }
+
+            samples.addLast(new CapacitySample(batteryLevel, chargeCounterUah));
+
+            while (samples.size() > MAX_REGRESSION_SAMPLES) {
+                samples.removeFirst();
+            }
+
+            long capacity = calculateRegressionCapacity(samples);
+            if (capacity > 0L) {
+                if (charging) {
+                    chargingCapacityUah = capacity;
+                } else {
+                    dischargingCapacityUah = capacity;
+                }
+            }
+            persistStatsLocked();
+        }
+    }
+
     // ---------------------------------------------------------------------
-    // Public rate getters
+    // Rate getters
     // ---------------------------------------------------------------------
+
+    public static float getChargingRate() {
+        synchronized (LOCK) {
+            return chargingRate;
+        }
+    }
 
     public static float getScreenOnDrainRate() {
         synchronized (LOCK) {
-            return reportedScreenOnRate;
+            return screenOnRate;
         }
     }
 
     public static float getScreenOffDrainRate() {
         synchronized (LOCK) {
-            return reportedScreenOffRate;
+            return screenOffRate;
         }
     }
 
-    public static float getChargingRate() {
-        synchronized (LOCK) {
-            return reportedChargingRate;
-        }
-    }
+    // ---------------------------------------------------------------------
+    // Detail getters
+    // ---------------------------------------------------------------------
 
-    public static String getScreenOnDetail(
-            Context context
-    ) {
-        synchronized (LOCK) {
-            return buildDetailLocked(
-                    context,
-                    false,
-                    totalScreenOnDeltaUah,
-                    totalScreenOnElapsedMs,
-                    reportedScreenOnRate
-            );
-        }
-    }
-
-    public static String getScreenOffDetail(
-            Context context
-    ) {
-        synchronized (LOCK) {
-            return buildDetailLocked(
-                    context,
-                    false,
-                    totalScreenOffDeltaUah,
-                    totalScreenOffElapsedMs,
-                    reportedScreenOffRate
-            );
-        }
-    }
-
-    public static String getChargingDetail(
-            Context context
-    ) {
+    public static String getChargingDetail(Context context) {
         synchronized (LOCK) {
             return buildDetailLocked(
                     context,
                     true,
-                    totalChargingDeltaUah,
+                    totalChargingDeltaPct,
                     totalChargingElapsedMs,
-                    reportedChargingRate
+                    chargingRate
+            );
+        }
+    }
+
+    public static String getScreenOnDetail(Context context) {
+        synchronized (LOCK) {
+            return buildDetailLocked(
+                    context,
+                    false,
+                    totalScreenOnDeltaPct,
+                    totalScreenOnElapsedMs,
+                    screenOnRate
+            );
+        }
+    }
+
+    public static String getScreenOffDetail(Context context) {
+        synchronized (LOCK) {
+            return buildDetailLocked(
+                    context,
+                    false,
+                    totalScreenOffDeltaPct,
+                    totalScreenOffElapsedMs,
+                    screenOffRate
             );
         }
     }
 
     // ---------------------------------------------------------------------
-    // Baseline helpers
+    // Baseline
     // ---------------------------------------------------------------------
 
     private static void setBaselineLocked(
@@ -412,307 +442,260 @@ public class DrainMonitor {
     private static void addAccumulatorLocked(
             boolean charging,
             boolean screenState,
-            long deltaUah,
+            float deltaPct,
             long elapsedMs
     ) {
         if (charging) {
-            totalChargingDeltaUah += deltaUah;
+            totalChargingDeltaPct += deltaPct;
             totalChargingElapsedMs += elapsedMs;
         } else if (screenState) {
-            totalScreenOnDeltaUah += deltaUah;
+            totalScreenOnDeltaPct += deltaPct;
             totalScreenOnElapsedMs += elapsedMs;
         } else {
-            totalScreenOffDeltaUah += deltaUah;
+            totalScreenOffDeltaPct += deltaPct;
             totalScreenOffElapsedMs += elapsedMs;
         }
     }
 
     // ---------------------------------------------------------------------
-    // Reporting logic
+    // Reporting
     // ---------------------------------------------------------------------
 
     private static void updateReportedRateLocked(
             boolean charging,
             boolean screenState
     ) {
-        final long deltaUah;
-        final long elapsedMs;
         final ReportType type;
+        final float deltaPct;
+        final long elapsedMs;
 
-        if (charging) {
-            deltaUah = totalChargingDeltaUah;
-            elapsedMs = totalChargingElapsedMs;
-            type = ReportType.CHARGING;
-        } else if (screenState) {
-            deltaUah = totalScreenOnDeltaUah;
-            elapsedMs = totalScreenOnElapsedMs;
-            type = ReportType.SCREEN_ON;
-        } else {
-            deltaUah = totalScreenOffDeltaUah;
-            elapsedMs = totalScreenOffElapsedMs;
-            type = ReportType.SCREEN_OFF;
-        }
+        final int regressionSampleCount = charging
+                ? chargingSamples.size()
+                : dischargingSamples.size();
 
-        if (deltaUah <= 0L
-                || elapsedMs < MIN_VALID_ELAPSED_MS
-                || estimatedCapacityUah <= 0L) {
+        if (regressionSampleCount < MIN_REGRESSION_SAMPLES) {
             return;
         }
 
-        final int accumulatedTenthsPct =
-                getTenthsPercentLocked(deltaUah);
+        if (charging) {
+            type = ReportType.CHARGING;
+            deltaPct = totalChargingDeltaPct;
+            elapsedMs = totalChargingElapsedMs;
+        } else if (screenState) {
+            type = ReportType.SCREEN_ON;
+            deltaPct = totalScreenOnDeltaPct;
+            elapsedMs = totalScreenOnElapsedMs;
+        } else {
+            type = ReportType.SCREEN_OFF;
+            deltaPct = totalScreenOffDeltaPct;
+            elapsedMs = totalScreenOffElapsedMs;
+        }
+
+        if (deltaPct <= 0f
+                || elapsedMs < MIN_VALID_ELAPSED_MS) {
+            return;
+        }
+
+        final int accumulatedTenths =
+                (int) (deltaPct * 10f);
 
         final int initialThreshold =
-                getInitialReportThreshold(type);
+                getInitialThreshold(type);
 
-        /*
-         * Don't report until the appropriate initial threshold:
-         *
-         * Screen-on : 1.0%
-         * Screen-off: 0.4%
-         * Charging  : 1.0%
-         */
-        if (accumulatedTenthsPct < initialThreshold) {
+        // Wait for the initial threshold.
+        if (accumulatedTenths < initialThreshold) {
             return;
         }
 
         final int lastReported =
-                getLastReportedTenthsPctLocked(type);
+                getLastReportedTenths(type);
 
-        /*
-         * First report.
-         */
         if (lastReported == 0) {
-            setLastReportedTenthsPctLocked(
+            setLastReportedTenths(
                     type,
                     initialThreshold
             );
 
-            setReportedRateLocked(
+            setReportedRate(
                     type,
-                    calculateRateLocked(
-                            deltaUah,
-                            elapsedMs
-                    )
+                    calculateRate(deltaPct, elapsedMs)
             );
 
             return;
         }
 
-        if (accumulatedTenthsPct
-                < lastReported + REPORT_INTERVAL_TENTHS_PCT) {
+        if (accumulatedTenths
+                < lastReported + REPORT_INTERVAL_TENTHS) {
             return;
         }
 
-        final int newReportedThreshold =
+        final int newBoundary =
                 initialThreshold
                         + (
-                        (
-                                accumulatedTenthsPct
-                                        - initialThreshold
-                        )
-                                / REPORT_INTERVAL_TENTHS_PCT
+                        (accumulatedTenths - initialThreshold)
+                                / REPORT_INTERVAL_TENTHS
                 )
-                        * REPORT_INTERVAL_TENTHS_PCT;
+                        * REPORT_INTERVAL_TENTHS;
 
-        if (newReportedThreshold <= lastReported) {
+        if (newBoundary <= lastReported) {
             return;
         }
 
-        setLastReportedTenthsPctLocked(
+        setLastReportedTenths(
                 type,
-                newReportedThreshold
+                newBoundary
         );
 
-        setReportedRateLocked(
+        setReportedRate(
                 type,
-                calculateRateLocked(
-                        deltaUah,
-                        elapsedMs
-                )
+                calculateRate(deltaPct, elapsedMs)
         );
     }
 
-    private static int getInitialReportThreshold(
+    private static int getInitialThreshold(
             ReportType type
     ) {
-        switch (type) {
-            case SCREEN_ON:
-                return SCREEN_ON_INITIAL_REPORT_TENTHS_PCT;
-
-            case SCREEN_OFF:
-                return SCREEN_OFF_INITIAL_REPORT_TENTHS_PCT;
-
-            case CHARGING:
-                return CHARGING_INITIAL_REPORT_TENTHS_PCT;
-
-            default:
-                return SCREEN_ON_INITIAL_REPORT_TENTHS_PCT;
-        }
+        return switch (type) {
+            case SCREEN_ON -> SCREEN_ON_INITIAL_TENTHS;
+            case SCREEN_OFF -> SCREEN_OFF_INITIAL_TENTHS;
+            case CHARGING -> CHARGING_INITIAL_TENTHS;
+            default -> SCREEN_ON_INITIAL_TENTHS;
+        };
     }
 
-    private static int getLastReportedTenthsPctLocked(
+    private static int getLastReportedTenths(
             ReportType type
     ) {
-        switch (type) {
-            case SCREEN_ON:
-                return screenOnLastReportedTenthsPct;
-
-            case SCREEN_OFF:
-                return screenOffLastReportedTenthsPct;
-
-            case CHARGING:
-                return chargingLastReportedTenthsPct;
-
-            default:
-                return 0;
-        }
+        return switch (type) {
+            case SCREEN_ON -> screenOnLastReportedTenths;
+            case SCREEN_OFF -> screenOffLastReportedTenths;
+            case CHARGING -> chargingLastReportedTenths;
+            default -> 0;
+        };
     }
 
-    private static void setLastReportedTenthsPctLocked(
+    private static void setLastReportedTenths(
             ReportType type,
             int value
     ) {
         switch (type) {
             case SCREEN_ON:
-                screenOnLastReportedTenthsPct = value;
+                screenOnLastReportedTenths = value;
                 break;
 
             case SCREEN_OFF:
-                screenOffLastReportedTenthsPct = value;
+                screenOffLastReportedTenths = value;
                 break;
 
             case CHARGING:
-                chargingLastReportedTenthsPct = value;
+                chargingLastReportedTenths = value;
                 break;
         }
     }
 
-    private static void setReportedRateLocked(
+    private static void setReportedRate(
             ReportType type,
             float rate
     ) {
         switch (type) {
             case SCREEN_ON:
-                reportedScreenOnRate = rate;
+                screenOnRate = rate;
                 break;
 
             case SCREEN_OFF:
-                reportedScreenOffRate = rate;
+                screenOffRate = rate;
                 break;
 
             case CHARGING:
-                reportedChargingRate = rate;
+                chargingRate = rate;
                 break;
         }
     }
 
     // ---------------------------------------------------------------------
-    // Capacity estimation
+    // Regression
     // ---------------------------------------------------------------------
 
-    private static void updateCapacityEstimateLocked(
-            long counterUah,
-            int batteryLevel
+    private static long calculateRegressionCapacity(
+            ArrayDeque<CapacitySample> samples
     ) {
-        if (counterUah <= 0L) {
-            return;
-        }
-
-        if (batteryLevel < MIN_BATTERY_LEVEL
-                || batteryLevel > MAX_BATTERY_LEVEL) {
-            return;
-        }
-
-        /*
-         * Estimate full capacity:
-         *
-         *     capacity = chargeCounter × 100 / batteryLevel
-         */
-        final long capacityUah =
-                (counterUah * 100L)
-                        / batteryLevel;
-
-        if (capacityUah < MIN_CAPACITY_UAH
-                || capacityUah > MAX_CAPACITY_UAH) {
-            return;
-        }
-
-        capacityEstimates.addLast(
-                capacityUah
-        );
-
-        while (capacityEstimates.size()
-                > MAX_CAPACITY_ESTIMATES) {
-            capacityEstimates.removeFirst();
-        }
-
-        estimatedCapacityUah =
-                calculateMedianCapacityLocked();
-    }
-
-    private static long calculateMedianCapacityLocked() {
-        if (capacityEstimates.isEmpty()) {
+        if (samples.size() < MIN_REGRESSION_SAMPLES) {
             return 0L;
         }
 
-        final List<Long> values =
-                new ArrayList<>(
-                        capacityEstimates
-                );
+        /*
+         * Least-squares linear regression:
+         *
+         *     y = slope * x + intercept
+         *
+         * where:
+         *
+         *     x = battery percentage
+         *     y = charge counter in µAh
+         *
+         * slope = µAh per 1% battery
+         *
+         * capacity = slope * 100
+         */
 
-        Collections.sort(values);
+        double sumX = 0.0;
+        double sumY = 0.0;
+        double sumXY = 0.0;
+        double sumXX = 0.0;
 
-        final int middle =
-                values.size() / 2;
+        final int n = samples.size();
 
-        if ((values.size() & 1) == 0) {
-            return (
-                    values.get(middle - 1)
-                            + values.get(middle)
-            ) / 2L;
+        for (CapacitySample sample : samples) {
+            final double x = sample.level;
+            final double y = sample.chargeCounterUah;
+
+            sumX += x;
+            sumY += y;
+            sumXY += x * y;
+            sumXX += x * x;
         }
 
-        return values.get(middle);
-    }
+        final double denominator =
+                n * sumXX - sumX * sumX;
 
-    // ---------------------------------------------------------------------
-    // Percentage conversion
-    // ---------------------------------------------------------------------
-
-    private static int getTenthsPercentLocked(
-            long deltaUah
-    ) {
-        if (estimatedCapacityUah <= 0L) {
-            return 0;
+        if (Math.abs(denominator) < 0.000001) {
+            return 0L;
         }
 
-        return (int) (
-                deltaUah * 1000L
-                        / estimatedCapacityUah
-        );
+        final double slope =
+                (n * sumXY - sumX * sumY)
+                        / denominator;
+
+        if (slope <= 0.0) {
+            return 0L;
+        }
+
+        final double capacity =
+                slope * 100.0;
+
+        if (capacity < MIN_CAPACITY_UAH
+                || capacity > MAX_CAPACITY_UAH) {
+            return 0L;
+        }
+
+        return Math.round(capacity);
     }
 
     // ---------------------------------------------------------------------
     // Rate calculation
     // ---------------------------------------------------------------------
 
-    private static float calculateRateLocked(
-            long deltaUah,
+    private static float calculateRate(
+            float deltaPct,
             long elapsedMs
     ) {
-        if (deltaUah <= 0L
-                || elapsedMs <= 0L
-                || estimatedCapacityUah <= 0L) {
+        if (deltaPct <= 0f
+                || elapsedMs <= 0L) {
             return 0f;
         }
 
-        final float deltaPct =
-                deltaUah * 100f
-                        / estimatedCapacityUah;
-
         final float elapsedHours =
-                elapsedMs / (float) MS_PER_HOUR;
+                elapsedMs / 3_600_000f;
 
         if (elapsedHours <= 0f) {
             return 0f;
@@ -728,26 +711,21 @@ public class DrainMonitor {
     private static String buildDetailLocked(
             Context context,
             boolean charging,
-            long deltaUah,
+            float deltaPct,
             long elapsedMs,
-            float reportedRate
+            float rate
     ) {
-        if (context == null) {
+        if (context == null || rate <= 0f) {
             return "";
         }
 
-        /*
-         * No statistic until the first reporting threshold has been
-         * reached.
-         */
-        if (reportedRate <= 0f
-                || estimatedCapacityUah <= 0L) {
+        final int regressionSampleCount = charging
+                ? chargingSamples.size()
+                : dischargingSamples.size();
+
+        if (regressionSampleCount < MIN_REGRESSION_SAMPLES) {
             return "";
         }
-
-        final float deltaPct =
-                deltaUah * 100f
-                        / estimatedCapacityUah;
 
         final String sign =
                 context.getString(
@@ -768,9 +746,7 @@ public class DrainMonitor {
             long elapsedMs
     ) {
         final long totalSeconds =
-                TimeUnit.MILLISECONDS.toSeconds(
-                        elapsedMs
-                );
+                elapsedMs / 1_000L;
 
         final long hours =
                 totalSeconds / 3_600L;
@@ -791,7 +767,7 @@ public class DrainMonitor {
     }
 
     // ---------------------------------------------------------------------
-    // Context / persistence
+    // Context
     // ---------------------------------------------------------------------
 
     private static void ensureContextLocked(
@@ -804,116 +780,231 @@ public class DrainMonitor {
         }
     }
 
+    // ---------------------------------------------------------------------
+    // Persistence
+    // ---------------------------------------------------------------------
+
     private static void persistStatsLocked() {
         if (appContext == null) {
             return;
         }
 
-        appContext
-                .getSharedPreferences(
+        final SharedPreferences prefs =
+                appContext.getSharedPreferences(
                         PREF_NAME,
                         Context.MODE_PRIVATE
+                );
+
+        prefs.edit()
+                .putFloat(
+                        KEY_SCREEN_ON_DELTA,
+                        totalScreenOnDeltaPct
                 )
-                .edit()
                 .putLong(
-                        KEY_SCREEN_ON_DELTA_UAH,
-                        totalScreenOnDeltaUah
-                )
-                .putLong(
-                        KEY_SCREEN_ON_ELAPSED_MS,
+                        KEY_SCREEN_ON_ELAPSED,
                         totalScreenOnElapsedMs
                 )
-                .putLong(
-                        KEY_SCREEN_OFF_DELTA_UAH,
-                        totalScreenOffDeltaUah
+                .putFloat(
+                        KEY_SCREEN_OFF_DELTA,
+                        totalScreenOffDeltaPct
                 )
                 .putLong(
-                        KEY_SCREEN_OFF_ELAPSED_MS,
+                        KEY_SCREEN_OFF_ELAPSED,
                         totalScreenOffElapsedMs
                 )
-                .putLong(
-                        KEY_CHARGING_DELTA_UAH,
-                        totalChargingDeltaUah
+                .putFloat(
+                        KEY_CHARGING_DELTA,
+                        totalChargingDeltaPct
                 )
                 .putLong(
-                        KEY_CHARGING_ELAPSED_MS,
+                        KEY_CHARGING_ELAPSED,
                         totalChargingElapsedMs
+                )
+                .putString(
+                        KEY_CHARGING_SAMPLES,
+                        serializeSamples(chargingSamples)
+                )
+                .putString(
+                        KEY_DISCHARGING_SAMPLES,
+                        serializeSamples(dischargingSamples)
                 )
                 .apply();
     }
 
-    private static void loadStatsLocked(
-            Context context
-    ) {
+    private static void loadStatsLocked() {
+        if (appContext == null) {
+            return;
+        }
+
         final SharedPreferences prefs =
-                context.getSharedPreferences(
+                appContext.getSharedPreferences(
                         PREF_NAME,
                         Context.MODE_PRIVATE
                 );
 
-        totalScreenOnDeltaUah =
-                prefs.getLong(
-                        KEY_SCREEN_ON_DELTA_UAH,
-                        0L
+        totalScreenOnDeltaPct =
+                prefs.getFloat(
+                        KEY_SCREEN_ON_DELTA,
+                        0f
                 );
 
         totalScreenOnElapsedMs =
                 prefs.getLong(
-                        KEY_SCREEN_ON_ELAPSED_MS,
+                        KEY_SCREEN_ON_ELAPSED,
                         0L
                 );
 
-        totalScreenOffDeltaUah =
-                prefs.getLong(
-                        KEY_SCREEN_OFF_DELTA_UAH,
-                        0L
+        totalScreenOffDeltaPct =
+                prefs.getFloat(
+                        KEY_SCREEN_OFF_DELTA,
+                        0f
                 );
 
         totalScreenOffElapsedMs =
                 prefs.getLong(
-                        KEY_SCREEN_OFF_ELAPSED_MS,
+                        KEY_SCREEN_OFF_ELAPSED,
                         0L
                 );
 
-        totalChargingDeltaUah =
-                prefs.getLong(
-                        KEY_CHARGING_DELTA_UAH,
-                        0L
+        totalChargingDeltaPct =
+                prefs.getFloat(
+                        KEY_CHARGING_DELTA,
+                        0f
                 );
 
         totalChargingElapsedMs =
                 prefs.getLong(
-                        KEY_CHARGING_ELAPSED_MS,
+                        KEY_CHARGING_ELAPSED,
                         0L
                 );
 
-        /*
-         * elapsedRealtime() cannot survive a process restart, so the
-         * runtime baseline must be reconstructed from a new sample.
-         */
+        chargingSamples.clear();
+        dischargingSamples.clear();
+
+        deserializeSamples(
+                prefs.getString(
+                        KEY_CHARGING_SAMPLES,
+                        ""
+                ),
+                chargingSamples
+        );
+
+        deserializeSamples(
+                prefs.getString(
+                        KEY_DISCHARGING_SAMPLES,
+                        ""
+                ),
+                dischargingSamples
+        );
+
+        chargingCapacityUah =
+                calculateRegressionCapacity(
+                        chargingSamples
+                );
+
+        dischargingCapacityUah =
+                calculateRegressionCapacity(
+                        dischargingSamples
+                );
+
         clearBaselineLocked();
 
-        /*
-         * Reported values are runtime state.
-         */
-        reportedScreenOnRate = 0f;
-        reportedScreenOffRate = 0f;
-        reportedChargingRate = 0f;
+        screenOnRate = 0f;
+        screenOffRate = 0f;
+        chargingRate = 0f;
 
-        screenOnLastReportedTenthsPct = 0;
-        screenOffLastReportedTenthsPct = 0;
-        chargingLastReportedTenthsPct = 0;
+        screenOnLastReportedTenths = 0;
+        screenOffLastReportedTenths = 0;
+        chargingLastReportedTenths = 0;
+    }
 
-        /*
-         * Capacity estimates are also rebuilt from new battery samples.
-         */
-        capacityEstimates.clear();
-        estimatedCapacityUah = 0L;
+    private static String serializeSamples(
+            ArrayDeque<CapacitySample> samples
+    ) {
+        final StringBuilder result =
+                new StringBuilder();
+
+        for (CapacitySample sample : samples) {
+            if (result.length() > 0) {
+                result.append(';');
+            }
+
+            result
+                    .append(sample.level)
+                    .append(',')
+                    .append(sample.chargeCounterUah);
+        }
+
+        return result.toString();
+    }
+
+    private static void deserializeSamples(
+            String serialized,
+            ArrayDeque<CapacitySample> destination
+    ) {
+        if (serialized == null
+                || serialized.isEmpty()) {
+            return;
+        }
+
+        final String[] entries =
+                serialized.split(";");
+
+        for (String entry : entries) {
+            final String[] values =
+                    entry.split(",");
+
+            if (values.length != 2) {
+                continue;
+            }
+
+            try {
+                final int level =
+                        Integer.parseInt(values[0]);
+
+                final long counter =
+                        Long.parseLong(values[1]);
+
+                if (level < MIN_BATTERY_LEVEL
+                        || level > MAX_BATTERY_LEVEL
+                        || counter <= 0L) {
+                    continue;
+                }
+
+                destination.addLast(
+                        new CapacitySample(
+                                level,
+                                counter
+                        )
+                );
+            } catch (NumberFormatException ignored) {
+                // Ignore malformed persisted samples.
+            }
+        }
+
+        while (destination.size()
+                > MAX_REGRESSION_SAMPLES) {
+            destination.removeFirst();
+        }
     }
 
     // ---------------------------------------------------------------------
-    // Report type
+    // Data classes
     // ---------------------------------------------------------------------
+
+    private static final class CapacitySample {
+
+        final int level;
+        final long chargeCounterUah;
+
+        CapacitySample(
+                int level,
+                long chargeCounterUah
+        ) {
+            this.level = level;
+            this.chargeCounterUah = chargeCounterUah;
+        }
+    }
 
     private enum ReportType {
         SCREEN_ON,
