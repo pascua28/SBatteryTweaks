@@ -93,6 +93,8 @@ public class DrainMonitor {
 
     private static boolean screenOn = true;
 
+    private static boolean discardNextDischargeSample = false;
+
     // ---------------------------------------------------------------------
     // Accumulated statistics
     // ---------------------------------------------------------------------
@@ -203,6 +205,12 @@ public class DrainMonitor {
             lastChargeCounter = chargeCounterUah;
             lastSampleTime = now;
 
+            if (!charging && discardNextDischargeSample) {
+                discardNextDischargeSample = false;
+                pendingElapsedMs = 0L;
+                return;
+            }
+
             if (deltaUah == 0L) {
                 pendingElapsedMs += elapsedMs;
                 return;
@@ -260,6 +268,7 @@ public class DrainMonitor {
             }
 
             screenOn = newScreenOn;
+            discardNextDischargeSample = true;
 
             if (lastChargeCounter > 0) {
                 setBaselineLocked(
