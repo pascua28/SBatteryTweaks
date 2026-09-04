@@ -3,12 +3,16 @@ plugins {
 }
 
 android {
-    compileSdk 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId "com.sammy.sbatterytweaks"
         minSdk 29
-        targetSdk 36
+        targetSdk 37
         versionCode 1
         versionName '5.3.1'
     }
@@ -32,20 +36,20 @@ android {
 
 dependencies {
 
-    implementation "sesl.androidx.appcompat:appcompat:1.7.1+1.0.21-sesl8+rev8"
+    implementation "sesl.androidx.appcompat:appcompat:1.8.0+1.0.21-sesl8+rev2"
     implementation "sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     implementation 'sesl.androidx.preference:preference:1.2.1+1.0.0-sesl8+rev1'
     implementation 'com.github.topjohnwu.libsu:core:6.0.0'
     implementation 'nl.joery.timerangepicker:timerangepicker:1.0.0'
-    implementation 'sesl.androidx.core:core-ktx:1.17.0+1.0.0-sesl8+rev0'
+    implementation 'sesl.androidx.core:core-ktx:1.19.0+1.0.0-sesl8+rev1'
 
     def shizuku_version = "13.1.5"
     implementation "dev.rikka.shizuku:api:$shizuku_version"
     implementation "dev.rikka.shizuku:provider:$shizuku_version"
 
     implementation 'io.github.sgpublic:MultiWaveHeader:1.0.2'
-    implementation 'io.github.tribalfs:oneui-design:0.9.6+oneui8'
+    implementation 'io.github.tribalfs:oneui-design:0.9.18+oneui8'
     implementation "io.github.oneuiproject:icons:1.1.0"
 }
 
@@ -64,4 +68,5 @@ configurations.implementation {
     exclude(group: "androidx.slidingpanelayout", module: "slidingpanelayout")
     exclude(group: "androidx.swiperefreshlayout", module: "swiperefreshlayout")
     exclude(group: "com.google.android.material", module: "material")
+    exclude (group:"androidx.fragment",  module:"fragment-ktx")
 }
