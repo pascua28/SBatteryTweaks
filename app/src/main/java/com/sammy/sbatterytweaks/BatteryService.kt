@@ -82,11 +82,13 @@ class BatteryService : Service() {
         } catch (_: SettingNotFoundException) {
             sharedPreferences.edit().putInt("PROTECT_ENABLED", -1).apply()
         }
-        DrainMonitor.init(context)
         startBackgroundTask(context)
     }
 
     override fun onDestroy() {
+        drainMonitorJob?.cancel()
+        drainMonitorJob = null
+
         super.onDestroy()
         stopBackgroundTask()
     }
@@ -124,7 +126,46 @@ class BatteryService : Service() {
         startForeground(1002, notification!!.build())
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.getBooleanExtra(EXTRA_BOOT_START, false) == true) {
+            startDelayedDrainMonitor()
+        } else {
+            startDrainMonitor()
+        }
+
+        return START_STICKY
+    }
+
+    private fun startDelayedDrainMonitor() {
+        drainMonitorStarted = false
+
+        drainMonitorJob?.cancel()
+
+        drainMonitorJob = coroutineScope.launch {
+            delay(DRAIN_MONITOR_BOOT_DELAY_MS)
+
+            if (isActive) {
+                DrainMonitor.init(context)
+                drainMonitorStarted = true
+            }
+        }
+    }
+
+    private fun startDrainMonitor() {
+        drainMonitorJob?.cancel()
+        drainMonitorJob = null
+
+        DrainMonitor.init(context)
+        drainMonitorStarted = true
+    }
+
     companion object {
+        const val EXTRA_BOOT_START = "boot_start"
+        private const val DRAIN_MONITOR_BOOT_DELAY_MS = 7 * 60 * 1000L
+
+        @Volatile
+        var drainMonitorStarted = false
+        private var drainMonitorJob: Job? = null
         const val FULLCAPFILE: String = "/sys/class/power_supply/battery/batt_full_capacity"
         const val INSTALL_ACTION = "com.sammy.sbatterytweaks.PROVIDER_INSTALL_STATUS"
         private const val PROVIDER_PACKAGE = "com.netvor.settings.database.provider"
@@ -182,7 +223,7 @@ class BatteryService : Service() {
 
                     BatteryWorker.updateStats(context, charging)
 
-                    if (BatteryReceiver.drainMonitorEnabled) {
+                    if (drainMonitorStarted && BatteryReceiver.drainMonitorEnabled) {
                         DrainMonitor.handleChargeCounterChange(
                             context,
                             BatteryReceiver.getCounter(context)
