@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.sammy.sbatterytweaks.R
@@ -118,6 +119,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         resetButton = btnReset
         seekBarView = seekBar
 
+        txtValue?.paintFlags = (txtValue?.paintFlags ?: 0)
         txtValue?.text = formatDisplayValue(value)
         txtValue?.setOnClickListener {
             showInputDialog()
@@ -296,7 +298,7 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         container.addView(rightOp)
         container.addView(maxView)
 
-        val dialog = AlertDialog.Builder(context)
+        val dialog = MaterialAlertDialogBuilder(context)
             .setView(container)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.ok, null)

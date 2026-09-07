@@ -30,6 +30,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
@@ -40,7 +41,6 @@ import com.scwang.wave.MultiWaveHeader;
 
 import java.util.Locale;
 
-import dev.oneuiproject.oneui.widget.RoundedLinearLayout;
 import rikka.shizuku.Shizuku;
 
 public class MainActivity extends AppCompatActivity {
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             waveHeader.setStartColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
             waveHeader.setCloseColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary70));
         } else {
-            int primary = getThemeColor(com.google.android.material.R.attr.colorPrimary);
+            int primary = getThemeColor(com.google.android.material.R.attr.colorPrimaryVariant);
             int primaryContainer = getThemeColor(com.google.android.material.R.attr.colorPrimaryContainer);
 
             toolbar.setBackgroundColor(primary);
@@ -227,8 +227,8 @@ public class MainActivity extends AppCompatActivity {
         int fullcapnom;
         float battHealth;
 
-        RoundedLinearLayout idleCard = findViewById(R.id.idleCardView);
-        RoundedLinearLayout capacityCard = findViewById(R.id.capacityView);
+        CardView idleCard = findViewById(R.id.idleCardView);
+        CardView capacityCard = findViewById(R.id.capacityView);
         idleCard.setVisibility(View.GONE);
 
         isRunning = true;

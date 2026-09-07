@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <!-- ==================== TOOLBAR ==================== -->
@@ -11,19 +12,19 @@
         android:id="@+id/appBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="?android:attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
             app:title="@string/app_name"
             app:titleTextAppearance="@style/ToolBarTitle"
-            app:titleTextColor="@color/oui_des_primary_text_color">
+            app:titleTextColor="@color/white">
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/settingsBtn"
@@ -51,11 +52,10 @@
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBar">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,17 +68,20 @@
                 android:id="@+id/heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
                 android:paddingStart="8dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="8dp">
 
                 <!-- LEFT CARD – Battery Level -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/batteryCard"
                     style="@style/TopCardView"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintWidth_percent="0.495"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -90,10 +93,6 @@
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:scaleY="-1"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
                             app:mwhCloseColor="#FF90CAF9"
                             app:mwhColorAlpha="0.3"
                             app:mwhGradientAngle="180"
@@ -102,7 +101,11 @@
                             app:mwhStartColor="#FF42A5F5"
                             app:mwhVelocity="0.4"
                             app:mwhWaveHeight="15dp"
-                            app:mwhWaves="PairWave" />
+                            app:mwhWaves="PairWave"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
 
                         <!-- Title centered horizontally at the top -->
                         <TextView
@@ -111,11 +114,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/battery_level"
-                            android:textColor="@color/oui_des_primary_text_color"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5" />
 
                         <!-- Battery percentage centered both horizontally & vertically -->
                         <TextView
@@ -125,20 +127,23 @@
                             android:layout_height="wrap_content"
                             android:textSize="30sp"
                             android:textStyle="bold"
-                            android:textColor="@color/oui_des_primary_text_color"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- RIGHT CARD – Temperature -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/tempCard"
                     style="@style/TopCardView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/batteryCard">
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintWidth_percent="0.495"
+                    app:layout_constraintTop_toTopOf="@id/batteryCard"
+                    app:layout_constraintEnd_toEndOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -151,11 +156,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/temperature"
-                            android:textColor="@color/oui_des_primary_text_color"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5" />
 
                         <!-- Centered temperature text -->
                         <TextView
@@ -165,12 +169,12 @@
                             android:layout_height="wrap_content"
                             android:textSize="30sp"
                             android:textStyle="bold"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Gap between the two cards -->
                 <androidx.constraintlayout.widget.Guideline
@@ -183,10 +187,10 @@
                 <Space
                     android:layout_width="8dp"
                     android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/tempCard"
                     app:layout_constraintStart_toEndOf="@id/batteryCard"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toStartOf="@id/tempCard"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- ==================== BOTTOM INFO CARDS ==================== -->
@@ -198,7 +202,7 @@
                 android:paddingEnd="8dp">
 
                 <!-- Status -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardView"
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
@@ -222,10 +226,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Fast charging -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
 
@@ -248,10 +252,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Current -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
 
@@ -274,10 +278,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Rated capacity -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
 
@@ -300,10 +304,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Remaining capacity -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/capacityView"
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
@@ -327,10 +331,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Voltage level -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
 
@@ -353,10 +357,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Idle charging toggle -->
-                <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/idleCardView"
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="96dp">
@@ -382,7 +386,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="15dp" />
                     </LinearLayout>
-                </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

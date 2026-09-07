@@ -4,10 +4,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SeslSwitchPreferenceScreen;
+import androidx.preference.SeekBarPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.sammy.sbatterytweaks.preference.FloatSeekBarPreference;
@@ -44,6 +46,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            setTheme(R.style.Theme_ChargeRateAutomator_Settings);
+        else
+            setTheme(R.style.Theme_ChargeRateAutomator);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
         if (savedInstanceState == null) {
@@ -52,11 +58,9 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-        MaterialToolbar toolbar = findViewById(R.id.settings_toolbar);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -66,15 +70,15 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
-            SeslSwitchPreferenceScreen pauseModeSwitch = findPreference("pauseMode");
+            SwitchPreferenceCompat pauseModeSwitch = findPreference("pauseMode");
             assert pauseModeSwitch != null;
             pauseModeSwitch.setEnabled(false);
-            SeslSwitchPreferenceScreen idleSwitch = findPreference(PREF_IDLE_SWITCH);
+            SwitchPreferenceCompat idleSwitch = findPreference(PREF_IDLE_SWITCH);
             assert idleSwitch != null;
             idleSwitch.setEnabled(false);
-            SeslSwitchPreferenceScreen resetSwitch = findPreference(PREF_RESET_STATS);
+            SwitchPreferenceCompat resetSwitch = findPreference(PREF_RESET_STATS);
 
-            SeslSwitchPreferenceScreen drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
+            SwitchPreferenceCompat drainMonitorSwitch = findPreference(KEY_PREF_DRAIN_MONITOR);
             if (drainMonitorSwitch != null &&
                     !drainMonitorSwitch.isEnabled()) {
                 pauseModeSwitch.setOnPreferenceClickListener(v -> {
@@ -112,8 +116,8 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
 
-            SeslSwitchPreferenceScreen slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
-            SeslSwitchPreferenceScreen fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
+            SwitchPreferenceCompat slowChargeThresholdSwitch = findPreference(PREF_SLOW_CHARGE_THRESHOLD_SWITCH);
+            SwitchPreferenceCompat fastChargeThresholdSwitch = findPreference(PREF_FAST_CHARGE_THRESHOLD_SWITCH);
             FloatSeekBarPreference slowChargeThreshold = findPreference(PREF_SLOW_CHARGE_THRESHOLD);
             FloatSeekBarPreference fastChargeThreshold = findPreference(PREF_FAST_CHARGE_THRESHOLD);
 
@@ -151,7 +155,7 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 }));
 
-                SeslSwitchPreferenceScreen lowestHzPref = findPreference(PREF_LOWEST_HZ);
+                SwitchPreferenceCompat lowestHzPref = findPreference(PREF_LOWEST_HZ);
                 assert lowestHzPref != null;
                 lowestHzPref.setVisible(RefreshRateController.isSupported(getContext()));
             }

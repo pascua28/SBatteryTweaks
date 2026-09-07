@@ -1,21 +1,10 @@
-<dev.oneuiproject.oneui.widget.RoundedLinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_marginBottom="12dp">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/settings_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:title="@string/settings"
-        app:navigationIcon="?attr/homeAsUpIndicator" />
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/settings"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-</dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+</LinearLayout>
