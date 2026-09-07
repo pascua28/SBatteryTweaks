@@ -98,18 +98,20 @@
     <string name="scheduled_charge_control_time">Time Picker</string>
     <!-- Miscellaneous settings -->
     <string name="misc_pref">Miscellaneous</string>
-        <!-- Toast notifications -->
-        <string name="toast_notifications_title">Toast notifications</string>
-        <string name="toast_notifications_summary">Enable toast notifications when fast charging is enabled/disabled or when charging is paused/resumed</string>
-        <!-- Autosync settings -->
-        <string name="autosync_title">Auto disable sync</string>
-        <string name="autosync_summary">Disable auto sync when not charging to save battery and re-enable it when charging</string>
-        <!-- Reset battery stats -->
-        <string name="reset_stats_title">Reset battery stats</string>
-        <string name="reset_stats_summary">Auto delete batterystats.bin file upon disconnecting from charger</string>
-        <!-- Passthrough level settings -->
-        <string name="pass_through_level_title">Configure passthrough level</string>
-        <string name="pass_through_level_summary">Stop charging at this specified level</string>
+    <!-- Toast notifications -->
+    <string name="toast_notifications_title">Toast notifications</string>
+    <string name="toast_notifications_summary">Enable toast notifications when fast charging is enabled/disabled or when charging is paused/resumed</string>
+    <!-- Force lowest refresh rate -->
+    <string name="enable_lowest_hz_title">Force lowest refresh rate on screen off</string>
+    <!-- Autosync settings -->
+    <string name="autosync_title">Auto disable sync</string>
+    <string name="autosync_summary">Disable auto sync when not charging to save battery and re-enable it when charging</string>
+    <!-- Reset battery stats -->
+    <string name="reset_stats_title">Reset battery stats</string>
+    <string name="reset_stats_summary">Auto delete batterystats.bin file upon disconnecting from charger</string>
+    <!-- Passthrough level settings -->
+    <string name="pass_through_level_title">Configure passthrough level</string>
+    <string name="pass_through_level_summary">Stop charging at this specified level</string>
 
     <!-- Time picker -->
     <string name="start">Start time</string>

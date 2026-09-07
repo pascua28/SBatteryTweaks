@@ -147,6 +147,12 @@
             android:title="@string/toast_notifications_title" />
 
         <SeslSwitchPreferenceScreen
+            android:defaultValue="false"
+            android:key="enablelowesthz"
+            android:singleLineTitle="false"
+            android:title="@string/enable_lowest_hz_title" />
+
+        <SeslSwitchPreferenceScreen
             android:dependency="enableservice"
             android:summary="@string/autosync_summary"
             android:defaultValue="false"

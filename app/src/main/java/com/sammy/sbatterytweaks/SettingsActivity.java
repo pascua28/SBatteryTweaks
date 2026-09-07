@@ -33,7 +33,8 @@ public class SettingsActivity extends AppCompatActivity {
             PREF_SLOW_CHARGE_THRESHOLD = "slowChargeThreshold",
             PREF_FAST_CHARGE_THRESHOLD_SWITCH = "fastChargeThresholdSwitch",
             PREF_FAST_CHARGE_THRESHOLD = "fastChargeThreshold",
-            PREF_TOAST_NOTIF = "enabletoast";
+            PREF_TOAST_NOTIF = "enabletoast",
+            PREF_LOWEST_HZ = "enablelowesthz";
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -149,6 +150,10 @@ public class SettingsActivity extends AppCompatActivity {
 
                     return true;
                 }));
+
+                SeslSwitchPreferenceScreen lowestHzPref = findPreference(PREF_LOWEST_HZ);
+                assert lowestHzPref != null;
+                lowestHzPref.setVisible(RefreshRateController.isSupported(getContext()));
             }
         }
 
