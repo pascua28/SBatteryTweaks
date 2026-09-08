@@ -11,12 +11,6 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
-
-    <style name="Theme.ChargeRateAutomator.Settings" parent="Theme.ChargeRateAutomator.v31">
-        <!-- Customize your theme here. -->
-        <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
     </style>
 
     <style name="ThemeOverlay.App.Preference" parent="PreferenceThemeOverlay">
@@ -30,5 +24,6 @@
     <style name="Theme.ChargeRateAutomator.v31.NoActionBar" parent="Theme.ChargeRateAutomator.v31">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.App.Preference</item>
     </style>
 </resources>

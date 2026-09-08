@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:id="@+id/constraintLayout">
 
     <!-- ==================== TOOLBAR ==================== -->
     <com.google.android.material.appbar.AppBarLayout
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/ic_oui_settings"
+                android:background="@drawable/settings"
                 android:clickable="true"
                 android:contentDescription="@string/settings" />
 
@@ -50,10 +50,10 @@
 
     <!-- ==================== SCROLL VIEW ==================== -->
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/appBar"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -65,7 +65,6 @@
 
             <!-- ==================== TOP ROW (Battery + Temp) ==================== -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
@@ -109,7 +108,6 @@
 
                         <!-- Title centered horizontally at the top -->
                         <TextView
-                            android:id="@+id/batteryTitle"
                             style="@style/TopCardText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -151,7 +149,6 @@
 
                         <!-- Title centered horizontally at top -->
                         <TextView
-                            android:id="@+id/tempTitle"
                             style="@style/TopCardText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -178,7 +175,6 @@
 
                 <!-- Gap between the two cards -->
                 <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline_center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -195,6 +191,7 @@
 
             <!-- ==================== BOTTOM INFO CARDS ==================== -->
             <LinearLayout
+                android:id="@+id/cardHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -203,7 +200,6 @@
 
                 <!-- Status -->
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardView"
                     style="@style/CardViewDisplay"
                     android:layout_marginBottom="8dp">
 
@@ -363,7 +359,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/idleCardView"
                     style="@style/CardViewDisplay"
-                    android:layout_marginBottom="96dp">
+                    android:layout_marginTop="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -379,14 +375,19 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1" />
 
-                        <androidx.appcompat.widget.SwitchCompat
+                        <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/bypassToggle"
-                            style="@style/BatteryViewDisplay"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="15dp" />
+                            android:layout_gravity="center"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+                <Space
+                    android:id="@+id/bottomSpacer"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

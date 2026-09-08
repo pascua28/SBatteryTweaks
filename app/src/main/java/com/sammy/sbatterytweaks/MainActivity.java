@@ -20,23 +20,32 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.scwang.wave.MultiWaveHeader;
 
 import java.util.Locale;
@@ -47,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static boolean isRunning;
     static MultiWaveHeader multiWaveHeader;
-    private static SwitchCompat bypassToggle;
+    private static MaterialSwitch bypassToggle;
     private final Handler handler = new Handler();
     private final Shizuku.OnRequestPermissionResultListener REQUEST_PERMISSION_RESULT_LISTENER = this::onRequestPermissionsResult;
     private TextView chargingStatus;
@@ -95,29 +104,6 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> unknownSourcesLauncher;
     private BroadcastReceiver providerInstallReceiver;
 
-    private int getThemeColor(int attr) {
-        TypedValue value = new TypedValue();
-        getTheme().resolveAttribute(attr, value, true);
-        return value.data;
-    }
-
-    private void applyColors(MultiWaveHeader waveHeader) {
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            toolbar.setBackgroundColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
-            waveHeader.setStartColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
-            waveHeader.setCloseColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary70));
-        } else {
-            int primary = getThemeColor(com.google.android.material.R.attr.colorPrimaryVariant);
-            int primaryContainer = getThemeColor(com.google.android.material.R.attr.colorPrimaryContainer);
-
-            toolbar.setBackgroundColor(primary);
-            waveHeader.setStartColor(primary);
-            waveHeader.setCloseColor(primaryContainer);
-        }
-    }
-
     public static void updateWaves(int percentage) {
         multiWaveHeader.setProgress(percentage / 100.0f);
     }
@@ -143,11 +129,35 @@ public class MainActivity extends AppCompatActivity {
         );
         msg.setPadding(padding, padding, padding, 0);
 
-        new MaterialAlertDialogBuilder(context, com.google.android.material.R.style.Theme_MaterialComponents_Dialog)
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.setup_dialog_title)
                 .setCancelable(true)
                 .setView(msg)
-                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> dialog.dismiss()).show();
+                .setPositiveButton(R.string.setup_dialog_dismiss, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private int getThemeColor(int attr) {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(attr, value, true);
+        return value.data;
+    }
+
+    private void applyColors(MultiWaveHeader waveHeader) {
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            toolbar.setBackgroundColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
+            waveHeader.setStartColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary50));
+            waveHeader.setCloseColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary70));
+        } else {
+            int primary = getThemeColor(com.google.android.material.R.attr.colorPrimaryVariant);
+            int primaryContainer = getThemeColor(com.google.android.material.R.attr.colorPrimaryContainer);
+
+            toolbar.setBackgroundColor(primary);
+            waveHeader.setStartColor(primary);
+            waveHeader.setCloseColor(primaryContainer);
+        }
     }
 
     private void updateUI(Boolean shouldUpdate) {
@@ -181,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         else
             setTheme(R.style.Theme_ChargeRateAutomator_NoActionBar);
 
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -300,6 +311,8 @@ public class MainActivity extends AppCompatActivity {
             updateUI(true);
         });
 
+        marginFixup();
+
         settingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
@@ -337,6 +350,39 @@ public class MainActivity extends AppCompatActivity {
                 providerInstallUserActionLauncher,
                 unknownSourcesLauncher
         );
+    }
+
+    private void marginFixup() {
+        ScrollView scrollView = findViewById(R.id.scrollView);
+        LinearLayout content = findViewById(R.id.cardHolder);
+        Space bottomSpacer = findViewById(R.id.bottomSpacer);
+        scrollView.post(() ->
+        {
+            int spacerHeight = Math.max(0, scrollView.getHeight() - content.getHeight());
+            ViewGroup.LayoutParams params = bottomSpacer.getLayoutParams();
+            params.height = spacerHeight;
+            bottomSpacer.setLayoutParams(params);
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.constraintLayout), new OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(@NonNull View rootView, @NonNull WindowInsetsCompat insets) {
+                int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+                int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                rootView.setPadding(0, 0, 0, navBarHeight);
+                View toolbar = findViewById(R.id.toolbar);
+                TypedValue tv = new TypedValue();
+                int actionBarHeight = 0;
+                if (getTheme().resolveAttribute(androidx.appcompat.R.attr.actionBarSize, tv, true)) {
+                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+                }
+                ViewGroup.LayoutParams params = toolbar.getLayoutParams();
+                params.height = actionBarHeight + statusBarHeight;
+                toolbar.setLayoutParams(params);
+                toolbar.setPadding(0, statusBarHeight, 0, 0);
+                return insets;
+            }
+        });
     }
 
     @Override

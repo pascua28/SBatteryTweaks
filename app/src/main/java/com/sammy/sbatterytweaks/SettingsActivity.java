@@ -2,13 +2,19 @@ package com.sammy.sbatterytweaks;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -47,9 +53,10 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
-            setTheme(R.style.Theme_ChargeRateAutomator_Settings);
+            setTheme(R.style.Theme_ChargeRateAutomator_v31_NoActionBar);
         else
             setTheme(R.style.Theme_ChargeRateAutomator);
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
         if (savedInstanceState == null) {
@@ -58,10 +65,46 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        MaterialToolbar toolbar = findViewById(R.id.settings_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        applyInsets();
+    }
+
+    private void applyInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.settings_toolbar),
+                new OnApplyWindowInsetsListener() {
+                    @NonNull
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(@NonNull View toolbar,
+                                                                  @NonNull WindowInsetsCompat insets) {
+                        int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+
+                        TypedValue tv = new TypedValue();
+                        int actionBarHeight = 0;
+                        if (getTheme().resolveAttribute(androidx.appcompat.R.attr.actionBarSize, tv, true)) {
+                            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+                        }
+
+                        ViewGroup.LayoutParams params = toolbar.getLayoutParams();
+                        params.height = actionBarHeight
+                                + statusBarHeight;
+                        toolbar.setLayoutParams(params);
+
+                        toolbar.setPadding(0, statusBarHeight, 0, 0);
+
+                        int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+
+                        View settings = findViewById(R.id.settings);
+                        if (settings != null) {
+                            settings.setPadding(0, 0, 0, navBarHeight);
+                        }
+
+                        return insets;
+                    }
+                }
+        );
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

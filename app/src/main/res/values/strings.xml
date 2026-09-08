@@ -17,8 +17,6 @@
     <string name="voltage_level">Voltage level</string>
     <string name="settings">Settings</string>
     <!-- Idle charging status -->
-    <string name="idle_charging_user">Idle charging (user):</string>
-    <string name="idle_charging_auto">Idle charging (auto):</string>
     <string name="idle_charging_text">Idle charging:</string>
     <!-- Fast charge status -->
     <string name="enabled">Enabled</string>
@@ -129,7 +127,6 @@
 
     <!-- For custom SeekBarPreference -->
     <string name="reset">Reset</string>
-    <string name="enter_value">Enter value</string>
     <string name="ok">OK</string>
     <string name="invalid_number">Invalid number</string>
     <string name="value_must_be_between">Value must be between %1$s and %2$s</string>
