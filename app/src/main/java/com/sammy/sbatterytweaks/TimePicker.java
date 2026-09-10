@@ -6,8 +6,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -99,6 +102,20 @@ public class TimePicker extends Dialog implements View.OnClickListener {
         });
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Context context = getContext();
+        Window window = getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+            int widthPx = (int) (screenWidth * 0.80f);
+            window.setLayout(widthPx, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     private void updateTimes() {
